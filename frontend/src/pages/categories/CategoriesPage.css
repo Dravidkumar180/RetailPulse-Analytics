@@ -1,0 +1,3 @@
+.catalog-tabs:has(a.active[href="/categories"]) a[href="/products"] {
+  display: none;
+}

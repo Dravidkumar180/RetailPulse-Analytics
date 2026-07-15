@@ -1,0 +1,37 @@
+.form-input {
+  width: 100%;
+}
+
+.form-input .MuiOutlinedInput-root {
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.form-input .MuiOutlinedInput-root fieldset {
+  border-color: #cbd5e1;
+}
+
+.form-input .MuiOutlinedInput-root:hover fieldset {
+  border-color: #94a3b8;
+}
+
+.form-input .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: #2563eb;
+}
+
+.form-input .MuiInputLabel-root.Mui-focused {
+  color: #2563eb;
+}
+
+.form-input .MuiFormHelperText-root {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.form-input .MuiFormHelperText-root.Mui-error {
+  color: #dc2626;
+}
+
+.form-input .Mui-disabled {
+  background-color: #f8fafc;
+}

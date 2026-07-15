@@ -1,0 +1,268 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: rgb(255 255 255 / 94%);
+  backdrop-filter: blur(8px);
+}
+
+.navbar__left,
+.navbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__left {
+  gap: 10px;
+  flex: 1;
+}
+
+.navbar__search { position: relative; width: min(360px, 38vw); margin-left: 22px; }
+.navbar__search-field { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; }
+.navbar__search-field:focus-within { border-color: #2563eb; box-shadow: 0 0 0 2px rgb(37 99 235 / 10%); }
+.navbar__search-field input { width: 100%; border: 0; outline: 0; background: transparent; color: #0f172a; font: inherit; font-size: 13px; }
+.navbar__search .MuiSvgIcon-root { color: #94a3b8; font-size: 19px; }
+.navbar__search-results { position: absolute; top: 46px; left: 0; z-index: 1300; width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(15 23 42 / 14%); }
+.navbar__search-results button { width: 100%; display: flex; align-items: center; gap: 9px; padding: 9px 10px; border: 0; border-radius: 7px; background: transparent; color: #334155; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.navbar__search-results button:hover { background: #f1f5f9; color: #2563eb; }
+
+.navbar__notification-menu .MuiPaper-root { width: 330px; margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 12px 32px rgb(15 23 42 / 14%); }
+.navbar__notification-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+.navbar__notification-header p { margin: 0; color: #0f172a; font-size: 14px; font-weight: 700; }
+.navbar__notification-header button { border: 0; background: none; color: #2563eb; font-size: 11px; cursor: pointer; }
+.navbar__notification-copy p { margin: 0; color: #0f172a; font-size: 12px; font-weight: 600; }
+.navbar__notification-copy span { display: block; margin-top: 3px; color: #64748b; font-size: 10px; white-space: normal; }
+
+.navbar__right {
+  gap: 12px;
+}
+
+.navbar__desktop-menu-button,
+.navbar__mobile-menu-button,
+.navbar__theme-button,
+.navbar__notification-button {
+  color: #475569 !important;
+}
+
+.navbar__mobile-menu-button {
+  display: none !important;
+}
+
+.navbar__page-title h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.navbar__page-title p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.navbar__divider {
+  height: 30px !important;
+  align-self: center !important;
+  border-color: #e2e8f0 !important;
+}
+
+.navbar__profile-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.navbar__profile-button:hover {
+  background-color: #f1f5f9;
+}
+
+.navbar__avatar {
+  width: 38px !important;
+  height: 38px !important;
+  background-color: #2563eb !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.navbar__user-information {
+  min-width: 100px;
+  text-align: left;
+}
+
+.navbar__user-name {
+  max-width: 160px;
+  margin: 0 !important;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__user-role {
+  margin: 2px 0 0 !important;
+  color: #64748b;
+  font-size: 11px !important;
+}
+
+.navbar__arrow {
+  color: #64748b;
+  font-size: 19px !important;
+}
+
+.navbar__profile-menu .MuiPaper-root {
+  min-width: 220px;
+  margin-top: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 14%);
+}
+
+.navbar__menu-header {
+  padding: 12px 16px;
+}
+
+.navbar__menu-header p {
+  margin: 0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.navbar__menu-header span {
+  display: block;
+  max-width: 200px;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__logout-menu-item,
+.navbar__logout-menu-item .MuiListItemIcon-root {
+  color: #dc2626 !important;
+}
+
+@media (max-width: 900px) {
+  .navbar__desktop-menu-button {
+    display: none !important;
+  }
+
+  .navbar__mobile-menu-button {
+    display: inline-flex !important;
+  }
+
+  .navbar__page-title { display: none; }
+  .navbar__search { width: min(360px, 55vw); margin-left: 4px; }
+}
+
+.navbar__notification-empty {
+  margin: 0 !important;
+  padding: 24px 16px;
+  color: #64748b;
+  font-size: 12px !important;
+  text-align: center;
+}
+
+.navbar__notification-header button:disabled {
+  color: #94a3b8;
+  cursor: default;
+}
+
+body.dark-theme .navbar {
+  border-color: #334155;
+  background-color: rgb(15 23 42 / 94%);
+}
+
+body.dark-theme .navbar__page-title h2,
+body.dark-theme .navbar__user-name {
+  color: #f8fafc;
+}
+
+body.dark-theme .navbar__page-title p,
+body.dark-theme .navbar__user-role,
+body.dark-theme .navbar__arrow,
+body.dark-theme .navbar__desktop-menu-button,
+body.dark-theme .navbar__mobile-menu-button,
+body.dark-theme .navbar__theme-button,
+body.dark-theme .navbar__notification-button {
+  color: #cbd5e1 !important;
+}
+
+body.dark-theme .navbar__search-field {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+body.dark-theme .navbar__search-field input {
+  color: #f8fafc;
+}
+
+body.dark-theme .navbar__profile-button:hover {
+  background: #1e293b;
+}
+
+body.dark-theme .navbar__search-results,
+body.dark-theme .navbar__notification-menu .MuiPaper-root,
+body.dark-theme .navbar__profile-menu .MuiPaper-root {
+  border-color: #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-theme .navbar__search-results button,
+body.dark-theme .navbar__notification-header p,
+body.dark-theme .navbar__notification-copy p,
+body.dark-theme .navbar__menu-header p {
+  color: #f8fafc;
+}
+
+body.dark-theme .navbar__notification-copy span,
+body.dark-theme .navbar__menu-header span,
+body.dark-theme .navbar__notification-empty {
+  color: #94a3b8;
+}
+
+body.dark-theme .navbar__search-results button:hover,
+body.dark-theme .MuiMenuItem-root:hover {
+  background: #334155;
+}
+
+@media (max-width: 620px) {
+  .navbar {
+    padding: 0 14px;
+  }
+
+  .navbar__page-title p,
+  .navbar__user-information,
+  .navbar__arrow,
+  .navbar__divider {
+    display: none;
+  }
+
+  .navbar__page-title h2 {
+    font-size: 14px;
+  }
+
+  .navbar__right {
+    gap: 5px;
+  }
+
+  .navbar__search { width: 46vw; }
+}

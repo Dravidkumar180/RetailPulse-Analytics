@@ -1,0 +1,135 @@
+.auth-layout { width: 100%; min-height: 100vh; background: linear-gradient(145deg, #fff 20%, #f7f5ff 100%); }.auth-layout--registration { display: grid; grid-template-columns: minmax(320px, 46%) minmax(440px, 54%); }.auth-layout__brand-panel { position: relative; min-height: 100vh; overflow: hidden; padding: 30px 34px; border-right: 1px solid #dbe1ea; background: linear-gradient(145deg, #fff, #f8f7ff); }.auth-layout__logo, .auth-layout__mobile-logo { display: flex; align-items: center; gap: 10px; color: #121827; font-size: 15px; font-weight: 800; }.auth-layout__logo svg, .auth-layout__mobile-logo svg { color: #7c3aed; font-size: 28px; }.auth-layout__building { position: absolute; left: 50%; top: 50%; width: 300px; height: 260px; transform: translate(-50%, -42%); }.auth-layout__ground { position: absolute; left: 5%; right: 5%; bottom: 15px; height: 18px; border-radius: 50%; background: #dbeafe; }.auth-layout__tower { position: absolute; bottom: 30px; border-radius: 6px 6px 0 0; background: linear-gradient(145deg, #8b5cf6, #6d28d9); box-shadow: 0 10px 25px rgb(109 40 217 / 22%); }.auth-layout__tower::after { content: ""; position: absolute; inset: 18px 12px; background: repeating-linear-gradient(90deg, #fff 0 12px, transparent 12px 25px), repeating-linear-gradient(0deg, transparent 0 20px, rgb(255 255 255 / 90%) 20px 31px); opacity: .9; }.auth-layout__tower--main { left: 94px; width: 112px; height: 205px; }.auth-layout__tower--left { left: 32px; width: 78px; height: 130px; background: linear-gradient(145deg, #a78bfa, #7c3aed); }.auth-layout__tower--right { right: 28px; width: 80px; height: 112px; background: linear-gradient(145deg, #818cf8, #4f46e5); }.auth-layout__copyright { position: absolute; bottom: 18px; color: #94a3b8; font-size: 10px !important; }.auth-layout__content-panel { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 8%; overflow-y: auto; }.auth-layout--login .auth-layout__content-panel { position: relative; max-width: none; background: radial-gradient(circle at 90% 100%, rgb(124 58 237 / 20%), transparent 30%); }.auth-layout--login .auth-layout__content-panel::after { content: ""; position: absolute; right: -8%; bottom: -130px; width: 55%; height: 260px; border-radius: 50% 50% 0 0; background: rgb(139 92 246 / 12%); transform: rotate(-8deg); }.auth-layout__mobile-logo { width: 100%; max-width: 420px; margin-bottom: 50px; z-index: 1; }.auth-layout__form-wrapper { width: 100%; max-width: 520px; z-index: 1; }.auth-layout--registration .auth-layout__mobile-logo { display: none; }.auth-layout--registration .auth-layout__form-wrapper { max-width: 600px; }
+@media (max-width: 850px) { .auth-layout--registration { display: block; }.auth-layout__brand-panel { display: none; }.auth-layout__content-panel { padding: 25px 20px; }.auth-layout--registration .auth-layout__mobile-logo { display: flex; margin-bottom: 25px; } }
+
+/* Portrait login composition */
+.auth-layout--login { display: flex; justify-content: center; overflow: hidden; background: #f7f8fc; }
+.auth-layout--login .auth-layout__content-panel { position: relative; width: min(100%, 440px); min-height: 100vh; max-width: 440px; padding: 34px 48px; border-inline: 1px solid #d9dee8; background: radial-gradient(circle at 90% 100%, rgb(124 58 237 / 22%), transparent 34%), linear-gradient(160deg, #fff 0%, #fbfaff 70%, #f4efff 100%); }
+.auth-layout--login .auth-layout__content-panel::after { right: -28%; bottom: -125px; width: 125%; height: 240px; border-radius: 50% 50% 0 0; background: linear-gradient(160deg, rgb(167 139 250 / 12%), rgb(124 58 237 / 28%)); transform: rotate(-11deg); }
+.auth-layout--login .auth-layout__mobile-logo { position: absolute; top: 38px; left: 32px; width: auto; margin: 0; font-size: 13px; }
+.auth-layout--login .auth-layout__mobile-logo svg { font-size: 25px; }
+.auth-layout--login .auth-layout__form-wrapper { max-width: 330px; }
+@media (max-width: 440px) { .auth-layout--login .auth-layout__content-panel { padding-inline: 30px; border: 0; }.auth-layout--login .auth-layout__mobile-logo { left: 24px; } }
+
+/* Scroll-free portrait authentication panels */
+.auth-layout--login, .auth-layout--registration { width: 100%; height: 100vh; min-height: 0; display: flex; justify-content: center; overflow: hidden; }
+.auth-layout--login .auth-layout__content-panel, .auth-layout--registration .auth-layout__content-panel { box-sizing: border-box; width: min(100%, 520px); height: 100vh; min-height: 0; max-width: 520px; overflow: hidden; padding: 28px 42px 20px; border-inline: 1px solid #d9dee8; background: radial-gradient(circle at 90% 100%, rgb(124 58 237 / 18%), transparent 34%), linear-gradient(160deg, #fff 0%, #fbfaff 72%, #f5f0ff 100%); }
+.auth-layout--registration .auth-layout__content-panel { width: min(100%, 620px); max-width: 620px; padding: 18px 42px 14px; }
+.auth-layout--registration .auth-layout__mobile-logo { position: absolute; top: 18px; left: 24px; display: flex; width: auto; margin: 0; font-size: 12px; }
+.auth-layout--registration .auth-layout__mobile-logo svg { font-size: 24px; }
+.auth-layout--registration .auth-layout__form-wrapper { max-width: 480px; }
+@media (max-width: 620px) { .auth-layout--login .auth-layout__content-panel, .auth-layout--registration .auth-layout__content-panel { padding-inline: 22px; border: 0; }.auth-layout--registration .auth-layout__mobile-logo { left: 18px; } }
+
+html.auth-page,
+body.auth-page {
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body.auth-page #root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-height: 700px) {
+  .auth-layout--login .auth-layout__content-panel {
+    padding-top: 20px;
+    padding-bottom: 12px;
+  }
+
+  .auth-layout--login .auth-layout__mobile-logo {
+    top: 20px;
+  }
+
+  .auth-layout--registration .auth-layout__content-panel {
+    padding-top: 10px;
+    padding-bottom: 8px;
+  }
+
+  .auth-layout--registration .auth-layout__mobile-logo {
+    top: 10px;
+  }
+}
+
+/* Centered reference-card treatment for registration and forgot password */
+.auth-layout--registration,
+.auth-layout--forgot-password {
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(145deg, #716ed3 0%, #6956b8 100%);
+}
+
+.auth-layout--registration .auth-layout__content-panel,
+.auth-layout--forgot-password .auth-layout__content-panel {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+}
+
+.auth-layout--registration .auth-layout__mobile-logo,
+.auth-layout--forgot-password .auth-layout__mobile-logo {
+  display: none;
+}
+
+.auth-layout--registration .auth-layout__form-wrapper {
+  max-width: 500px;
+}
+
+.auth-layout--forgot-password .auth-layout__form-wrapper {
+  max-width: 410px;
+}
+
+@media (max-width: 540px) {
+  .auth-layout--registration .auth-layout__content-panel,
+  .auth-layout--forgot-password .auth-layout__content-panel {
+    padding: 12px;
+  }
+}
+
+/* Sign-in uses the same centered reference-card composition */
+.auth-layout--login {
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(145deg, #716ed3 0%, #6956b8 100%);
+}
+
+.auth-layout--login .auth-layout__content-panel {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+}
+
+.auth-layout--login .auth-layout__content-panel::after,
+.auth-layout--login .auth-layout__mobile-logo {
+  display: none;
+}
+
+.auth-layout--login .auth-layout__form-wrapper {
+  max-width: 410px;
+}
+
+@media (max-width: 430px) {
+  .auth-layout--login .auth-layout__content-panel {
+    padding: 12px;
+  }
+}

@@ -1,0 +1,43 @@
+.company-registration-page {
+  width: 100%;
+  padding: 24px 0;
+}
+
+.company-registration-page__card {
+  width: 100%;
+  padding: 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 8%);
+}
+
+@media (max-width: 600px) {
+  .company-registration-page {
+    padding: 8px 0;
+  }
+
+  .company-registration-page__card {
+    padding: 24px 16px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+}
+
+.auth-layout--registration .company-registration-page { padding: 0; }
+.auth-layout--registration .company-registration-page__card {
+  padding: 14px 26px;
+  border: 0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgb(31 25 82 / 24%);
+}
+
+@media (max-width: 540px) {
+  .auth-layout--registration .company-registration-page__card {
+    padding: 12px 18px;
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgb(31 25 82 / 22%);
+  }
+}

@@ -1,0 +1,29 @@
+RetailPulse Analytics Alembic migrations
+=========================================
+
+Create a migration:
+
+    python -m alembic revision --autogenerate -m "migration name"
+
+Apply all migrations:
+
+    python -m alembic upgrade head
+
+Show current revision:
+
+    python -m alembic current
+
+Show migration history:
+
+    python -m alembic history
+
+Rollback one migration:
+
+    python -m alembic downgrade -1
+
+Reset all migrations:
+
+    python -m alembic downgrade base
+    python -m alembic upgrade head
+
+Do not edit an already-deployed migration. Create a new migration instead.

@@ -1,0 +1,137 @@
+.users-page {
+  width: 100%;
+}
+
+.users-page__filters {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) 190px 190px;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.users-page__filters .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.users-page__alert {
+  margin-bottom: 20px;
+}
+
+.users-page__table-container {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.users-page__table-container .MuiTableCell-head {
+  background-color: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.users-page__table-container .MuiTableCell-body {
+  color: #334155;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.users-page__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.users-page__avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.users-page__user strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.users-page__user span {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.users-page__status-select {
+  min-width: 125px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.users-page__empty {
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.users-page__empty > svg {
+  font-size: 44px;
+}
+
+.users-page__empty h3 {
+  margin: 12px 0 0;
+  color: #475569;
+  font-size: 16px;
+}
+
+.users-page__empty p {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+
+.users-page__pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+@media (max-width: 800px) {
+  .users-page__filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .users-page__search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .users-page__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .users-page__search {
+    grid-column: auto;
+  }
+
+  .users-page__pagination {
+    justify-content: center;
+  }
+}

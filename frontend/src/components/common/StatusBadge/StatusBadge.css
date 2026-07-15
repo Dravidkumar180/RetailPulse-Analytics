@@ -1,0 +1,36 @@
+.status-badge.MuiChip-root {
+  min-width: 78px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-badge--active.MuiChip-root,
+.status-badge--success.MuiChip-root {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-badge--inactive.MuiChip-root {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.status-badge--suspended.MuiChip-root,
+.status-badge--failed.MuiChip-root,
+.status-badge--revoked.MuiChip-root {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-badge--pending.MuiChip-root {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-badge--expired.MuiChip-root {
+  background-color: #ffedd5;
+  color: #c2410c;
+}

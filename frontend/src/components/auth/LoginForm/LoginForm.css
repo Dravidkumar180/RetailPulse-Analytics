@@ -1,0 +1,178 @@
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form__header {
+  margin-bottom: 4px;
+}
+
+.login-form__header h1 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.login-form__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.login-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-form__password-field {
+  position: relative;
+}
+
+.login-form__password-field .MuiInputBase-input {
+  padding-right: 52px;
+}
+
+.login-form__password-toggle {
+  position: absolute !important;
+  top: 9px;
+  right: 14px;
+  color: #64748b !important;
+}
+
+.login-form__options {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+}
+
+.login-form__link {
+  color: #2563eb;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-form__link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.login-form__link--bold {
+  font-weight: 600;
+}
+
+.login-form__submit {
+  min-height: 48px !important;
+}
+
+.login-form__register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-form__security-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.login-form__security-note svg {
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.login-form__security-note p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .login-form__header h1 {
+    font-size: 28px;
+  }
+}
+
+.auth-layout--login .login-form { gap: 16px; }
+.auth-layout--login .login-form__header { margin-bottom: 10px; }
+.auth-layout--login .login-form__header h1 { font-size: 22px; }
+.auth-layout--login .login-form__header p { font-size: 11px; }
+.auth-layout--login .login-form__fields { gap: 14px; }
+.auth-layout--login .login-form__link, .auth-layout--login .login-form__register { font-size: 10px; }
+.auth-layout--login .login-form__submit { min-height: 40px !important; }
+.auth-layout--login .login-form__security-note { position: relative; margin-top: 34px; }
+.auth-layout--login .login-form__security-note p { font-size: 9px; }
+
+.auth-layout--login .login-form__header { margin-bottom: 18px; text-align: center; }
+.auth-layout--login .login-form__header h1 { font-size: 27px; }
+.auth-layout--login .login-form__header p { font-size: 13px; }
+.auth-layout--login .login-form__options { align-items: center; justify-content: space-between; }
+.login-form__remember { display: flex; align-items: center; gap: 7px; color: #475569; font-size: 11px; cursor: pointer; }
+.login-form__remember input { width: 14px; height: 14px; accent-color: #7c3aed; }
+.auth-layout--login .login-form__submit { background: linear-gradient(90deg, #7c3aed, #6d28d9) !important; box-shadow: 0 8px 18px rgb(109 40 217 / 22%) !important; }
+.auth-layout--login .login-form__security-note { justify-content: center; margin-top: 22px; border: 0; background: transparent; color: #475569; }
+
+.login-form__main-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-bottom: 1px;
+  border: 2px solid #111827;
+  border-radius: 9px;
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.login-form__main-icon svg {
+  font-size: 29px;
+}
+
+.auth-layout--login .login-form {
+  gap: 16px;
+}
+
+.auth-layout--login .login-form__header {
+  margin-bottom: 2px;
+}
+
+.auth-layout--login .login-form__header h1 {
+  font-size: 27px;
+}
+
+.auth-layout--login .login-form__header p {
+  font-size: 12px;
+}
+
+.auth-layout--login .login-form__submit {
+  background: #5146e5 !important;
+}
+
+.auth-layout--login .login-form__register {
+  margin-top: 2px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.auth-layout--login .login-form__security-note {
+  margin-top: 2px;
+  padding: 4px 0 0;
+}
