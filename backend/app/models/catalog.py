@@ -10,6 +10,7 @@ from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.models.company import Company
+    from app.models.sales import SaleItem
 
 
 class Category(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -48,3 +49,4 @@ class Product(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="ACTIVE")
     company: Mapped["Company"] = relationship(back_populates="products")
     category: Mapped[Category] = relationship(back_populates="products")
+    sale_items: Mapped[list["SaleItem"]] = relationship(back_populates="product")

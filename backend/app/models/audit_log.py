@@ -8,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     String,
+    Text,
 )
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -81,6 +82,7 @@ class AuditLog(
         String(500),
         nullable=False,
     )
+    details: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

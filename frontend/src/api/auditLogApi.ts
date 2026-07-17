@@ -4,7 +4,12 @@ export type AuditAction =
   | "COMPANY_REGISTERED"
   | "USER_LOGIN"
   | "USER_LOGOUT"
-  | "PASSWORD_CHANGED";
+  | "PASSWORD_CHANGED"
+  | "SALE_CREATED"
+  | "SALE_UPDATED"
+  | "SALE_DELETED"
+  | "INVENTORY_UPDATED"
+  | "PRODUCT_OUT_OF_STOCK";
 
 export interface AuditLogCompany {
   id: string;
@@ -24,6 +29,7 @@ export interface AuditLog {
   action: AuditAction;
   ipAddress: string;
   browser: string;
+  details?: string | null;
   timestamp: string;
 }
 

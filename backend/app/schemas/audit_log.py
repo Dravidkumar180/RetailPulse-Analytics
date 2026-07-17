@@ -32,6 +32,7 @@ class AuditLogResponse(CamelCaseModel):
     action: AuditAction
     ip_address: str
     browser: str
+    details: str | None = None
     timestamp: datetime
 
 

@@ -21,6 +21,7 @@ class AuditLogService:
         action: AuditAction,
         ip_address: str,
         browser: str,
+        details: str | None = None,
     ) -> None:
         audit_log_repository.create(
             db,
@@ -29,6 +30,7 @@ class AuditLogService:
             action=action,
             ip_address=ip_address,
             browser=browser,
+            details=details,
         )
 
     def list_audit_logs(

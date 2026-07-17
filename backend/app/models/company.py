@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.audit_log import AuditLog
     from app.models.user import User
     from app.models.catalog import Category, Product
+    from app.models.sales import Sale
 
 
 class Company(
@@ -67,6 +68,9 @@ class Company(
         back_populates="company", cascade="all, delete-orphan", passive_deletes=True,
     )
     products: Mapped[list["Product"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan", passive_deletes=True,
+    )
+    sales: Mapped[list["Sale"]] = relationship(
         back_populates="company", cascade="all, delete-orphan", passive_deletes=True,
     )
 

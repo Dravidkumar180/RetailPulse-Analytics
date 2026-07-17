@@ -23,6 +23,7 @@ class AuditLogRepository:
         action: AuditAction,
         ip_address: str,
         browser: str,
+        details: str | None = None,
     ) -> AuditLog:
         audit_log = AuditLog(
             company_id=company_id,
@@ -30,6 +31,7 @@ class AuditLogRepository:
             action=action,
             ip_address=ip_address[:64],
             browser=browser[:500],
+            details=details,
             timestamp=datetime.now(UTC),
         )
 
@@ -119,6 +121,7 @@ class AuditLogRepository:
                     func.lower(AuditLog.ip_address).like(
                         search_value
                     ),
+                    func.lower(AuditLog.details).like(search_value),
                 )
             )
 

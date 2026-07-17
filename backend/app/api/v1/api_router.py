@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     users,
     products,
     categories,
+    sales,
 )
 
 
@@ -52,3 +53,4 @@ api_router.include_router(
 
 api_router.include_router(categories.router, prefix="/categories", tags=["Categories"])
 api_router.include_router(products.router, prefix="/products", tags=["Products"])
+api_router.include_router(sales.router, prefix="/sales", tags=["Sales"])

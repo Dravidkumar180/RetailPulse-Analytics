@@ -14,6 +14,7 @@ interface AppButtonProps
   color?: MuiButtonProps["color"];
   startIcon?: ReactNode;
   endIcon?: ReactNode;
+  size?: MuiButtonProps["size"];
 }
 
 const Button = ({
@@ -27,6 +28,7 @@ const Button = ({
   className = "",
   startIcon,
   endIcon,
+  size,
   onClick,
   ...rest
 }: AppButtonProps) => {
@@ -39,6 +41,7 @@ const Button = ({
       disabled={disabled || loading}
       startIcon={!loading ? startIcon : undefined}
       endIcon={!loading ? endIcon : undefined}
+      size={size}
       onClick={onClick}
       className={`app-button ${className}`.trim()}
       {...rest}

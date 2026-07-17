@@ -32,7 +32,7 @@ class ProductWrite(CamelCaseModel):
     cost_price: Decimal = Field(ge=0)
     stock_quantity: int = Field(ge=0)
     unit_of_measure: str = Field(min_length=1, max_length=40)
-    status: str = Field(pattern="^(ACTIVE|INACTIVE)$")
+    status: str = Field(pattern="^(ACTIVE|INACTIVE|OUT_OF_STOCK)$")
 
     @model_validator(mode="after")
     def validate_prices(self):

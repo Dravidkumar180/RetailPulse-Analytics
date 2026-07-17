@@ -22,6 +22,7 @@ import UnauthorizedPage from "../pages/unauthorized/UnauthorizedPage";
 import SectionPage from "../pages/section/SectionPage";
 import ProductsPage from "../pages/products/ProductsPage";
 import CategoriesPage from "../pages/categories/CategoriesPage";
+import SalesPage from "../pages/sales/SalesPage";
 
 import { ROUTE_PATHS } from "./routePaths";
 
@@ -64,7 +65,13 @@ const AppRoutes = () => {
             element={<ProfilePage />}
           />
 
-          {[ROUTE_PATHS.sales, ROUTE_PATHS.analytics, ROUTE_PATHS.reports].map((path) => (
+          <Route
+            element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"]} />}
+          >
+            <Route path={ROUTE_PATHS.sales} element={<SalesPage />} />
+          </Route>
+
+          {[ROUTE_PATHS.analytics, ROUTE_PATHS.reports].map((path) => (
             <Route key={path} path={path} element={<SectionPage />} />
           ))}
 

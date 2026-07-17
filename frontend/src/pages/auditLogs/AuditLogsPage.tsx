@@ -137,6 +137,17 @@ const AuditLogsPage = () => {
             <MenuItem value="PASSWORD_CHANGED">
               Password Changed
             </MenuItem>
+            {[
+              "SALE_CREATED",
+              "SALE_UPDATED",
+              "SALE_DELETED",
+              "INVENTORY_UPDATED",
+              "PRODUCT_OUT_OF_STOCK",
+            ].map((saleAction) => (
+              <MenuItem key={saleAction} value={saleAction}>
+                {formatAction(saleAction)}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 
@@ -188,6 +199,7 @@ const AuditLogsPage = () => {
                   <TableCell>Action</TableCell>
                   <TableCell>IP Address</TableCell>
                   <TableCell>Browser</TableCell>
+                  <TableCell>Details</TableCell>
                   <TableCell>Timestamp</TableCell>
                 </TableRow>
               </TableHead>
@@ -204,6 +216,8 @@ const AuditLogsPage = () => {
                           {log.company.name}
                         </Typography>
                       </TableCell>
+
+                      <TableCell>{log.details ?? "—"}</TableCell>
 
                       <TableCell>
                         {log.user ? (
@@ -255,7 +269,7 @@ const AuditLogsPage = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={7}>
                       <Box className="audit-logs-page__empty">
                         <SearchOffOutlinedIcon />
 

@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import (
     Session,
     sessionmaker,
@@ -59,3 +59,14 @@ def initialize_development_database() -> None:
     """Create local SQLite tables when PostgreSQL is unavailable in development."""
     if settings.DATABASE_URL.startswith("sqlite"):
         Base.metadata.create_all(bind=engine)
+        # SQLite's create_all does not add columns to existing local tables.
+        # Keep the development database compatible with additive migrations.
+        existing_columns = {
+            column["name"]
+            for column in inspect(engine).get_columns("audit_logs")
+        }
+        if "details" not in existing_columns:
+            with engine.begin() as connection:
+                connection.execute(
+                    text("ALTER TABLE audit_logs ADD COLUMN details TEXT")
+                )

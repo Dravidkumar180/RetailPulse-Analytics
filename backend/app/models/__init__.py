@@ -4,6 +4,7 @@ from app.models.company import Company
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 from app.models.catalog import Category, Product
+from app.models.sales import Sale, SaleItem
 
 __all__ = [
     "Base",
@@ -13,4 +14,6 @@ __all__ = [
     "AuditLog",
     "Category",
     "Product",
+    "Sale",
+    "SaleItem",
 ]

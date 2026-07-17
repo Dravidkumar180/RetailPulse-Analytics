@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.audit_log import AuditLog
     from app.models.company import Company
     from app.models.refresh_token import RefreshToken
+    from app.models.sales import Sale
 
 
 class User(
@@ -81,6 +82,7 @@ class User(
         back_populates="user",
         passive_deletes=True,
     )
+    sales_created: Mapped[list["Sale"]] = relationship(back_populates="created_by")
 
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r}>"
