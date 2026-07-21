@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the categories page page.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .catalog-tabs:has(a.active[href="/categories"]) a[href="/products"] {
   display: none;
 }

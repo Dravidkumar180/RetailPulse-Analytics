@@ -1,13 +1,22 @@
+/* Teaching guide: This file contains the form input user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
 import type {
   HTMLInputTypeAttribute,
   InputHTMLAttributes,
 } from "react";
 
+// Imports the needed tools from @mui/material/TextField.
 import TextField from "@mui/material/TextField";
+// Imports the needed tools from react-hook-form.
 import type { UseFormRegisterReturn } from "react-hook-form";
 
+// Loads ./FormInput.css styles or setup.
 import "./FormInput.css";
 
+// Defines the fields allowed in form input props.
 interface FormInputProps {
   label: string;
   name: string;
@@ -26,6 +35,7 @@ interface FormInputProps {
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }
 
+// Stores form input for the steps below.
 const FormInput = ({
   label,
   name,
@@ -43,6 +53,7 @@ const FormInput = ({
   className = "",
   inputProps,
 }: FormInputProps) => {
+  // Builds the visible interface below.
   return (
     <div className={`form-input ${className}`.trim()}>
       <TextField

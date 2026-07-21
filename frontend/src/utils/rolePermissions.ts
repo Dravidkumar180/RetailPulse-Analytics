@@ -1,5 +1,12 @@
+/* Teaching guide: This file contains role permissions helper logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from ../types/user.types.
 import type { UserRole } from "../types/user.types";
 
+// Defines the permission type.
 export type Permission =
   | "VIEW_DASHBOARD"
   | "VIEW_PROFILE"
@@ -15,6 +22,7 @@ export type Permission =
   | "MANAGE_COMPANIES"
   | "MANAGE_SETTINGS";
 
+// Stores role permission map for the steps below.
 const rolePermissionMap: Record<
   UserRole,
   Permission[]
@@ -70,53 +78,69 @@ const rolePermissionMap: Record<
   ],
 };
 
+// Checks permission.
 export const hasPermission = (
   role: UserRole | undefined | null,
   permission: Permission,
 ): boolean => {
+  // Checks whether this condition is true.
   if (!role) {
+    // Returns the completed result to the caller.
     return false;
   }
 
+  // Returns the completed result to the caller.
   return rolePermissionMap[role].includes(permission);
 };
 
+// Checks any permission.
 export const hasAnyPermission = (
   role: UserRole | undefined | null,
   permissions: Permission[],
 ): boolean => {
+  // Returns the completed result to the caller.
   return permissions.some((permission) =>
     hasPermission(role, permission),
   );
 };
 
+// Checks all permissions.
 export const hasAllPermissions = (
   role: UserRole | undefined | null,
   permissions: Permission[],
 ): boolean => {
+  // Returns the completed result to the caller.
   return permissions.every((permission) =>
     hasPermission(role, permission),
   );
 };
 
+// Checks role allowed.
 export const isRoleAllowed = (
   role: UserRole | undefined | null,
   allowedRoles: UserRole[],
 ): boolean => {
+  // Checks whether this condition is true.
   if (!role) {
+    // Returns the completed result to the caller.
     return false;
   }
 
+  // Returns the completed result to the caller.
   return allowedRoles.includes(role);
 };
 
+// Runs format role label logic.
 export const formatRoleLabel = (
   role?: UserRole | null,
 ): string => {
+  // Checks whether this condition is true.
   if (!role) {
+    // Returns the completed result to the caller.
     return "Unknown";
   }
 
+  // Returns the completed result to the caller.
   return role
     .toLowerCase()
     .replaceAll("_", " ")

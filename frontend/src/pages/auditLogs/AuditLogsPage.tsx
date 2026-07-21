@@ -1,4 +1,11 @@
+/* Teaching guide: This file contains the audit logs page page.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
+// Imports the needed tools from @tanstack/react-query.
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -17,38 +24,53 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/HistoryOutlined.
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+// Imports the needed tools from @mui/icons-material/RefreshOutlined.
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+// Imports the needed tools from @mui/icons-material/SearchOffOutlined.
 import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
 
 import {
   getAuditLogs,
+  // Defines the audit action type.
   type AuditAction,
 } from "../../api/auditLogApi";
+// Imports the needed tools from ../../components/common/Button/Button.
 import Button from "../../components/common/Button/Button";
+// Imports the needed tools from ../../components/common/LoadingSpinner/LoadingSpinner.
 import LoadingSpinner from "../../components/common/LoadingSpinner/LoadingSpinner";
+// Imports the needed tools from ../../components/common/PageHeader/PageHeader.
 import PageHeader from "../../components/common/PageHeader/PageHeader";
 
+// Loads ./AuditLogsPage.css styles or setup.
 import "./AuditLogsPage.css";
 
+// Runs format date time logic.
 const formatDateTime = (date: string): string => {
+  // Returns the completed result to the caller.
   return new Intl.DateTimeFormat("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(date));
 };
 
+// Runs format action logic.
 const formatAction = (action: string): string => {
+  // Returns the completed result to the caller.
   return action
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
 };
 
+// Gets action class name.
 const getActionClassName = (action: AuditAction): string => {
+  // Returns the completed result to the caller.
   return `audit-logs-page__action audit-logs-page__action--${action.toLowerCase()}`;
 };
 
+// Shows the audit logs page.
 const AuditLogsPage = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -56,6 +78,7 @@ const AuditLogsPage = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // Stores audit logs query for the steps below.
   const auditLogsQuery = useQuery({
     queryKey: [
       "audit-logs",
@@ -76,6 +99,7 @@ const AuditLogsPage = () => {
       }),
   });
 
+  // Builds the visible interface below.
   return (
     <Box className="audit-logs-page">
       <PageHeader
@@ -99,7 +123,9 @@ const AuditLogsPage = () => {
           placeholder="Search user, company or browser"
           value={search}
           onChange={(event) => {
+            // Updates the page or stored state with this result.
             setSearch(event.target.value);
+            // Updates the page or stored state with this result.
             setPage(1);
           }}
         />
@@ -114,9 +140,11 @@ const AuditLogsPage = () => {
             label="Action"
             value={action}
             onChange={(event) => {
+              // Updates the page or stored state with this result.
               setAction(
                 event.target.value as AuditAction | "",
               );
+              // Updates the page or stored state with this result.
               setPage(1);
             }}
           >
@@ -156,7 +184,9 @@ const AuditLogsPage = () => {
           type="date"
           value={startDate}
           onChange={(event) => {
+            // Updates the page or stored state with this result.
             setStartDate(event.target.value);
+            // Updates the page or stored state with this result.
             setPage(1);
           }}
           slotProps={{
@@ -171,7 +201,9 @@ const AuditLogsPage = () => {
           type="date"
           value={endDate}
           onChange={(event) => {
+            // Updates the page or stored state with this result.
             setEndDate(event.target.value);
+            // Updates the page or stored state with this result.
             setPage(1);
           }}
           slotProps={{
@@ -294,6 +326,7 @@ const AuditLogsPage = () => {
                 page={page}
                 count={auditLogsQuery.data?.totalPages ?? 1}
                 onChange={(_, selectedPage) =>
+                  // Updates the page or stored state with this result.
                   setPage(selectedPage)
                 }
                 color="primary"

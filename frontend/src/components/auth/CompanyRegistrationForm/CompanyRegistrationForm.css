@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the company registration form user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .company-registration-form {
   width: 100%;
   display: flex;
@@ -5,6 +9,7 @@
   gap: 28px;
 }
 
+/* Styles the company registration form header h1 area. */
 .company-registration-form__header h1 {
   margin: 0 0 8px;
   color: #0f172a;
@@ -13,6 +18,7 @@
   line-height: 1.2;
 }
 
+/* Styles the company registration form header p area. */
 .company-registration-form__header p {
   margin: 0;
   color: #64748b;
@@ -20,6 +26,7 @@
   line-height: 1.6;
 }
 
+/* Styles the company registration form section area. */
 .company-registration-form__section {
   padding: 24px;
   border: 1px solid #e2e8f0;
@@ -27,6 +34,7 @@
   background-color: #ffffff;
 }
 
+/* Styles the company registration form section title area. */
 .company-registration-form__section-title {
   display: flex;
   align-items: flex-start;
@@ -34,11 +42,13 @@
   margin-bottom: 22px;
 }
 
+/* Styles the company registration form section title   svg area. */
 .company-registration-form__section-title > svg {
   margin-top: 2px;
   color: #2563eb;
 }
 
+/* Styles the company registration form section title h2 area. */
 .company-registration-form__section-title h2 {
   margin: 0;
   color: #0f172a;
@@ -46,22 +56,26 @@
   font-weight: 700;
 }
 
+/* Styles the company registration form section title p area. */
 .company-registration-form__section-title p {
   margin: 4px 0 0;
   color: #64748b;
   font-size: 13px;
 }
 
+/* Styles the company registration form grid area. */
 .company-registration-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
+/* Styles the company registration form full width area. */
 .company-registration-form__full-width {
   grid-column: 1 / -1;
 }
 
+/* Styles the company registration form select  mui outlined input root area. */
 .company-registration-form__select .MuiOutlinedInput-root {
   border-radius: 8px;
   background-color: #ffffff;
@@ -69,18 +83,22 @@
 
 .company-registration-form__select
   .MuiOutlinedInput-root.Mui-focused
+  /* Styles the fieldset area. */
   fieldset {
   border-color: #2563eb;
 }
 
+/* Styles the company registration form password field area. */
 .company-registration-form__password-field {
   position: relative;
 }
 
+/* Styles the company registration form password field  mui input base input area. */
 .company-registration-form__password-field .MuiInputBase-input {
   padding-right: 52px;
 }
 
+/* Styles the company registration form password toggle area. */
 .company-registration-form__password-toggle {
   position: absolute !important;
   top: 9px;
@@ -88,6 +106,7 @@
   color: #64748b !important;
 }
 
+/* Styles the company registration form actions area. */
 .company-registration-form__actions {
   display: flex;
   align-items: center;
@@ -95,12 +114,14 @@
   gap: 20px;
 }
 
+/* Styles the company registration form actions p area. */
 .company-registration-form__actions p {
   margin: 0;
   color: #64748b;
   font-size: 14px;
 }
 
+/* Styles the company registration form login link area. */
 .company-registration-form__login-link {
   margin-left: 6px;
   color: #2563eb;
@@ -108,42 +129,53 @@
   text-decoration: none;
 }
 
+/* Styles the company registration form login link area. */
 .company-registration-form__login-link:hover {
   text-decoration: underline;
 }
 
+/* Styles the company registration form submit area. */
 .company-registration-form__submit {
   min-width: 180px !important;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 800px) {
+  /* Styles the company registration form grid area. */
   .company-registration-form__grid {
     grid-template-columns: 1fr;
   }
 
+  /* Styles the company registration form full width area. */
   .company-registration-form__full-width {
     grid-column: auto;
   }
 
+  /* Styles the company registration form actions area. */
   .company-registration-form__actions {
     flex-direction: column-reverse;
     align-items: stretch;
   }
 
+  /* Styles the company registration form actions p area. */
   .company-registration-form__actions p {
     text-align: center;
   }
 
+  /* Styles the company registration form submit area. */
   .company-registration-form__submit {
     width: 100%;
   }
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 600px) {
+  /* Styles the company registration form header h1 area. */
   .company-registration-form__header h1 {
     font-size: 27px;
   }
 
+  /* Styles the company registration form section area. */
   .company-registration-form__section {
     padding: 18px;
   }
@@ -177,6 +209,7 @@
 .auth-layout--registration .company-registration-form__actions p { font-size: 9px; }
 .auth-layout--registration .company-registration-form__submit { min-height: 36px !important; }
 
+/* Styles the company registration form main icon area. */
 .company-registration-form__main-icon {
   width: 42px;
   height: 42px;
@@ -191,6 +224,7 @@
   color: #6d28d9;
 }
 
+/* Styles the company registration form main icon svg area. */
 .company-registration-form__main-icon svg {
   font-size: 25px;
 }

@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the page header user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .page-header {
   width: 100%;
   display: flex;
@@ -7,12 +11,14 @@
   margin-bottom: 24px;
 }
 
+/* Styles the page header content area. */
 .page-header__content {
   display: flex;
   align-items: flex-start;
   gap: 14px;
 }
 
+/* Styles the page header icon area. */
 .page-header__icon {
   width: 44px;
   height: 44px;
@@ -25,10 +31,12 @@
   color: #2563eb;
 }
 
+/* Styles the page header icon svg area. */
 .page-header__icon svg {
   font-size: 24px;
 }
 
+/* Styles the page header  page header title area. */
 .page-header .page-header__title {
   margin: 0;
   color: #0f172a;
@@ -37,6 +45,7 @@
   line-height: 1.25;
 }
 
+/* Styles the page header  page header subtitle area. */
 .page-header .page-header__subtitle {
   margin-top: 6px;
   color: #64748b;
@@ -44,6 +53,7 @@
   line-height: 1.5;
 }
 
+/* Styles the page header actions area. */
 .page-header__actions {
   display: flex;
   align-items: center;
@@ -51,16 +61,20 @@
   gap: 12px;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 700px) {
+  /* Styles the page header area. */
   .page-header {
     flex-direction: column;
   }
 
+  /* Styles the page header actions area. */
   .page-header__actions {
     width: 100%;
     justify-content: flex-start;
   }
 
+  /* Styles the page header  page header title area. */
   .page-header .page-header__title {
     font-size: 24px;
   }

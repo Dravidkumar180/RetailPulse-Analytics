@@ -1,40 +1,54 @@
+/* Teaching guide: This file styles responsive application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 @media (max-width: 900px) {
+  /* Styles the page container area. */
   .page-container {
     padding: 20px;
   }
 
+  /* Styles the form grid area. */
   .form-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Styles the form grid full width area. */
   .form-grid__full-width {
     grid-column: auto;
   }
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 600px) {
+  /* Styles the page container area. */
   .page-container {
     padding: 16px;
   }
 
   .page-card,
+  /* Styles the form section area. */
   .form-section {
     padding: 18px;
   }
 
+  /* Styles the page title area. */
   .page-title {
     font-size: 24px;
   }
 
+  /* Styles the form actions area. */
   .form-actions {
     flex-direction: column-reverse;
     align-items: stretch;
   }
 
+  /* Styles the form actions button area. */
   .form-actions button {
     width: 100%;
   }
 
+  /* Styles the table pagination area. */
   .table-pagination {
     justify-content: center;
   }

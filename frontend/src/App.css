@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles app application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .app {
   width: 100%;
   min-width: 320px;
@@ -5,10 +9,12 @@
   background-color: var(--color-background);
 }
 
+/* Styles the app content area. */
 .app__content {
   width: 100%;
 }
 
+/* Styles the app loading area. */
 .app__loading {
   width: 100%;
   min-height: 100vh;

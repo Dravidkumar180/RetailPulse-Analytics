@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the status badge user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .status-badge.MuiChip-root {
   min-width: 78px;
   height: 28px;
@@ -8,11 +12,13 @@
 }
 
 .status-badge--active.MuiChip-root,
+/* Styles the status badge success mui chip root area. */
 .status-badge--success.MuiChip-root {
   background-color: #dcfce7;
   color: #15803d;
 }
 
+/* Styles the status badge inactive mui chip root area. */
 .status-badge--inactive.MuiChip-root {
   background-color: #f1f5f9;
   color: #475569;
@@ -20,16 +26,19 @@
 
 .status-badge--suspended.MuiChip-root,
 .status-badge--failed.MuiChip-root,
+/* Styles the status badge revoked mui chip root area. */
 .status-badge--revoked.MuiChip-root {
   background-color: #fee2e2;
   color: #b91c1c;
 }
 
+/* Styles the status badge pending mui chip root area. */
 .status-badge--pending.MuiChip-root {
   background-color: #fef3c7;
   color: #b45309;
 }
 
+/* Styles the status badge expired mui chip root area. */
 .status-badge--expired.MuiChip-root {
   background-color: #ffedd5;
   color: #c2410c;

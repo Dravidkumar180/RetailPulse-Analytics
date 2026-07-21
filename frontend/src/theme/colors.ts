@@ -1,3 +1,9 @@
+/* Teaching guide: This file contains colors application logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Stores colors for the steps below.
 export const colors = {
   primary: {
     main: "#2563eb",

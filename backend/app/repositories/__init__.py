@@ -1,19 +1,32 @@
+# Teaching guide: This file contains  init  database access.
+# Read the short comments beside each step to follow the complete flow.
+# The comments explain the code only; they do not change how it runs.
+
 from datetime import UTC, date, datetime, time
+# Imports the needed names from uuid.
 from uuid import UUID
 
+# Imports the needed names from sqlalchemy.
 from sqlalchemy import func, or_, select
+# Imports the needed names from sqlalchemy.orm.
 from sqlalchemy.orm import (
     Session,
     joinedload,
 )
 
+# Imports the needed names from app.core.constants.
 from app.core.constants import AuditAction
+# Imports the needed names from app.models.audit_log.
 from app.models.audit_log import AuditLog
+# Imports the needed names from app.models.company.
 from app.models.company import Company
+# Imports the needed names from app.models.user.
 from app.models.user import User
 
 
+# Groups audit log repository behavior.
 class AuditLogRepository:
+    # Adds create.
     def create(
         self,
         db: Session,
@@ -25,6 +38,7 @@ class AuditLogRepository:
         browser: str,
         details: str | None = None,
     ) -> AuditLog:
+        # Stores audit log for the next steps.
         audit_log = AuditLog(
             company_id=company_id,
             user_id=user_id,
@@ -35,11 +49,15 @@ class AuditLogRepository:
             timestamp=datetime.now(UTC),
         )
 
+        # Applies this change to the database session.
         db.add(audit_log)
+        # Applies this change to the database session.
         db.flush()
 
+        # Returns the completed value to the caller.
         return audit_log
 
+    # Gets by id.
     def get_by_id(
         self,
         db: Session,
@@ -47,6 +65,7 @@ class AuditLogRepository:
         *,
         company_id: UUID | None = None,
     ) -> AuditLog | None:
+        # Stores statement for the next steps.
         statement = (
             select(AuditLog)
             .options(
@@ -56,13 +75,17 @@ class AuditLogRepository:
             .where(AuditLog.id == audit_log_id)
         )
 
+        # Checks whether this condition is true.
         if company_id is not None:
+            # Stores statement for the next steps.
             statement = statement.where(
                 AuditLog.company_id == company_id,
             )
 
+        # Returns the completed value to the caller.
         return db.scalar(statement)
 
+    # Gets logs.
     def list_logs(
         self,
         db: Session,
@@ -76,20 +99,26 @@ class AuditLogRepository:
         start_date: date | None = None,
         end_date: date | None = None,
     ) -> tuple[list[AuditLog], int]:
+        # Stores filters for the next steps.
         filters = []
 
+        # Checks whether this condition is true.
         if company_id is not None:
             filters.append(
                 AuditLog.company_id == company_id,
             )
 
+        # Checks whether this condition is true.
         if action:
             filters.append(AuditLog.action == action)
 
+        # Checks whether this condition is true.
         if user_id:
             filters.append(AuditLog.user_id == user_id)
 
+        # Checks whether this condition is true.
         if start_date:
+            # Stores start datetime for the next steps.
             start_datetime = datetime.combine(
                 start_date,
                 time.min,
@@ -99,7 +128,9 @@ class AuditLogRepository:
                 AuditLog.timestamp >= start_datetime,
             )
 
+        # Checks whether this condition is true.
         if end_date:
+            # Stores end datetime for the next steps.
             end_datetime = datetime.combine(
                 end_date,
                 time.max,
@@ -109,7 +140,9 @@ class AuditLogRepository:
                 AuditLog.timestamp <= end_datetime,
             )
 
+        # Checks whether this condition is true.
         if search:
+            # Stores search value for the next steps.
             search_value = f"%{search.strip().lower()}%"
 
             filters.append(
@@ -125,6 +158,7 @@ class AuditLogRepository:
                 )
             )
 
+        # Stores base statement for the next steps.
         base_statement = (
             select(AuditLog)
             .join(
@@ -137,6 +171,7 @@ class AuditLogRepository:
             )
         )
 
+        # Stores count statement for the next steps.
         count_statement = (
             select(func.count(AuditLog.id))
             .select_from(AuditLog)
@@ -151,11 +186,13 @@ class AuditLogRepository:
             .where(*filters)
         )
 
+        # Stores total items for the next steps.
         total_items = int(
             db.scalar(count_statement)
             or 0
         )
 
+        # Stores statement for the next steps.
         statement = (
             base_statement
             .options(
@@ -168,13 +205,16 @@ class AuditLogRepository:
             .limit(page_size)
         )
 
+        # Stores items for the next steps.
         items = list(
             db.scalars(statement)
             .unique()
             .all()
         )
 
+        # Returns the completed value to the caller.
         return items, total_items
 
 
+# Stores audit log repository for the next steps.
 audit_log_repository = AuditLogRepository()

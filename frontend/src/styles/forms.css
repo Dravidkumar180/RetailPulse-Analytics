@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles forms application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .form-container {
   width: 100%;
   display: flex;
@@ -5,6 +9,7 @@
   gap: 20px;
 }
 
+/* Styles the form section area. */
 .form-section {
   padding: 24px;
   border: 1px solid var(--color-border);
@@ -12,6 +17,7 @@
   background-color: var(--color-surface);
 }
 
+/* Styles the form section title area. */
 .form-section__title {
   margin: 0 0 5px;
   color: var(--color-text-primary);
@@ -19,6 +25,7 @@
   font-weight: 700;
 }
 
+/* Styles the form section description area. */
 .form-section__description {
   margin: 0 0 20px;
   color: var(--color-text-secondary);
@@ -26,16 +33,19 @@
   line-height: 1.5;
 }
 
+/* Styles the form grid area. */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
+/* Styles the form grid full width area. */
 .form-grid__full-width {
   grid-column: 1 / -1;
 }
 
+/* Styles the form field area. */
 .form-field {
   width: 100%;
   display: flex;
@@ -43,6 +53,7 @@
   gap: 7px;
 }
 
+/* Styles the form field label area. */
 .form-field label {
   color: var(--color-text-primary);
   font-size: 13px;
@@ -51,6 +62,7 @@
 
 .form-field input,
 .form-field textarea,
+/* Styles the form field select area. */
 .form-field select {
   width: 100%;
   min-height: 44px;
@@ -65,6 +77,7 @@
     box-shadow var(--transition-fast);
 }
 
+/* Styles the form field textarea area. */
 .form-field textarea {
   min-height: 100px;
   resize: vertical;
@@ -72,6 +85,7 @@
 
 .form-field input:focus,
 .form-field textarea:focus,
+/* Styles the form field select area. */
 .form-field select:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
@@ -79,6 +93,7 @@
 
 .form-field input:disabled,
 .form-field textarea:disabled,
+/* Styles the form field select area. */
 .form-field select:disabled {
   background-color: var(--color-surface-muted);
   color: var(--color-text-muted);
@@ -87,10 +102,12 @@
 
 .form-field--error input,
 .form-field--error textarea,
+/* Styles the form field error select area. */
 .form-field--error select {
   border-color: var(--color-error);
 }
 
+/* Styles the form actions area. */
 .form-actions {
   display: flex;
   align-items: center;

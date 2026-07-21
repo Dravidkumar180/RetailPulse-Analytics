@@ -1,3 +1,8 @@
+/* Teaching guide: This file contains company registration schema data validation.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
 import type {
   RegisterOptions,
 } from "react-hook-form";
@@ -5,14 +10,18 @@ import type {
 import type {
   CompanyRegistrationRequest,
 } from "../api/authApi";
+// Imports the needed tools from ./loginSchema.
 import { EMAIL_PATTERN } from "./loginSchema";
 
+// Stores phone pattern for the steps below.
 export const PHONE_PATTERN =
   /^[0-9+\-()\s]{7,20}$/;
 
+// Stores strong password pattern for the steps below.
 export const STRONG_PASSWORD_PATTERN =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
+// Defines the company registration rules type.
 type CompanyRegistrationRules = {
   companyName: RegisterOptions<
     CompanyRegistrationRequest,
@@ -48,6 +57,7 @@ type CompanyRegistrationRules = {
   >;
 };
 
+// Stores company registration validation schema for the steps below.
 export const companyRegistrationValidationSchema: CompanyRegistrationRules =
   {
     companyName: {
@@ -151,6 +161,7 @@ export const companyRegistrationValidationSchema: CompanyRegistrationRules =
     },
   };
 
+// Adds confirm password validation.
 export const createConfirmPasswordValidation = (
   password: string,
 ): RegisterOptions<

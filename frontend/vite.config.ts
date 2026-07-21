@@ -8,6 +8,14 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     // Always resolve hooks and the renderer through the frontend's React copy.
     dedupe: ['react', 'react-dom'],

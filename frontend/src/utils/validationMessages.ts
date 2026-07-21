@@ -1,3 +1,9 @@
+/* Teaching guide: This file contains validation messages helper logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Stores validation messages for the steps below.
 export const VALIDATION_MESSAGES = {
   required: (fieldName: string): string =>
     `${fieldName} is required.`,
@@ -49,8 +55,10 @@ export const VALIDATION_MESSAGES = {
     "Something went wrong. Please try again.",
 } as const;
 
+// Gets required message.
 export const getRequiredMessage = (
   fieldName: string,
 ): string => {
+  // Returns the completed result to the caller.
   return VALIDATION_MESSAGES.required(fieldName);
 };

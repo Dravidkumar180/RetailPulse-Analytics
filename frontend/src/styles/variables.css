@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles variables application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 :root {
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;

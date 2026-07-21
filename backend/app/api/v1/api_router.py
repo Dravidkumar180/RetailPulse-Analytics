@@ -1,5 +1,10 @@
+# Teaching guide: This file contains API requests and responses for api router.
+# Read the short comments beside each step to follow the complete flow.
+# The comments explain the code only; they do not change how it runs.
+
 from fastapi import APIRouter
 
+# Imports the needed names from app.api.v1.endpoints.
 from app.api.v1.endpoints import (
     audit_logs,
     auth,
@@ -13,6 +18,7 @@ from app.api.v1.endpoints import (
 )
 
 
+# Stores api router for the next steps.
 api_router = APIRouter()
 
 api_router.include_router(

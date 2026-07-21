@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the profile page page.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .profile-page { width: 100%; max-width: 1380px; margin: 0 auto; }
 .profile-page__title { position: relative; width: fit-content; margin: 0 0 24px !important; color: #111827; font-size: 23px !important; font-weight: 800 !important; letter-spacing: -.02em !important; }
 .profile-page__title::after { content: ""; position: absolute; left: 0; bottom: -7px; width: 42px; height: 3px; border-radius: 999px; background: linear-gradient(90deg, #6d28d9, #2563eb); }

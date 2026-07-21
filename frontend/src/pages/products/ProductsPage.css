@@ -1,19 +1,26 @@
+/* Teaching guide: This file styles the products page page.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .catalog-drawer input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
 }
 
 .catalog-drawer input[type="number"]::-webkit-inner-spin-button,
+/* Styles the catalog drawer input type="number" area. */
 .catalog-drawer input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
 
 .catalog-table th:last-child,
+/* Styles the catalog table td area. */
 .catalog-table td:last-child {
   text-align: center;
 }
 
+/* Styles the category actions area. */
 .category-actions {
   justify-content: center !important;
 }

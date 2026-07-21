@@ -1,12 +1,24 @@
+/* Teaching guide: This file contains the dashboard layout user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useEffect, useState } from "react";
+// Imports the needed tools from react-router-dom.
 import { Outlet } from "react-router-dom";
+// Imports the needed tools from @mui/material.
 import { Box } from "@mui/material";
 
+// Imports the needed tools from ../Navbar/Navbar.
 import Navbar from "../Navbar/Navbar";
+// Imports the needed tools from ../Sidebar/Sidebar.
 import Sidebar from "../Sidebar/Sidebar";
 
+// Loads ./DashboardLayout.css styles or setup.
 import "./DashboardLayout.css";
 
+// Defines the fields allowed in dashboard notification.
 export interface DashboardNotification {
   id: string;
   title: string;
@@ -14,6 +26,7 @@ export interface DashboardNotification {
   path: string;
 }
 
+// Shows the dashboard layout.
 const DashboardLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] =
     useState(false);
@@ -28,13 +41,17 @@ const DashboardLayout = () => {
     document.body.classList.toggle("dark-theme", isDarkMode);
     localStorage.setItem("retailpulse-theme", isDarkMode ? "dark" : "light");
 
+    // Builds the visible interface below.
     return () => document.body.classList.remove("dark-theme");
   }, [isDarkMode]);
 
   useEffect(() => {
+    // Handles page change.
     const handlePageChange = (event: Event) => {
+      // Runs detail logic.
       const detail = (event as CustomEvent<Omit<DashboardNotification, "id">>).detail;
 
+      // Updates the page or stored state with this result.
       setNotifications((current) => [
         { ...detail, id: `${Date.now()}-${detail.path}` },
         ...current,
@@ -42,21 +59,29 @@ const DashboardLayout = () => {
     };
 
     window.addEventListener("retailpulse:notification", handlePageChange);
+    // Builds the visible interface below.
     return () => window.removeEventListener("retailpulse:notification", handlePageChange);
   }, []);
 
+  // Handles open mobile sidebar.
   const handleOpenMobileSidebar = () => {
+    // Updates the page or stored state with this result.
     setIsMobileSidebarOpen(true);
   };
 
+  // Handles close mobile sidebar.
   const handleCloseMobileSidebar = () => {
+    // Updates the page or stored state with this result.
     setIsMobileSidebarOpen(false);
   };
 
+  // Handles toggle sidebar.
   const handleToggleSidebar = () => {
+    // Updates the page or stored state with this result.
     setIsSidebarCollapsed((currentValue) => !currentValue);
   };
 
+  // Builds the visible interface below.
   return (
     <Box
       className={`dashboard-layout ${
@@ -81,6 +106,7 @@ const DashboardLayout = () => {
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
           onReviewNotification={(id) =>
+            // Updates the page or stored state with this result.
             setNotifications((current) =>
               current.filter((notification) => notification.id !== id),
             )

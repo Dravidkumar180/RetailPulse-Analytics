@@ -1,37 +1,49 @@
+/* Teaching guide: This file styles the form input user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .form-input {
   width: 100%;
 }
 
+/* Styles the form input  mui outlined input root area. */
 .form-input .MuiOutlinedInput-root {
   border-radius: 8px;
   background-color: #ffffff;
 }
 
+/* Styles the form input  mui outlined input root fieldset area. */
 .form-input .MuiOutlinedInput-root fieldset {
   border-color: #cbd5e1;
 }
 
+/* Styles the form input  mui outlined input root fieldset area. */
 .form-input .MuiOutlinedInput-root:hover fieldset {
   border-color: #94a3b8;
 }
 
+/* Styles the form input  mui outlined input root mui focused fieldset area. */
 .form-input .MuiOutlinedInput-root.Mui-focused fieldset {
   border-color: #2563eb;
 }
 
+/* Styles the form input  mui input label root mui focused area. */
 .form-input .MuiInputLabel-root.Mui-focused {
   color: #2563eb;
 }
 
+/* Styles the form input  mui form helper text root area. */
 .form-input .MuiFormHelperText-root {
   margin: 6px 0 0;
   font-size: 12px;
 }
 
+/* Styles the form input  mui form helper text root mui error area. */
 .form-input .MuiFormHelperText-root.Mui-error {
   color: #dc2626;
 }
 
+/* Styles the form input  mui disabled area. */
 .form-input .Mui-disabled {
   background-color: #f8fafc;
 }

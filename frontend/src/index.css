@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles index application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -25,12 +29,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* Adjusts the layout for this screen size. */
   @media (max-width: 1024px) {
     font-size: 16px;
   }
 }
 
+/* Adjusts the layout for this screen size. */
 @media (prefers-color-scheme: dark) {
+  /* Styles the responsive layout area. */
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;
@@ -45,11 +52,13 @@
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 
+  /* Styles the social  button icon area. */
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
 }
 
+/* Styles the root area. */
 #root {
   width: 1126px;
   max-width: 100%;
@@ -62,40 +71,48 @@
   box-sizing: border-box;
 }
 
+/* Styles the body area. */
 body {
   margin: 0;
 }
 
 h1,
+/* Styles the h2 area. */
 h2 {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
 
+/* Styles the h1 area. */
 h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
+  /* Adjusts the layout for this screen size. */
   @media (max-width: 1024px) {
     font-size: 36px;
     margin: 20px 0;
   }
 }
+/* Styles the h2 area. */
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
+  /* Adjusts the layout for this screen size. */
   @media (max-width: 1024px) {
     font-size: 20px;
   }
 }
+/* Styles the p area. */
 p {
   margin: 0;
 }
 
 code,
+/* Styles the counter area. */
 .counter {
   font-family: var(--mono);
   display: inline-flex;
@@ -103,6 +120,7 @@ code,
   color: var(--text-h);
 }
 
+/* Styles the code area. */
 code {
   font-size: 15px;
   line-height: 135%;

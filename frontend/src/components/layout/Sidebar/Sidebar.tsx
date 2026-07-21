@@ -1,4 +1,11 @@
+/* Teaching guide: This file contains the sidebar user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import type { ReactNode } from "react";
+// Imports the needed tools from react-router-dom.
 import { NavLink } from "react-router-dom";
 import {
   Box,
@@ -7,30 +14,46 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/DashboardOutlined.
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+// Imports the needed tools from @mui/icons-material/Inventory2Outlined.
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+// Imports the needed tools from @mui/icons-material/PointOfSaleOutlined.
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
+// Imports the needed tools from @mui/icons-material/AssessmentOutlined.
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+// Imports the needed tools from @mui/icons-material/AnalyticsOutlined.
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
+// Imports the needed tools from @mui/icons-material/PeopleOutlined.
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutlined";
+// Imports the needed tools from @mui/icons-material/PersonOutlined.
 import PersonOutlineIcon from "@mui/icons-material/PersonOutlined";
+// Imports the needed tools from @mui/icons-material/HistoryOutlined.
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+// Imports the needed tools from @mui/icons-material/SettingsOutlined.
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+// Imports the needed tools from @mui/icons-material/BusinessOutlined.
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
+// Imports the needed tools from @mui/icons-material/BarChartOutlined.
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 
+// Imports the needed tools from ../../../hooks/useAuth.
 import { useAuth } from "../../../hooks/useAuth";
 
+// Loads ./Sidebar.css styles or setup.
 import "./Sidebar.css";
 
+// Defines the user role type.
 type UserRole = "SUPER_ADMIN" | "COMPANY_ADMIN" | "ANALYST" | "VIEWER";
 
+// Defines the fields allowed in sidebar props.
 interface SidebarProps {
   mobileOpen: boolean;
   collapsed: boolean;
   onMobileClose: () => void;
 }
 
+// Defines the fields allowed in sidebar menu item.
 interface SidebarMenuItem {
   label: string;
   path: string;
@@ -38,6 +61,7 @@ interface SidebarMenuItem {
   allowedRoles?: UserRole[];
 }
 
+// Stores menu items for the steps below.
 const menuItems: SidebarMenuItem[] = [
   {
     label: "Dashboard",
@@ -123,6 +147,7 @@ const menuItems: SidebarMenuItem[] = [
   },
 ];
 
+// Shows the sidebar.
 const Sidebar = ({
   mobileOpen,
   collapsed,
@@ -130,18 +155,25 @@ const Sidebar = ({
 }: SidebarProps) => {
   const { user } = useAuth();
 
+  // Runs visible menu items logic.
   const visibleMenuItems = menuItems.filter((item) => {
+    // Checks whether this condition is true.
     if (!item.allowedRoles) {
+      // Returns the completed result to the caller.
       return true;
     }
 
+    // Checks whether this condition is true.
     if (!user?.role) {
+      // Returns the completed result to the caller.
       return false;
     }
 
+    // Returns the completed result to the caller.
     return item.allowedRoles.includes(user.role);
   });
 
+  // Stores sidebar content for the steps below.
   const sidebarContent = (
     <Box
       className={`sidebar ${
@@ -171,6 +203,7 @@ const Sidebar = ({
 
       <Box component="nav" className="sidebar__navigation">
         {visibleMenuItems.map((item) => {
+          // Runs navigation link logic.
           const navigationLink = (
             <NavLink
               key={item.path}
@@ -195,10 +228,13 @@ const Sidebar = ({
             </NavLink>
           );
 
+          // Checks whether this condition is true.
           if (!collapsed) {
+            // Returns the completed result to the caller.
             return navigationLink;
           }
 
+          // Builds the visible interface below.
           return (
             <Tooltip
               key={item.path}
@@ -244,6 +280,7 @@ const Sidebar = ({
     </Box>
   );
 
+  // Builds the visible interface below.
   return (
     <>
       <Box className="sidebar__desktop-container">

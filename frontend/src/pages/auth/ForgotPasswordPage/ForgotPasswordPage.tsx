@@ -1,6 +1,15 @@
+/* Teaching guide: This file contains the forgot password page page.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
+// Imports the needed tools from react-router-dom.
 import { Link, useNavigate } from "react-router-dom";
+// Imports the needed tools from @tanstack/react-query.
 import { useMutation } from "@tanstack/react-query";
+// Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
 import {
   Alert,
@@ -9,33 +18,44 @@ import {
   Typography,
 } from "@mui/material";
 
+// Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOutlined.
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOffOutlined.
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import {
   forgotPassword,
   resetPassword,
+  // Defines the message response type.
   type MessageResponse,
 } from "../../../api/authApi";
 
+// Imports the needed tools from ../../../components/common/Button/Button.
 import Button from "../../../components/common/Button/Button";
+// Imports the needed tools from ../../../components/common/FormInput/FormInput.
 import FormInput from "../../../components/common/FormInput/FormInput";
 
+// Loads ./ForgotPasswordPage.css styles or setup.
 import "./ForgotPasswordPage.css";
 
+// Defines the fields allowed in development reset form data.
 interface DevelopmentResetFormData {
   email: string;
   newPassword: string;
   confirmPassword: string;
 }
 
+// Gets error message.
 const getErrorMessage = (error: unknown): string => {
+  // Checks whether this condition is true.
   if (
     typeof error === "object" &&
     error !== null &&
     "response" in error
   ) {
+    // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
         data?: {
@@ -45,6 +65,7 @@ const getErrorMessage = (error: unknown): string => {
       };
     };
 
+    // Builds the visible interface below.
     return (
       axiosError.response?.data?.detail ??
       axiosError.response?.data?.message ??
@@ -52,14 +73,19 @@ const getErrorMessage = (error: unknown): string => {
     );
   }
 
+  // Checks whether this condition is true.
   if (error instanceof Error) {
+    // Returns the completed result to the caller.
     return error.message;
   }
 
+  // Returns the completed result to the caller.
   return "Unable to process the request. Please try again.";
 };
 
+// Shows the forgot password page.
 const ForgotPasswordPage = () => {
+  // Stores navigate for the steps below.
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -78,24 +104,30 @@ const ForgotPasswordPage = () => {
     mode: "onBlur",
   });
 
+  // Stores password value for the steps below.
   const passwordValue = watch("newPassword");
 
+  // Runs forgot password mutation logic.
   const forgotPasswordMutation = useMutation<
     MessageResponse,
     Error,
     DevelopmentResetFormData
   >({
     mutationFn: async (formData) => {
+      // Stores reset request for the steps below.
       const resetRequest = await forgotPassword({
         email: formData.email.trim().toLowerCase(),
       });
 
+      // Checks whether this condition is true.
       if (!resetRequest.resetToken) {
+        // Stops here and reports the problem.
         throw new Error(
           "Local password reset is disabled. Enable the development reset-token flag or use the emailed reset link.",
         );
       }
 
+      // Returns the completed result to the caller.
       return resetPassword({
         token: resetRequest.resetToken,
         newPassword: formData.newPassword,
@@ -103,6 +135,7 @@ const ForgotPasswordPage = () => {
       });
     },
     onSuccess: () => {
+      // Updates the page or stored state with this result.
       navigate("/login", {
         replace: true,
         state: {
@@ -113,10 +146,12 @@ const ForgotPasswordPage = () => {
     },
   });
 
+  // Runs on submit logic.
   const onSubmit = (formData: DevelopmentResetFormData) => {
     forgotPasswordMutation.mutate(formData);
   };
 
+  // Builds the visible interface below.
   return (
     <Box className="forgot-password-page">
       <Box className="forgot-password-page__card">

@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the button user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .app-button.MuiButton-root {
   min-height: 44px;
   padding: 10px 20px;
@@ -8,24 +12,29 @@
   box-shadow: none;
 }
 
+/* Styles the app button mui button contained primary area. */
 .app-button.MuiButton-containedPrimary {
   background-color: #2563eb;
 }
 
+/* Styles the app button mui button contained primary area. */
 .app-button.MuiButton-containedPrimary:hover {
   background-color: #1d4ed8;
   box-shadow: none;
 }
 
+/* Styles the app button mui button outlined area. */
 .app-button.MuiButton-outlined {
   border-width: 1px;
 }
 
+/* Styles the app button mui disabled area. */
 .app-button.Mui-disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
 
+/* Styles the app button loading content area. */
 .app-button__loading-content {
   display: inline-flex;
   align-items: center;

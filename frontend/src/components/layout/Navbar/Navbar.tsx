@@ -1,4 +1,11 @@
+/* Teaching guide: This file contains the navbar user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
+// Imports the needed tools from react-router-dom.
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -12,23 +19,38 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/MenuOutlined.
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+// Imports the needed tools from @mui/icons-material/MenuOpenOutlined.
 import MenuOpenOutlinedIcon from "@mui/icons-material/MenuOpenOutlined";
+// Imports the needed tools from @mui/icons-material/NotificationsNoneOutlined.
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+// Imports the needed tools from @mui/icons-material/PersonOutlined.
 import PersonOutlineIcon from "@mui/icons-material/PersonOutlined";
+// Imports the needed tools from @mui/icons-material/LogoutOutlined.
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+// Imports the needed tools from @mui/icons-material/SettingsOutlined.
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+// Imports the needed tools from @mui/icons-material/KeyboardArrowDownOutlined.
 import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
+// Imports the needed tools from @mui/icons-material/SearchOutlined.
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+// Imports the needed tools from @mui/icons-material/AssessmentOutlined.
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+// Imports the needed tools from @mui/icons-material/DarkModeOutlined.
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+// Imports the needed tools from @mui/icons-material/LightModeOutlined.
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+// Imports the needed tools from ../DashboardLayout/DashboardLayout.
 import type { DashboardNotification } from "../DashboardLayout/DashboardLayout";
 
+// Imports the needed tools from ../../../hooks/useAuth.
 import { useAuth } from "../../../hooks/useAuth";
 
+// Loads ./Navbar.css styles or setup.
 import "./Navbar.css";
 
+// Defines the fields allowed in navbar props.
 interface NavbarProps {
   sidebarCollapsed: boolean;
   onOpenMobileSidebar: () => void;
@@ -40,11 +62,15 @@ interface NavbarProps {
   onReviewNotification: (id: string) => void;
 }
 
+// Gets initials.
 const getInitials = (name?: string): string => {
+  // Checks whether this condition is true.
   if (!name) {
+    // Returns the completed result to the caller.
     return "U";
   }
 
+  // Returns the completed result to the caller.
   return name
     .trim()
     .split(/\s+/)
@@ -53,17 +79,22 @@ const getInitials = (name?: string): string => {
     .join("");
 };
 
+// Runs format role logic.
 const formatRole = (role?: string): string => {
+  // Checks whether this condition is true.
   if (!role) {
+    // Returns the completed result to the caller.
     return "";
   }
 
+  // Returns the completed result to the caller.
   return role
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
 };
 
+// Stores navbar for the steps below.
 const Navbar = ({
   sidebarCollapsed,
   onOpenMobileSidebar,
@@ -74,6 +105,7 @@ const Navbar = ({
   onClearNotifications,
   onReviewNotification,
 }: NavbarProps) => {
+  // Stores navigate for the steps below.
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -83,6 +115,7 @@ const Navbar = ({
     useState<null | HTMLElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Stores searchable pages for the steps below.
   const searchablePages = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Products", path: "/products" },
@@ -95,41 +128,54 @@ const Navbar = ({
     { label: "Profile", path: "/profile" },
     { label: "Settings", path: "/settings" },
   ];
+  // Runs search results logic.
   const searchResults = searchQuery.trim()
     ? searchablePages.filter((page) =>
         page.label.toLowerCase().includes(searchQuery.trim().toLowerCase()),
       )
     : [];
 
+  // Checks profile menu open.
   const isProfileMenuOpen = Boolean(profileAnchorElement);
 
+  // Handles open profile menu.
   const handleOpenProfileMenu = (
     event: React.MouseEvent<HTMLElement>,
   ) => {
+    // Updates the page or stored state with this result.
     setProfileAnchorElement(event.currentTarget);
   };
 
+  // Handles close profile menu.
   const handleCloseProfileMenu = () => {
+    // Updates the page or stored state with this result.
     setProfileAnchorElement(null);
   };
 
+  // Handles navigate.
   const handleNavigate = (path: string) => {
     handleCloseProfileMenu();
+    // Updates the page or stored state with this result.
     navigate(path);
   };
 
+  // Handles logout.
   const handleLogout = async () => {
     handleCloseProfileMenu();
 
+    // Tries the operation and watches for errors.
     try {
+      // Waits for this asynchronous work to finish.
       await logout();
     } finally {
+      // Updates the page or stored state with this result.
       navigate("/login", {
         replace: true,
       });
     }
   };
 
+  // Builds the visible interface below.
   return (
     <Box component="header" className="navbar">
       <Box className="navbar__left">
@@ -184,7 +230,9 @@ const Navbar = ({
                   component="button"
                   key={result.path}
                   onClick={() => {
+                    // Updates the page or stored state with this result.
                     navigate(result.path);
+                    // Updates the page or stored state with this result.
                     setSearchQuery("");
                   }}
                 >
@@ -244,7 +292,9 @@ const Navbar = ({
               key={notification.id}
               onClick={() => {
                 onReviewNotification(notification.id);
+                // Updates the page or stored state with this result.
                 setNotificationAnchorElement(null);
+                // Updates the page or stored state with this result.
                 navigate(notification.path);
               }}
             >

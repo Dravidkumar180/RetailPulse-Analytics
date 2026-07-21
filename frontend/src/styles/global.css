@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles global application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 @import "./variables.css";
 @import "./reset.css";
 @import "./forms.css";
@@ -6,11 +10,13 @@
 
 html,
 body,
+/* Styles the root area. */
 #root {
   width: 100%;
   min-height: 100%;
 }
 
+/* Styles the body area. */
 body {
   overflow-x: hidden;
   background-color: var(--color-background);
@@ -20,16 +26,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Styles the responsive layout area. */
 ::selection {
   background-color: var(--color-primary);
   color: #ffffff;
 }
 
+/* Styles the page container area. */
 .page-container {
   width: 100%;
   padding: 24px;
 }
 
+/* Styles the page card area. */
 .page-card {
   padding: 24px;
   border: 1px solid var(--color-border);
@@ -38,10 +47,12 @@ body {
   box-shadow: var(--shadow-small);
 }
 
+/* Styles the page section area. */
 .page-section {
   margin-top: 24px;
 }
 
+/* Styles the page title area. */
 .page-title {
   margin: 0;
   color: var(--color-text-primary);
@@ -49,6 +60,7 @@ body {
   font-weight: 700;
 }
 
+/* Styles the page subtitle area. */
 .page-subtitle {
   margin: 7px 0 0;
   color: var(--color-text-secondary);
@@ -56,6 +68,7 @@ body {
   line-height: 1.6;
 }
 
+/* Styles the error message area. */
 .error-message {
   display: block;
   margin-top: 6px;
@@ -63,6 +76,7 @@ body {
   font-size: 12px;
 }
 
+/* Styles the success message area. */
 .success-message {
   display: block;
   margin-top: 6px;
@@ -70,14 +84,17 @@ body {
   font-size: 12px;
 }
 
+/* Styles the text muted area. */
 .text-muted {
   color: var(--color-text-secondary);
 }
 
+/* Styles the full width area. */
 .full-width {
   width: 100%;
 }
 
+/* Styles the sr only area. */
 .sr-only {
   position: absolute;
   width: 1px;

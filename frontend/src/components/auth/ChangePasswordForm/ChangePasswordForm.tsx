@@ -1,5 +1,13 @@
+/* Teaching guide: This file contains the change password form user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
+// Imports the needed tools from @tanstack/react-query.
 import { useMutation } from "@tanstack/react-query";
+// Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
 import {
   Alert,
@@ -7,29 +15,40 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOutlined.
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOffOutlined.
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import {
   changePassword,
+  // Defines the change password request type.
   type ChangePasswordRequest,
 } from "../../../api/authApi";
+// Imports the needed tools from ../../common/Button/Button.
 import Button from "../../common/Button/Button";
+// Imports the needed tools from ../../common/FormInput/FormInput.
 import FormInput from "../../common/FormInput/FormInput";
 
+// Loads ./ChangePasswordForm.css styles or setup.
 import "./ChangePasswordForm.css";
 
+// Defines the fields allowed in change password form props.
 interface ChangePasswordFormProps {
   onPasswordChanged?: () => void;
 }
 
+// Gets error message.
 const getErrorMessage = (error: unknown): string => {
+  // Checks whether this condition is true.
   if (
     typeof error === "object" &&
     error !== null &&
     "response" in error
   ) {
+    // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
         data?: {
@@ -39,6 +58,7 @@ const getErrorMessage = (error: unknown): string => {
       };
     };
 
+    // Builds the visible interface below.
     return (
       axiosError.response?.data?.detail ??
       axiosError.response?.data?.message ??
@@ -46,13 +66,17 @@ const getErrorMessage = (error: unknown): string => {
     );
   }
 
+  // Checks whether this condition is true.
   if (error instanceof Error) {
+    // Returns the completed result to the caller.
     return error.message;
   }
 
+  // Returns the completed result to the caller.
   return "Unable to change password. Please try again.";
 };
 
+// Shows the change password form.
 const ChangePasswordForm = ({
   onPasswordChanged,
 }: ChangePasswordFormProps) => {
@@ -77,8 +101,10 @@ const ChangePasswordForm = ({
     mode: "onBlur",
   });
 
+  // Runs new password value logic.
   const newPasswordValue = watch("newPassword");
 
+  // Runs password mutation logic.
   const passwordMutation = useMutation({
     mutationFn: changePassword,
     onSuccess: () => {
@@ -87,10 +113,12 @@ const ChangePasswordForm = ({
     },
   });
 
+  // Runs on submit logic.
   const onSubmit = (formData: ChangePasswordRequest) => {
     passwordMutation.mutate(formData);
   };
 
+  // Builds the visible interface below.
   return (
     <Box
       component="form"
@@ -150,6 +178,7 @@ const ChangePasswordForm = ({
                 : "Show current password"
             }
             onClick={() =>
+              // Updates the page or stored state with this result.
               setShowCurrentPassword((current) => !current)
             }
           >
@@ -204,6 +233,7 @@ const ChangePasswordForm = ({
                 : "Show new password"
             }
             onClick={() =>
+              // Updates the page or stored state with this result.
               setShowNewPassword((current) => !current)
             }
           >
@@ -241,6 +271,7 @@ const ChangePasswordForm = ({
                 : "Show confirm password"
             }
             onClick={() =>
+              // Updates the page or stored state with this result.
               setShowConfirmPassword((current) => !current)
             }
           >

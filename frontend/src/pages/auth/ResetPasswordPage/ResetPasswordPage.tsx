@@ -1,10 +1,18 @@
+/* Teaching guide: This file contains the reset password page page.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
 import {
   Link,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+// Imports the needed tools from @tanstack/react-query.
 import { useMutation } from "@tanstack/react-query";
+// Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
 import {
   Alert,
@@ -13,32 +21,44 @@ import {
   Typography,
 } from "@mui/material";
 
+// Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOutlined.
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOffOutlined.
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import {
   resetPassword,
+  // Defines the message response type.
   type MessageResponse,
+  // Defines the reset password request type.
   type ResetPasswordRequest,
 } from "../../../api/authApi";
 
+// Imports the needed tools from ../../../components/common/Button/Button.
 import Button from "../../../components/common/Button/Button";
+// Imports the needed tools from ../../../components/common/FormInput/FormInput.
 import FormInput from "../../../components/common/FormInput/FormInput";
 
+// Loads ./ResetPasswordPage.css styles or setup.
 import "./ResetPasswordPage.css";
 
+// Defines the fields allowed in reset password form data.
 interface ResetPasswordFormData {
   newPassword: string;
   confirmPassword: string;
 }
 
+// Gets error message.
 const getErrorMessage = (error: unknown): string => {
+  // Checks whether this condition is true.
   if (
     typeof error === "object" &&
     error !== null &&
     "response" in error
   ) {
+    // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
         data?: {
@@ -48,6 +68,7 @@ const getErrorMessage = (error: unknown): string => {
       };
     };
 
+    // Builds the visible interface below.
     return (
       axiosError.response?.data?.detail ??
       axiosError.response?.data?.message ??
@@ -55,17 +76,23 @@ const getErrorMessage = (error: unknown): string => {
     );
   }
 
+  // Checks whether this condition is true.
   if (error instanceof Error) {
+    // Returns the completed result to the caller.
     return error.message;
   }
 
+  // Returns the completed result to the caller.
   return "Unable to reset the password. Please try again.";
 };
 
+// Shows the reset password page.
 const ResetPasswordPage = () => {
+  // Stores navigate for the steps below.
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Stores reset token for the steps below.
   const resetToken = searchParams.get("token") ?? "";
 
   const [showPassword, setShowPassword] = useState(false);
@@ -86,8 +113,10 @@ const ResetPasswordPage = () => {
     mode: "onBlur",
   });
 
+  // Stores password value for the steps below.
   const passwordValue = watch("newPassword");
 
+  // Stores reset password mutation for the steps below.
   const resetPasswordMutation = useMutation<
     MessageResponse,
     Error,
@@ -96,6 +125,7 @@ const ResetPasswordPage = () => {
     mutationFn: resetPassword,
 
     onSuccess: () => {
+      // Updates the page or stored state with this result.
       navigate("/login", {
         replace: true,
         state: {
@@ -106,8 +136,11 @@ const ResetPasswordPage = () => {
     },
   });
 
+  // Runs on submit logic.
   const onSubmit = (formData: ResetPasswordFormData) => {
+    // Checks whether this condition is true.
     if (!resetToken) {
+      // Returns the completed result to the caller.
       return;
     }
 
@@ -118,7 +151,9 @@ const ResetPasswordPage = () => {
     });
   };
 
+  // Checks whether this condition is true.
   if (!resetToken) {
+    // Builds the visible interface below.
     return (
       <Box className="reset-password-page">
         <Box className="reset-password-page__card">
@@ -155,6 +190,7 @@ const ResetPasswordPage = () => {
     );
   }
 
+  // Builds the visible interface below.
   return (
     <Box className="reset-password-page">
       <Box className="reset-password-page__card">
@@ -229,6 +265,7 @@ const ResetPasswordPage = () => {
                   : "Show new password"
               }
               onClick={() =>
+                // Updates the page or stored state with this result.
                 setShowPassword((current) => !current)
               }
             >
@@ -269,6 +306,7 @@ const ResetPasswordPage = () => {
                   : "Show confirm password"
               }
               onClick={() =>
+                // Updates the page or stored state with this result.
                 setShowConfirmPassword(
                   (current) => !current,
                 )

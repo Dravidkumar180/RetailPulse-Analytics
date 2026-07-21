@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the unauthorized page page.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .unauthorized-page {
   width: 100%;
   min-height: 100vh;
@@ -8,6 +12,7 @@
   background-color: #f8fafc;
 }
 
+/* Styles the unauthorized page card area. */
 .unauthorized-page__card {
   width: 100%;
   max-width: 560px;
@@ -19,6 +24,7 @@
   text-align: center;
 }
 
+/* Styles the unauthorized page icon area. */
 .unauthorized-page__icon {
   width: 76px;
   height: 76px;
@@ -31,10 +37,12 @@
   color: #dc2626;
 }
 
+/* Styles the unauthorized page icon svg area. */
 .unauthorized-page__icon svg {
   font-size: 40px;
 }
 
+/* Styles the unauthorized page code area. */
 .unauthorized-page__code {
   margin: 20px 0 4px !important;
   color: #dc2626;
@@ -43,6 +51,7 @@
   letter-spacing: 0.12em !important;
 }
 
+/* Styles the unauthorized page h1 area. */
 .unauthorized-page h1 {
   margin: 0;
   color: #0f172a;
@@ -50,6 +59,7 @@
   font-weight: 700;
 }
 
+/* Styles the unauthorized page message area. */
 .unauthorized-page__message {
   max-width: 430px;
   margin: 14px auto 0 !important;
@@ -58,6 +68,7 @@
   line-height: 1.7 !important;
 }
 
+/* Styles the unauthorized page actions area. */
 .unauthorized-page__actions {
   display: flex;
   justify-content: center;
@@ -65,6 +76,7 @@
   margin-top: 28px;
 }
 
+/* Styles the unauthorized page profile link area. */
 .unauthorized-page__profile-link {
   display: inline-block;
   margin-top: 24px;
@@ -74,19 +86,24 @@
   text-decoration: none;
 }
 
+/* Styles the unauthorized page profile link area. */
 .unauthorized-page__profile-link:hover {
   text-decoration: underline;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 500px) {
+  /* Styles the unauthorized page card area. */
   .unauthorized-page__card {
     padding: 34px 20px;
   }
 
+  /* Styles the unauthorized page actions area. */
   .unauthorized-page__actions {
     flex-direction: column-reverse;
   }
 
+  /* Styles the unauthorized page actions  mui button root area. */
   .unauthorized-page__actions .MuiButton-root {
     width: 100%;
   }

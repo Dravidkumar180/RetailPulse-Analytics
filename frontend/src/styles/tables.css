@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles tables application logic.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -6,12 +10,14 @@
   background-color: var(--color-surface);
 }
 
+/* Styles the data table area. */
 .data-table {
   width: 100%;
   border-collapse: collapse;
 }
 
 .data-table th,
+/* Styles the data table td area. */
 .data-table td {
   padding: 14px 16px;
   border-bottom: 1px solid var(--color-border);
@@ -20,6 +26,7 @@
   white-space: nowrap;
 }
 
+/* Styles the data table th area. */
 .data-table th {
   background-color: var(--color-background);
   color: var(--color-secondary-dark);
@@ -28,23 +35,28 @@
   letter-spacing: 0.02em;
 }
 
+/* Styles the data table td area. */
 .data-table td {
   color: #334155;
   font-size: 13px;
 }
 
+/* Styles the data table tbody tr area. */
 .data-table tbody tr {
   transition: background-color var(--transition-fast);
 }
 
+/* Styles the data table tbody tr area. */
 .data-table tbody tr:hover {
   background-color: #f8fafc;
 }
 
+/* Styles the data table tbody tr td area. */
 .data-table tbody tr:last-child td {
   border-bottom: 0;
 }
 
+/* Styles the table empty state area. */
 .table-empty-state {
   min-height: 220px;
   display: flex;
@@ -56,17 +68,20 @@
   text-align: center;
 }
 
+/* Styles the table empty state h3 area. */
 .table-empty-state h3 {
   margin: 12px 0 5px;
   color: var(--color-secondary-dark);
   font-size: 16px;
 }
 
+/* Styles the table empty state p area. */
 .table-empty-state p {
   margin: 0;
   font-size: 13px;
 }
 
+/* Styles the table pagination area. */
 .table-pagination {
   display: flex;
   justify-content: flex-end;

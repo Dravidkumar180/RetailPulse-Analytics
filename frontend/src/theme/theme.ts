@@ -1,7 +1,15 @@
+/* Teaching guide: This file contains theme application logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from @mui/material/styles.
 import { createTheme } from "@mui/material/styles";
 
+// Imports the needed tools from ./colors.
 import { colors } from "./colors";
 
+// Stores theme for the steps below.
 const theme = createTheme({
   palette: {
     mode: "light",

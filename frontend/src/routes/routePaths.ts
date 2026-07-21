@@ -1,3 +1,9 @@
+/* Teaching guide: This file contains route paths application logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Stores route paths for the steps below.
 export const ROUTE_PATHS = {
   root: "/",
 
@@ -25,6 +31,7 @@ export const ROUTE_PATHS = {
   notFound: "*",
 } as const;
 
+// Defines the route path type.
 export type RoutePath =
   | typeof ROUTE_PATHS.root
   | typeof ROUTE_PATHS.authentication.login

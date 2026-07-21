@@ -1,28 +1,51 @@
+/* Teaching guide: This file contains the dashboard page page.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from @tanstack/react-query.
 import { useQuery } from "@tanstack/react-query";
+// Imports the needed tools from @mui/material.
 import { Box, Card, CardContent, Typography } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/Inventory2Outlined.
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+// Imports the needed tools from @mui/icons-material/ShoppingCartOutlined.
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+// Imports the needed tools from @mui/icons-material/PeopleOutlined.
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutlined";
+// Imports the needed tools from @mui/icons-material/AssessmentOutlined.
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 
+// Imports the needed tools from ../../api/companyApi.
 import { getCompanyDashboardSummary, type CompanyDashboardSummary } from "../../api/companyApi";
+// Imports the needed tools from ../../api/profileApi.
 import { getCurrentUserProfile, type UserProfile } from "../../api/profileApi";
+// Imports the needed tools from ../../components/common/LoadingSpinner/LoadingSpinner.
 import LoadingSpinner from "../../components/common/LoadingSpinner/LoadingSpinner";
+// Loads ./DashboardPage.css styles or setup.
 import "./DashboardPage.css";
 
+// Shows the dashboard page.
 const DashboardPage = () => {
+  // Stores summary query for the steps below.
   const summaryQuery = useQuery<CompanyDashboardSummary>({ queryKey: ["company-dashboard-summary"], queryFn: getCompanyDashboardSummary });
+  // Stores profile query for the steps below.
   const profileQuery = useQuery<UserProfile>({ queryKey: ["current-user-profile"], queryFn: getCurrentUserProfile });
+  // Checks whether this condition is true.
   if (summaryQuery.isLoading || profileQuery.isLoading) return <LoadingSpinner message="Loading dashboard..." />;
 
+  // Stores summary for the steps below.
   const summary = summaryQuery.data;
+  // Stores profile for the steps below.
   const profile = profileQuery.data;
+  // Stores primary metrics for the steps below.
   const primaryMetrics = [
     [summary?.totalSales ? `₹${summary.totalSales.toLocaleString("en-IN")}` : "₹12.45M", "Total Sales", "+12% from last month"],
     ["8,652", "Total Orders", "+8% from last month"],
     [summary?.totalUsers?.toLocaleString("en-IN") || "1", "Total Customers", "+15% from last month"],
     [summary?.totalProducts?.toLocaleString("en-IN") || "0", "Total Products", "+5% from last month"],
   ];
+  // Stores compact metrics for the steps below.
   const compactMetrics = [
     [<Inventory2OutlinedIcon />, "24", "Low Stock Items"],
     [<ShoppingCartOutlinedIcon />, "18", "Pending Orders"],
@@ -30,6 +53,7 @@ const DashboardPage = () => {
     [<AssessmentOutlinedIcon />, summary?.totalReports?.toLocaleString("en-IN") || "0", "Generated Reports"],
   ];
 
+  // Returns the completed result to the caller.
   return <Box className="overview-dashboard">
     <Box className="overview-dashboard__header"><Box><Typography component="h1">Dashboard</Typography><Typography component="p">Welcome back, {profile?.name ?? "Admin"}! Here&apos;s what&apos;s happening at {profile?.company.name ?? "your company"}.</Typography></Box><Box className="overview-dashboard__date">{new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "2-digit", month: "short", year: "numeric" }).format(new Date())}</Box></Box>
 

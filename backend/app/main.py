@@ -1,16 +1,28 @@
+# Teaching guide: This file contains main application logic.
+# Read the short comments beside each step to follow the complete flow.
+# The comments explain the code only; they do not change how it runs.
+
 from contextlib import asynccontextmanager
+# Imports the needed names from typing.
 from typing import AsyncIterator
 
+# Imports the needed names from fastapi.
 from fastapi import FastAPI
+# Imports the needed names from fastapi.middleware.cors.
 from fastapi.middleware.cors import CORSMiddleware
 
+# Imports the needed names from app.api.v1.api_router.
 from app.api.v1.api_router import api_router
+# Imports the needed names from app.core.config.
 from app.core.config import settings
+# Imports the needed names from app.core.database.
 from app.core.database import (
     check_database_connection,
     initialize_development_database,
 )
+# Imports the needed names from app.core.exceptions.
 from app.core.exceptions import register_exception_handlers
+# Imports the needed names from app.middleware.
 from app.middleware import (
     AuditMiddleware,
     ExceptionMiddleware,
@@ -19,6 +31,7 @@ from app.middleware import (
 )
 
 
+# Runs lifespan logic.
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """
@@ -33,6 +46,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
+# Stores app for the next steps.
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
@@ -108,7 +122,9 @@ app.include_router(
     tags=["Root"],
     summary="API root",
 )
+# Runs root logic.
 def root() -> dict[str, str]:
+    # Returns the completed value to the caller.
     return {
         "application": settings.APP_NAME,
         "message": "RetailPulse Analytics API is running.",

@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the login form user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .login-form {
   width: 100%;
   display: flex;
@@ -5,10 +9,12 @@
   gap: 20px;
 }
 
+/* Styles the login form header area. */
 .login-form__header {
   margin-bottom: 4px;
 }
 
+/* Styles the login form header h1 area. */
 .login-form__header h1 {
   margin: 0 0 8px;
   color: #0f172a;
@@ -17,6 +23,7 @@
   line-height: 1.2;
 }
 
+/* Styles the login form header p area. */
 .login-form__header p {
   margin: 0;
   color: #64748b;
@@ -24,20 +31,24 @@
   line-height: 1.6;
 }
 
+/* Styles the login form fields area. */
 .login-form__fields {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
+/* Styles the login form password field area. */
 .login-form__password-field {
   position: relative;
 }
 
+/* Styles the login form password field  mui input base input area. */
 .login-form__password-field .MuiInputBase-input {
   padding-right: 52px;
 }
 
+/* Styles the login form password toggle area. */
 .login-form__password-toggle {
   position: absolute !important;
   top: 9px;
@@ -45,31 +56,37 @@
   color: #64748b !important;
 }
 
+/* Styles the login form options area. */
 .login-form__options {
   display: flex;
   justify-content: flex-end;
   margin-top: -6px;
 }
 
+/* Styles the login form link area. */
 .login-form__link {
   color: #2563eb;
   font-size: 14px;
   text-decoration: none;
 }
 
+/* Styles the login form link area. */
 .login-form__link:hover {
   color: #1d4ed8;
   text-decoration: underline;
 }
 
+/* Styles the login form link bold area. */
 .login-form__link--bold {
   font-weight: 600;
 }
 
+/* Styles the login form submit area. */
 .login-form__submit {
   min-height: 48px !important;
 }
 
+/* Styles the login form register area. */
 .login-form__register {
   display: flex;
   align-items: center;
@@ -81,6 +98,7 @@
   text-align: center;
 }
 
+/* Styles the login form security note area. */
 .login-form__security-note {
   display: flex;
   align-items: center;
@@ -92,18 +110,22 @@
   color: #1e40af;
 }
 
+/* Styles the login form security note svg area. */
 .login-form__security-note svg {
   flex-shrink: 0;
   font-size: 20px;
 }
 
+/* Styles the login form security note p area. */
 .login-form__security-note p {
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 600px) {
+  /* Styles the login form header h1 area. */
   .login-form__header h1 {
     font-size: 28px;
   }
@@ -128,6 +150,7 @@
 .auth-layout--login .login-form__submit { background: linear-gradient(90deg, #7c3aed, #6d28d9) !important; box-shadow: 0 8px 18px rgb(109 40 217 / 22%) !important; }
 .auth-layout--login .login-form__security-note { justify-content: center; margin-top: 22px; border: 0; background: transparent; color: #475569; }
 
+/* Styles the login form main icon area. */
 .login-form__main-icon {
   width: 48px;
   height: 48px;
@@ -142,36 +165,44 @@
   color: #0284c7;
 }
 
+/* Styles the login form main icon svg area. */
 .login-form__main-icon svg {
   font-size: 29px;
 }
 
+/* Styles the auth layout login  login form area. */
 .auth-layout--login .login-form {
   gap: 16px;
 }
 
+/* Styles the auth layout login  login form header area. */
 .auth-layout--login .login-form__header {
   margin-bottom: 2px;
 }
 
+/* Styles the auth layout login  login form header h1 area. */
 .auth-layout--login .login-form__header h1 {
   font-size: 27px;
 }
 
+/* Styles the auth layout login  login form header p area. */
 .auth-layout--login .login-form__header p {
   font-size: 12px;
 }
 
+/* Styles the auth layout login  login form submit area. */
 .auth-layout--login .login-form__submit {
   background: #5146e5 !important;
 }
 
+/* Styles the auth layout login  login form register area. */
 .auth-layout--login .login-form__register {
   margin-top: 2px;
   padding-top: 18px;
   border-top: 1px solid #e2e8f0;
 }
 
+/* Styles the auth layout login  login form security note area. */
 .auth-layout--login .login-form__security-note {
   margin-top: 2px;
   padding: 4px 0 0;

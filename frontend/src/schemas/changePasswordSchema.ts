@@ -1,3 +1,8 @@
+/* Teaching guide: This file contains change password schema data validation.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
 import type {
   RegisterOptions,
 } from "react-hook-form";
@@ -9,6 +14,7 @@ import {
   STRONG_PASSWORD_PATTERN,
 } from "./companyRegistrationSchema";
 
+// Stores change password validation schema for the steps below.
 export const changePasswordValidationSchema: {
   currentPassword: RegisterOptions<
     ChangePasswordRequest,
@@ -48,6 +54,7 @@ export const changePasswordValidationSchema: {
   },
 };
 
+// Adds new password validation.
 export const createNewPasswordValidation = (
   currentPassword: string,
 ): RegisterOptions<
@@ -61,6 +68,7 @@ export const createNewPasswordValidation = (
     "New password must be different from the current password.",
 });
 
+// Adds change password confirmation validation.
 export const createChangePasswordConfirmationValidation = (
   newPassword: string,
 ): RegisterOptions<

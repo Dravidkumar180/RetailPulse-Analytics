@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the dashboard layout user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .dashboard-layout {
   --current-sidebar-width: 260px;
 
@@ -6,10 +10,12 @@
   background-color: #f8fafc;
 }
 
+/* Styles the dashboard layout sidebar collapsed area. */
 .dashboard-layout--sidebar-collapsed {
   --current-sidebar-width: 82px;
 }
 
+/* Styles the dashboard layout main area. */
 .dashboard-layout__main {
   width: calc(100% - var(--current-sidebar-width));
   min-height: 100vh;
@@ -19,29 +25,36 @@
     margin-left 200ms ease;
 }
 
+/* Styles the dashboard layout content area. */
 .dashboard-layout__content {
   width: 100%;
   min-height: calc(100vh - 68px);
   padding: 24px;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 900px) {
   .dashboard-layout,
+  /* Styles the dashboard layout sidebar collapsed area. */
   .dashboard-layout--sidebar-collapsed {
     --current-sidebar-width: 0;
   }
 
+  /* Styles the dashboard layout main area. */
   .dashboard-layout__main {
     width: 100%;
     margin-left: 0;
   }
 
+  /* Styles the dashboard layout content area. */
   .dashboard-layout__content {
     padding: 20px;
   }
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 600px) {
+  /* Styles the dashboard layout content area. */
   .dashboard-layout__content {
     padding: 16px;
   }
@@ -49,11 +62,13 @@
 
 .dashboard-layout--dark,
 .dashboard-layout--dark .dashboard-layout__main,
+/* Styles the dashboard layout dark  dashboard layout content area. */
 .dashboard-layout--dark .dashboard-layout__content {
   background-color: #0f172a;
   color: #e2e8f0;
 }
 
+/* Styles the body dark theme area. */
 body.dark-theme {
   color-scheme: dark;
   background: #0f172a;
@@ -61,6 +76,7 @@ body.dark-theme {
 
 body.dark-theme .page-card,
 body.dark-theme [class*="__card"],
+/* Styles the body dark theme  mui paper root mui drawer paper) area. */
 body.dark-theme .MuiPaper-root:not(.MuiDrawer-paper) {
   border-color: #334155;
   background-color: #1e293b;
@@ -72,21 +88,25 @@ body.dark-theme [class*="__title"],
 body.dark-theme [class*="__card"] h1,
 body.dark-theme [class*="__card"] h2,
 body.dark-theme [class*="__card"] h3,
+/* Styles the body dark theme  mui table cell root area. */
 body.dark-theme .MuiTableCell-root {
   color: #f8fafc;
 }
 
 body.dark-theme .page-subtitle,
+/* Styles the body dark theme  class*=" subtitle" area. */
 body.dark-theme [class*="__subtitle"] {
   color: #94a3b8;
 }
 
 body.dark-theme .MuiTableCell-root,
+/* Styles the body dark theme  mui divider root area. */
 body.dark-theme .MuiDivider-root {
   border-color: #334155;
 }
 
 body.dark-theme .MuiTableCell-head,
+/* Styles the body dark theme  mui outlined input root area. */
 body.dark-theme .MuiOutlinedInput-root {
   background-color: #172033;
   color: #e2e8f0;

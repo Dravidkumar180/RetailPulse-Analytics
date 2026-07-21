@@ -1,10 +1,21 @@
+/* Teaching guide: This file contains the button user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+// Imports the needed tools from @mui/material/CircularProgress.
 import CircularProgress from "@mui/material/CircularProgress";
+// Imports the needed tools from @mui/material/Button.
 import MuiButton from "@mui/material/Button";
+// Imports the needed tools from @mui/material/Button.
 import type { ButtonProps as MuiButtonProps } from "@mui/material/Button";
 
+// Loads ./Button.css styles or setup.
 import "./Button.css";
 
+// Defines the fields allowed in app button props.
 interface AppButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "color"> {
   children: ReactNode;
@@ -17,6 +28,7 @@ interface AppButtonProps
   size?: MuiButtonProps["size"];
 }
 
+// Stores button for the steps below.
 const Button = ({
   children,
   loading = false,
@@ -32,6 +44,7 @@ const Button = ({
   onClick,
   ...rest
 }: AppButtonProps) => {
+  // Builds the visible interface below.
   return (
     <MuiButton
       type={type}

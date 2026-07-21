@@ -1,6 +1,15 @@
+/* Teaching guide: This file contains the company registration form user interface.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from react.
 import { useState } from "react";
+// Imports the needed tools from react-router-dom.
 import { Link, useNavigate } from "react-router-dom";
+// Imports the needed tools from @tanstack/react-query.
 import { useMutation } from "@tanstack/react-query";
+// Imports the needed tools from react-hook-form.
 import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
@@ -13,20 +22,29 @@ import {
   Select,
   Typography,
 } from "@mui/material";
+// Imports the needed tools from @mui/icons-material/BusinessOutlined.
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
+// Imports the needed tools from @mui/icons-material/PersonOutlined.
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOutlined.
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+// Imports the needed tools from @mui/icons-material/VisibilityOffOutlined.
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import {
   registerCompany,
+  // Defines the company registration request type.
   type CompanyRegistrationRequest,
 } from "../../../api/authApi";
+// Imports the needed tools from ../../common/Button/Button.
 import Button from "../../common/Button/Button";
+// Imports the needed tools from ../../common/FormInput/FormInput.
 import FormInput from "../../common/FormInput/FormInput";
 
+// Loads ./CompanyRegistrationForm.css styles or setup.
 import "./CompanyRegistrationForm.css";
 
+// Stores industries for the steps below.
 const industries = [
   "Retail",
   "E-Commerce",
@@ -40,12 +58,15 @@ const industries = [
   "Other",
 ];
 
+// Gets error message.
 const getErrorMessage = (error: unknown): string => {
+  // Checks whether this condition is true.
   if (
     typeof error === "object" &&
     error !== null &&
     "response" in error
   ) {
+    // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
         data?: {
@@ -55,6 +76,7 @@ const getErrorMessage = (error: unknown): string => {
       };
     };
 
+    // Builds the visible interface below.
     return (
       axiosError.response?.data?.detail ??
       axiosError.response?.data?.message ??
@@ -62,14 +84,19 @@ const getErrorMessage = (error: unknown): string => {
     );
   }
 
+  // Checks whether this condition is true.
   if (error instanceof Error) {
+    // Returns the completed result to the caller.
     return error.message;
   }
 
+  // Returns the completed result to the caller.
   return "Company registration failed. Please try again.";
 };
 
+// Shows the company registration form.
 const CompanyRegistrationForm = () => {
+  // Stores navigate for the steps below.
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -97,11 +124,14 @@ const CompanyRegistrationForm = () => {
     mode: "onBlur",
   });
 
+  // Runs password value logic.
   const passwordValue = watch("password");
 
+  // Runs registration mutation logic.
   const registrationMutation = useMutation({
     mutationFn: registerCompany,
     onSuccess: () => {
+      // Updates the page or stored state with this result.
       navigate("/login", {
         replace: true,
         state: {
@@ -112,6 +142,7 @@ const CompanyRegistrationForm = () => {
     },
   });
 
+  // Runs on submit logic.
   const onSubmit = (formData: CompanyRegistrationRequest) => {
     registrationMutation.mutate({
       companyName: formData.companyName.trim(),
@@ -126,6 +157,7 @@ const CompanyRegistrationForm = () => {
     });
   };
 
+  // Builds the visible interface below.
   return (
     <Box
       component="form"
@@ -379,6 +411,7 @@ const CompanyRegistrationForm = () => {
                 showPassword ? "Hide password" : "Show password"
               }
               onClick={() =>
+                // Updates the page or stored state with this result.
                 setShowPassword((current) => !current)
               }
             >
@@ -416,6 +449,7 @@ const CompanyRegistrationForm = () => {
                   : "Show confirm password"
               }
               onClick={() =>
+                // Updates the page or stored state with this result.
                 setShowConfirmPassword((current) => !current)
               }
             >

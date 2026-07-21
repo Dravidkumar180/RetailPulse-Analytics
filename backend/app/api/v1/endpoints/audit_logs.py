@@ -1,23 +1,35 @@
+# Teaching guide: This file contains API requests and responses for audit logs.
+# Read the short comments beside each step to follow the complete flow.
+# The comments explain the code only; they do not change how it runs.
+
 from datetime import date
+# Imports the needed names from typing.
 from typing import Annotated
 
+# Imports the needed names from fastapi.
 from fastapi import APIRouter, Query
 
+# Imports the needed names from app.api.dependencies.
 from app.api.dependencies import DatabaseSession
+# Imports the needed names from app.core.constants.
 from app.core.constants import (
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
 )
+# Imports the needed names from app.core.permissions.
 from app.core.permissions import CompanyAdminOrSuperAdmin
+# Imports the needed names from app.schemas.audit_log.
 from app.schemas.audit_log import (
     AuditActionValue,
     AuditLogListResponse,
     AuditLogResponse,
 )
+# Imports the needed names from app.services.audit_log_service.
 from app.services.audit_log_service import audit_log_service
 
 
+# Stores router for the next steps.
 router = APIRouter()
 
 
@@ -26,6 +38,7 @@ router = APIRouter()
     response_model=AuditLogListResponse,
     summary="List audit logs",
 )
+# Gets audit logs.
 def list_audit_logs(
     db: DatabaseSession,
     current_user: CompanyAdminOrSuperAdmin,
@@ -58,6 +71,7 @@ def list_audit_logs(
     The company scope must be applied in the repository query itself,
     not after loading records.
     """
+    # Returns the completed value to the caller.
     return audit_log_service.list_audit_logs(
         db=db,
         current_user=current_user,
@@ -76,11 +90,13 @@ def list_audit_logs(
     response_model=AuditLogResponse,
     summary="Get audit log details",
 )
+# Gets audit log.
 def get_audit_log(
     audit_log_id: str,
     db: DatabaseSession,
     current_user: CompanyAdminOrSuperAdmin,
 ) -> AuditLogResponse:
+    # Returns the completed value to the caller.
     return audit_log_service.get_audit_log(
         db=db,
         current_user=current_user,

@@ -1,32 +1,57 @@
+/* Teaching guide: This file contains app routes application logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
 import {
   Navigate,
   Route,
   Routes,
 } from "react-router-dom";
 
+// Imports the needed tools from ../components/layout/AuthLayout/AuthLayout.
 import AuthLayout from "../components/layout/AuthLayout/AuthLayout";
+// Imports the needed tools from ../components/layout/DashboardLayout/DashboardLayout.
 import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
+// Imports the needed tools from ../components/routing/ProtectedRoute.
 import ProtectedRoute from "../components/routing/ProtectedRoute";
+// Imports the needed tools from ../components/routing/RoleProtectedRoute.
 import RoleProtectedRoute from "../components/routing/RoleProtectedRoute";
 
+// Imports the needed tools from ../pages/auth/LoginPage/LoginPage.
 import LoginPage from "../pages/auth/LoginPage/LoginPage";
+// Imports the needed tools from ../pages/auth/CompanyRegistrationPage/CompanyRegistrationPage.
 import CompanyRegistrationPage from "../pages/auth/CompanyRegistrationPage/CompanyRegistrationPage";
+// Imports the needed tools from ../pages/auth/ForgotPasswordPage/ForgotPasswordPage.
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage/ForgotPasswordPage";
+// Imports the needed tools from ../pages/auth/ResetPasswordPage/ResetPasswordPage.
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage/ResetPasswordPage";
 
+// Imports the needed tools from ../pages/dashboard/DashboardPage.
 import DashboardPage from "../pages/dashboard/DashboardPage";
+// Imports the needed tools from ../pages/profile/ProfilePage.
 import ProfilePage from "../pages/profile/ProfilePage";
+// Imports the needed tools from ../pages/users/UsersPage.
 import UsersPage from "../pages/users/UsersPage";
+// Imports the needed tools from ../pages/auditLogs/AuditLogsPage.
 import AuditLogsPage from "../pages/auditLogs/AuditLogsPage";
+// Imports the needed tools from ../pages/unauthorized/UnauthorizedPage.
 import UnauthorizedPage from "../pages/unauthorized/UnauthorizedPage";
+// Imports the needed tools from ../pages/section/SectionPage.
 import SectionPage from "../pages/section/SectionPage";
+// Imports the needed tools from ../pages/products/ProductsPage.
 import ProductsPage from "../pages/products/ProductsPage";
+// Imports the needed tools from ../pages/categories/CategoriesPage.
 import CategoriesPage from "../pages/categories/CategoriesPage";
+// Imports the needed tools from ../pages/sales/SalesPage.
 import SalesPage from "../pages/sales/SalesPage";
 
+// Imports the needed tools from ./routePaths.
 import { ROUTE_PATHS } from "./routePaths";
 
+// Shows the app routes.
 const AppRoutes = () => {
+  // Builds the visible interface below.
   return (
     <Routes>
       {/* Public authentication routes */}

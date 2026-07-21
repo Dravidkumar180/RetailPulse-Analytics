@@ -1,3 +1,7 @@
+/* Teaching guide: This file styles the sidebar user interface.
+ * Each comment names the screen area controlled by the selector below.
+ */
+
 .sidebar__desktop-container {
   position: fixed;
   inset: 0 auto 0 0;
@@ -6,6 +10,7 @@
   transition: width 200ms ease;
 }
 
+/* Styles the sidebar area. */
 .sidebar {
   width: 260px;
   height: 100vh;
@@ -18,10 +23,12 @@
   transition: width 200ms ease;
 }
 
+/* Styles the sidebar collapsed area. */
 .sidebar--collapsed {
   width: 82px;
 }
 
+/* Styles the sidebar brand area. */
 .sidebar__brand {
   height: 68px;
   display: flex;
@@ -30,6 +37,7 @@
   padding: 0 10px;
 }
 
+/* Styles the sidebar brand icon area. */
 .sidebar__brand-icon {
   width: 38px;
   height: 38px;
@@ -41,10 +49,12 @@
   background-color: #2563eb;
 }
 
+/* Styles the sidebar brand icon svg area. */
 .sidebar__brand-icon svg {
   font-size: 24px;
 }
 
+/* Styles the sidebar brand text h1 area. */
 .sidebar__brand-text h1 {
   margin: 0;
   font-size: 17px;
@@ -52,17 +62,20 @@
   line-height: 1.1;
 }
 
+/* Styles the sidebar brand text p area. */
 .sidebar__brand-text p {
   margin: 3px 0 0;
   color: #94a3b8;
   font-size: 11px;
 }
 
+/* Styles the sidebar divider area. */
 .sidebar__divider {
   margin: 0 0 20px !important;
   border-color: #334155 !important;
 }
 
+/* Styles the sidebar section title area. */
 .sidebar__section-title {
   margin: 0 12px 10px !important;
   color: #64748b;
@@ -72,12 +85,14 @@
   text-transform: uppercase;
 }
 
+/* Styles the sidebar navigation area. */
 .sidebar__navigation {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
+/* Styles the sidebar link area. */
 .sidebar__link {
   min-height: 44px;
   display: flex;
@@ -92,25 +107,30 @@
     color 160ms ease;
 }
 
+/* Styles the sidebar collapsed  sidebar link area. */
 .sidebar--collapsed .sidebar__link {
   justify-content: center;
   padding-inline: 0;
 }
 
+/* Styles the sidebar link area. */
 .sidebar__link:hover {
   background-color: rgb(51 65 85 / 70%);
   color: #ffffff;
 }
 
+/* Styles the sidebar link active area. */
 .sidebar__link--active {
   background-color: #2563eb;
   color: #ffffff;
 }
 
+/* Styles the sidebar link active area. */
 .sidebar__link--active:hover {
   background-color: #1d4ed8;
 }
 
+/* Styles the sidebar link icon area. */
 .sidebar__link-icon {
   width: 24px;
   height: 24px;
@@ -120,21 +140,25 @@
   justify-content: center;
 }
 
+/* Styles the sidebar link icon svg area. */
 .sidebar__link-icon svg {
   font-size: 21px;
 }
 
+/* Styles the sidebar link label area. */
 .sidebar__link-label {
   font-size: 14px !important;
   font-weight: 500 !important;
 }
 
+/* Styles the sidebar company area. */
 .sidebar__company {
   margin-top: auto;
   padding: 16px 12px 4px;
   border-top: 1px solid rgb(148 163 184 / 20%);
 }
 
+/* Styles the sidebar company label area. */
 .sidebar__company-label {
   margin: 0 !important;
   color: #64748b;
@@ -144,6 +168,7 @@
   text-transform: uppercase;
 }
 
+/* Styles the sidebar company name area. */
 .sidebar__company-name {
   max-width: 210px;
   margin: 6px 0 0 !important;
@@ -155,25 +180,31 @@
   white-space: nowrap;
 }
 
+/* Styles the sidebar company icon area. */
 .sidebar__company-icon {
   display: flex;
   justify-content: center;
   color: #94a3b8;
 }
 
+/* Styles the sidebar mobile drawer  mui drawer paper area. */
 .sidebar__mobile-drawer .MuiDrawer-paper {
   width: 260px;
   border: none;
   background-color: #0f172a;
 }
 
+/* Adjusts the layout for this screen size. */
 @media (max-width: 900px) {
+  /* Styles the sidebar desktop container area. */
   .sidebar__desktop-container {
     display: none;
   }
 }
 
+/* Adjusts the layout for this screen size. */
 @media (min-width: 901px) {
+  /* Styles the sidebar mobile drawer area. */
   .sidebar__mobile-drawer {
     display: none;
   }

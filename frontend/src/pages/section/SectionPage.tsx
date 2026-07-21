@@ -1,13 +1,28 @@
+/* Teaching guide: This file contains the section page page.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
+
+// Imports the needed tools from @mui/material.
 import { Box, Card, CardContent, Typography } from "@mui/material";
+// Imports the needed tools from react-router-dom.
 import { useLocation } from "react-router-dom";
+// Imports the needed tools from @mui/icons-material/Inventory2Outlined.
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+// Imports the needed tools from @mui/icons-material/PointOfSaleOutlined.
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
+// Imports the needed tools from @mui/icons-material/AnalyticsOutlined.
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
+// Imports the needed tools from @mui/icons-material/AssessmentOutlined.
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+// Imports the needed tools from @mui/icons-material/BusinessOutlined.
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
+// Imports the needed tools from @mui/icons-material/SettingsOutlined.
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+// Loads ./SectionPage.css styles or setup.
 import "./SectionPage.css";
 
+// Stores sections for the steps below.
 const sections = {
   "/products": { title: "Products", text: "Manage products, inventory and pricing.", icon: <Inventory2OutlinedIcon />, cards: ["Product Catalogue", "Inventory Status", "Product Categories"] },
   "/sales": { title: "Sales", text: "Review orders, transactions and sales performance.", icon: <PointOfSaleOutlinedIcon />, cards: ["Recent Orders", "Sales Transactions", "Revenue Summary"] },
@@ -17,9 +32,12 @@ const sections = {
   "/settings": { title: "Settings", text: "Configure your company and application preferences.", icon: <SettingsOutlinedIcon />, cards: ["Company Settings", "Security Settings", "Notification Preferences"] },
 } as const;
 
+// Shows the section page.
 const SectionPage = () => {
   const { pathname } = useLocation();
+  // Runs section logic.
   const section = sections[pathname as keyof typeof sections] ?? sections["/products"];
+  // Returns the completed result to the caller.
   return <Box className="section-page"><Box className="section-page__heading"><i>{section.icon}</i><Box><Typography component="h1">{section.title}</Typography><Typography component="p">{section.text}</Typography></Box></Box><Box className="section-page__grid">{section.cards.map((card) => <Card key={card}><CardContent><Typography component="h2">{card}</Typography><Typography component="p">This {section.title.toLowerCase()} area is ready for your company data.</Typography></CardContent></Card>)}</Box></Box>;
 };
 export default SectionPage;
