@@ -22,6 +22,8 @@ export const ROUTE_PATHS = {
   products: "/products",
   categories: "/categories",
   sales: "/sales",
+  // Stores the Inventory Management sidebar and protected-route path.
+  inventory: "/inventory",
   reports: "/reports",
   analytics: "/analytics",
   companies: "/companies",
@@ -45,6 +47,8 @@ export type RoutePath =
   | typeof ROUTE_PATHS.products
   | typeof ROUTE_PATHS.categories
   | typeof ROUTE_PATHS.sales
+  // Includes Inventory in the compile-time list of supported application paths.
+  | typeof ROUTE_PATHS.inventory
   | typeof ROUTE_PATHS.reports
   | typeof ROUTE_PATHS.analytics
   | typeof ROUTE_PATHS.companies

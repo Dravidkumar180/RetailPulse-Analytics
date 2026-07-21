@@ -3,11 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import {
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 // Imports the needed tools from ../components/layout/AuthLayout/AuthLayout.
 import AuthLayout from "../components/layout/AuthLayout/AuthLayout";
@@ -45,6 +41,8 @@ import ProductsPage from "../pages/products/ProductsPage";
 import CategoriesPage from "../pages/categories/CategoriesPage";
 // Imports the needed tools from ../pages/sales/SalesPage.
 import SalesPage from "../pages/sales/SalesPage";
+// Imports the Inventory Management overview and stock movement page.
+import InventoryPage from "../pages/inventory/InventoryPage";
 
 // Imports the needed tools from ./routePaths.
 import { ROUTE_PATHS } from "./routePaths";
@@ -80,20 +78,20 @@ const AppRoutes = () => {
       {/* All routes inside this section require authentication */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route
-            path={ROUTE_PATHS.dashboard}
-            element={<DashboardPage />}
-          />
+          <Route path={ROUTE_PATHS.dashboard} element={<DashboardPage />} />
+
+          <Route path={ROUTE_PATHS.profile} element={<ProfilePage />} />
 
           <Route
-            path={ROUTE_PATHS.profile}
-            element={<ProfilePage />}
-          />
-
-          <Route
-            element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"]} />}
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"]}
+              />
+            }
           >
             <Route path={ROUTE_PATHS.sales} element={<SalesPage />} />
+            {/* Inventory is shared by Admins and Analysts under this role guard. */}
+            <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
           </Route>
 
           {[ROUTE_PATHS.analytics, ROUTE_PATHS.reports].map((path) => (
@@ -104,57 +102,37 @@ const AppRoutes = () => {
           <Route
             element={
               <RoleProtectedRoute
-                allowedRoles={[
-                  "SUPER_ADMIN",
-                  "COMPANY_ADMIN",
-                ]}
+                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN"]}
               />
             }
           >
             <Route path={ROUTE_PATHS.products} element={<ProductsPage />} />
             <Route path={ROUTE_PATHS.categories} element={<CategoriesPage />} />
-            <Route
-              path={ROUTE_PATHS.users}
-              element={<UsersPage />}
-            />
+            <Route path={ROUTE_PATHS.users} element={<UsersPage />} />
 
-            <Route
-              path={ROUTE_PATHS.auditLogs}
-              element={<AuditLogsPage />}
-            />
+            <Route path={ROUTE_PATHS.auditLogs} element={<AuditLogsPage />} />
 
             <Route path={ROUTE_PATHS.settings} element={<SectionPage />} />
           </Route>
 
-          <Route element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
+          <Route
+            element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}
+          >
             <Route path={ROUTE_PATHS.companies} element={<SectionPage />} />
           </Route>
         </Route>
       </Route>
 
-      <Route
-        path={ROUTE_PATHS.unauthorized}
-        element={<UnauthorizedPage />}
-      />
+      <Route path={ROUTE_PATHS.unauthorized} element={<UnauthorizedPage />} />
 
       <Route
         path={ROUTE_PATHS.root}
-        element={
-          <Navigate
-            to={ROUTE_PATHS.authentication.login}
-            replace
-          />
-        }
+        element={<Navigate to={ROUTE_PATHS.authentication.login} replace />}
       />
 
       <Route
         path={ROUTE_PATHS.notFound}
-        element={
-          <Navigate
-            to={ROUTE_PATHS.dashboard}
-            replace
-          />
-        }
+        element={<Navigate to={ROUTE_PATHS.dashboard} replace />}
       />
     </Routes>
   );

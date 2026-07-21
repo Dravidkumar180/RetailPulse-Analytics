@@ -32,6 +32,7 @@ from app.models.user import User
 from app.repositories.audit_log_repository import (
     refresh_token_repository,
 )
+from app.utils.datetime_utils import is_expired
 
 
 # Groups token service behavior.
@@ -108,11 +109,8 @@ class TokenService:
                 detail="Refresh token has been revoked.",
             )
 
-        # Imports the needed names from datetime.
-        from datetime import UTC, datetime
-
         # Checks whether this condition is true.
-        if stored_token.expires_at <= datetime.now(UTC):
+        if is_expired(stored_token.expires_at):
             # Stops here and reports the problem.
             raise ExpiredTokenException()
 

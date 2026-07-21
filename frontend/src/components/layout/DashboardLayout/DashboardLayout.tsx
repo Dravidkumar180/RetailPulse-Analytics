@@ -9,6 +9,13 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 // Imports the needed tools from @mui/material.
 import { Box } from "@mui/material";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// Imports Inventory notification requests for the shared navbar bell.
+import {
+  clearInventoryNotifications,
+  getInventoryNotifications,
+} from "../../../api/inventoryApi";
+import { useAuth } from "../../../hooks/useAuth";
 
 // Imports the needed tools from ../Navbar/Navbar.
 import Navbar from "../Navbar/Navbar";
@@ -28,14 +35,45 @@ export interface DashboardNotification {
 
 // Shows the dashboard layout.
 const DashboardLayout = () => {
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] =
-    useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] =
-    useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("retailpulse-theme") === "dark",
   );
-  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const [notifications, setNotifications] = useState<DashboardNotification[]>(
+    [],
+  );
+  /* =======================================================
+   * Inventory Management notifications
+   * ======================================================= */
+
+  // Inventory alerts are visible only to Company Admins and Super Admins.
+  const canSeeInventoryNotifications =
+    user?.role === "SUPER_ADMIN" || user?.role === "COMPANY_ADMIN";
+  // Poll the backend so new low-stock and out-of-stock alerts reach the bell.
+  const inventoryNotifications = useQuery({
+    queryKey: ["inventory-notifications"],
+    queryFn: getInventoryNotifications,
+    enabled: canSeeInventoryNotifications,
+    refetchInterval: 30000,
+  });
+  // Mark all Inventory notifications as read on the backend.
+  const clearNotificationsMutation = useMutation({
+    mutationFn: clearInventoryNotifications,
+    onSuccess: () => queryClient.setQueryData(["inventory-notifications"], []),
+  });
+  // Merge persistent Inventory alerts with local dashboard notifications.
+  const visibleNotifications: DashboardNotification[] = [
+    ...(inventoryNotifications.data ?? []).map((item) => ({
+      id: item.id,
+      title: item.title,
+      message: item.message,
+      path: "/inventory",
+    })),
+    ...notifications,
+  ];
 
   useEffect(() => {
     document.body.classList.toggle("dark-theme", isDarkMode);
@@ -49,7 +87,8 @@ const DashboardLayout = () => {
     // Handles page change.
     const handlePageChange = (event: Event) => {
       // Runs detail logic.
-      const detail = (event as CustomEvent<Omit<DashboardNotification, "id">>).detail;
+      const detail = (event as CustomEvent<Omit<DashboardNotification, "id">>)
+        .detail;
 
       // Updates the page or stored state with this result.
       setNotifications((current) => [
@@ -60,7 +99,8 @@ const DashboardLayout = () => {
 
     window.addEventListener("retailpulse:notification", handlePageChange);
     // Builds the visible interface below.
-    return () => window.removeEventListener("retailpulse:notification", handlePageChange);
+    return () =>
+      window.removeEventListener("retailpulse:notification", handlePageChange);
   }, []);
 
   // Handles open mobile sidebar.
@@ -85,9 +125,7 @@ const DashboardLayout = () => {
   return (
     <Box
       className={`dashboard-layout ${
-        isSidebarCollapsed
-          ? "dashboard-layout--sidebar-collapsed"
-          : ""
+        isSidebarCollapsed ? "dashboard-layout--sidebar-collapsed" : ""
       } ${isDarkMode ? "dashboard-layout--dark" : ""}`}
     >
       <Sidebar
@@ -97,14 +135,19 @@ const DashboardLayout = () => {
       />
 
       <Box className="dashboard-layout__main">
+        {/* Navbar receives persistent Inventory alerts and clear behavior. */}
         <Navbar
           sidebarCollapsed={isSidebarCollapsed}
           onOpenMobileSidebar={handleOpenMobileSidebar}
           onToggleSidebar={handleToggleSidebar}
           isDarkMode={isDarkMode}
           onToggleTheme={() => setIsDarkMode((current) => !current)}
-          notifications={notifications}
-          onClearNotifications={() => setNotifications([])}
+          notifications={visibleNotifications}
+          onClearNotifications={() => {
+            setNotifications([]);
+            if (canSeeInventoryNotifications)
+              clearNotificationsMutation.mutate();
+          }}
           onReviewNotification={(id) =>
             // Updates the page or stored state with this result.
             setNotifications((current) =>

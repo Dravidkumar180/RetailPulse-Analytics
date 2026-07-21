@@ -15,6 +15,8 @@ from app.models.user import User
 from app.models.catalog import Category, Product
 # Imports the needed names from app.models.sales.
 from app.models.sales import Sale, SaleItem
+# Imports Inventory Management tables so create_all and metadata can discover them.
+from app.models.inventory import Inventory, InventoryMovement, InventoryNotification
 
 # Stores  all  for the next steps.
 __all__ = [
@@ -27,4 +29,8 @@ __all__ = [
     "Product",
     "Sale",
     "SaleItem",
+    # Exposes the Inventory Management models to application modules.
+    "Inventory",
+    "InventoryMovement",
+    "InventoryNotification",
 ]

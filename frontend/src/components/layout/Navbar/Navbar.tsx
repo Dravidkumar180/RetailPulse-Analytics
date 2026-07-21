@@ -121,6 +121,8 @@ const Navbar = ({
     { label: "Products", path: "/products" },
     { label: "Categories", path: "/categories" },
     { label: "Sales", path: "/sales" },
+    // Makes the Inventory Management page available through global page search.
+    { label: "Inventory", path: "/inventory" },
     { label: "Analytics", path: "/analytics" },
     { label: "Reports", path: "/reports" },
     { label: "Users", path: "/users" },
@@ -139,9 +141,7 @@ const Navbar = ({
   const isProfileMenuOpen = Boolean(profileAnchorElement);
 
   // Handles open profile menu.
-  const handleOpenProfileMenu = (
-    event: React.MouseEvent<HTMLElement>,
-  ) => {
+  const handleOpenProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
     // Updates the page or stored state with this result.
     setProfileAnchorElement(event.currentTarget);
   };
@@ -180,20 +180,14 @@ const Navbar = ({
     <Box component="header" className="navbar">
       <Box className="navbar__left">
         <Tooltip
-          title={
-            sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
-          }
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <IconButton
             className="navbar__desktop-menu-button"
             onClick={onToggleSidebar}
             aria-label="Toggle sidebar"
           >
-            {sidebarCollapsed ? (
-              <MenuOutlinedIcon />
-            ) : (
-              <MenuOpenOutlinedIcon />
-            )}
+            {sidebarCollapsed ? <MenuOutlinedIcon /> : <MenuOpenOutlinedIcon />}
           </IconButton>
         </Tooltip>
 
@@ -217,10 +211,10 @@ const Navbar = ({
           <Box className="navbar__search-field">
             <SearchOutlinedIcon />
             <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search pages..."
-            aria-label="Search pages"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search pages..."
+              aria-label="Search pages"
             />
           </Box>
           {searchResults.length > 0 && (
@@ -246,10 +240,14 @@ const Navbar = ({
       </Box>
 
       <Box className="navbar__right">
-        <Tooltip title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}>
+        <Tooltip
+          title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
           <IconButton
             className="navbar__theme-button"
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
             onClick={onToggleTheme}
           >
             {isDarkMode ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
@@ -260,7 +258,9 @@ const Navbar = ({
           <IconButton
             className="navbar__notification-button"
             aria-label="Notifications"
-            onClick={(event) => setNotificationAnchorElement(event.currentTarget)}
+            onClick={(event) =>
+              setNotificationAnchorElement(event.currentTarget)
+            }
           >
             <Badge badgeContent={notifications.length} color="error">
               <NotificationsNoneOutlinedIcon />
@@ -278,7 +278,11 @@ const Navbar = ({
         >
           <Box className="navbar__notification-header">
             <Typography component="p">Notifications</Typography>
-            <Box component="button" onClick={onClearNotifications} disabled={notifications.length === 0}>
+            <Box
+              component="button"
+              onClick={onClearNotifications}
+              disabled={notifications.length === 0}
+            >
               Mark all read
             </Box>
           </Box>
@@ -287,31 +291,33 @@ const Navbar = ({
             <Typography component="p" className="navbar__notification-empty">
               No new notifications
             </Typography>
-          ) : notifications.map((notification) => (
-            <MenuItem
-              key={notification.id}
-              onClick={() => {
-                onReviewNotification(notification.id);
-                // Updates the page or stored state with this result.
-                setNotificationAnchorElement(null);
-                // Updates the page or stored state with this result.
-                navigate(notification.path);
-              }}
-            >
-              <ListItemIcon><AssessmentOutlinedIcon fontSize="small" /></ListItemIcon>
-              <Box className="navbar__notification-copy">
-                <Typography component="p">{notification.title}</Typography>
-                <Typography component="span">{notification.message}</Typography>
-              </Box>
-            </MenuItem>
-          ))}
+          ) : (
+            notifications.map((notification) => (
+              <MenuItem
+                key={notification.id}
+                onClick={() => {
+                  onReviewNotification(notification.id);
+                  // Updates the page or stored state with this result.
+                  setNotificationAnchorElement(null);
+                  // Updates the page or stored state with this result.
+                  navigate(notification.path);
+                }}
+              >
+                <ListItemIcon>
+                  <AssessmentOutlinedIcon fontSize="small" />
+                </ListItemIcon>
+                <Box className="navbar__notification-copy">
+                  <Typography component="p">{notification.title}</Typography>
+                  <Typography component="span">
+                    {notification.message}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))
+          )}
         </Menu>
 
-        <Divider
-          orientation="vertical"
-          flexItem
-          className="navbar__divider"
-        />
+        <Divider orientation="vertical" flexItem className="navbar__divider" />
 
         <Box
           component="button"
@@ -320,9 +326,7 @@ const Navbar = ({
           aria-haspopup="true"
           aria-expanded={isProfileMenuOpen}
         >
-          <Avatar className="navbar__avatar">
-            {getInitials(user?.name)}
-          </Avatar>
+          <Avatar className="navbar__avatar">{getInitials(user?.name)}</Avatar>
 
           <Box className="navbar__user-information">
             <Typography component="p" className="navbar__user-name">
@@ -355,9 +359,7 @@ const Navbar = ({
           <Box className="navbar__menu-header">
             <Typography component="p">{user?.name}</Typography>
 
-            <Typography component="span">
-              {user?.email}
-            </Typography>
+            <Typography component="span">{user?.email}</Typography>
           </Box>
 
           <Divider />
@@ -369,8 +371,7 @@ const Navbar = ({
             My Profile
           </MenuItem>
 
-          {(user?.role === "SUPER_ADMIN" ||
-            user?.role === "COMPANY_ADMIN") && (
+          {(user?.role === "SUPER_ADMIN" || user?.role === "COMPANY_ADMIN") && (
             <MenuItem onClick={() => handleNavigate("/settings")}>
               <ListItemIcon>
                 <SettingsOutlinedIcon fontSize="small" />
@@ -381,10 +382,7 @@ const Navbar = ({
 
           <Divider />
 
-          <MenuItem
-            onClick={handleLogout}
-            className="navbar__logout-menu-item"
-          >
+          <MenuItem onClick={handleLogout} className="navbar__logout-menu-item">
             <ListItemIcon>
               <LogoutOutlinedIcon fontSize="small" />
             </ListItemIcon>

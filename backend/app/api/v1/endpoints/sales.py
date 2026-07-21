@@ -25,6 +25,8 @@ from app.core.permissions import AnalystOrHigher
 from app.models.catalog import Product
 # Imports the needed names from app.models.sales.
 from app.models.sales import Sale, SaleItem
+# Imports Inventory models used to record sale-driven stock movements and alerts.
+from app.models.inventory import Inventory, InventoryMovement, InventoryNotification
 # Imports the needed names from app.schemas.sales.
 from app.schemas.sales import SaleList, SaleResponse, SalesSummary, SaleWrite
 # Imports the needed names from app.services.audit_log_service.
@@ -67,8 +69,31 @@ def next_invoice(db, company_id: UUID, sale_date: datetime) -> str:
     # Returns the completed value to the caller.
     return f"{prefix}{(int(latest.rsplit('-', 1)[1]) + 1 if latest else 1):06d}"
 
-# Runs apply items logic.
-def apply_items(db, company_id: UUID, sale: Sale, data: SaleWrite, restore: bool = False) -> list[str]:
+# =========================================================
+# Sale-driven inventory movement integration
+# =========================================================
+
+# Records one inventory movement whenever a sale changes product stock.
+def record_inventory_movement(db, company_id: UUID, product: Product, user_id: UUID, quantity_change: int, movement_type: str, reason: str) -> Inventory:
+    # Locks the company/product inventory row during the stock transaction.
+    inventory = db.scalar(select(Inventory).where(Inventory.company_id == company_id, Inventory.product_id == product.id).with_for_update())
+    # Creates inventory for legacy products that do not yet have a row.
+    if inventory is None:
+        previous = product.stock_quantity - quantity_change
+        inventory = Inventory(company_id=company_id, product_id=product.id, current_stock=previous, reserved_stock=0, available_stock=previous, reorder_level=5, stock_status="OUT_OF_STOCK" if previous == 0 else "LOW_STOCK" if previous <= 5 else "IN_STOCK")
+        db.add(inventory); db.flush()
+    # Keeps previous quantity before synchronizing the product's new stock.
+    previous = inventory.current_stock
+    # Synchronizes physical and available quantities after the sale change.
+    inventory.current_stock = product.stock_quantity
+    inventory.available_stock = max(0, product.stock_quantity - inventory.reserved_stock)
+    inventory.stock_status = "OUT_OF_STOCK" if inventory.available_stock == 0 else "LOW_STOCK" if inventory.available_stock <= inventory.reorder_level else "IN_STOCK"
+    # Stores the immutable movement history entry with user attribution.
+    db.add(InventoryMovement(inventory_id=inventory.id, movement_type=movement_type, quantity_changed=inventory.current_stock - previous, previous_quantity=previous, updated_quantity=inventory.current_stock, reason=reason, performed_by_id=user_id))
+    return inventory
+
+
+def apply_items(db, company_id: UUID, sale: Sale, data: SaleWrite, user_id: UUID, restore: bool = False) -> list[str]:
     # Checks whether this condition is true.
     if restore:
         # Repeats this work for the matching values.
@@ -76,7 +101,9 @@ def apply_items(db, company_id: UUID, sale: Sale, data: SaleWrite, restore: bool
             # Stores product for the next steps.
             product = db.scalar(select(Product).where(Product.id == old.product_id).with_for_update())
             # Checks whether this condition is true.
-            if product: product.stock_quantity += old.quantity
+            if product:
+                product.stock_quantity += old.quantity
+                record_inventory_movement(db, company_id, product, user_id, old.quantity, "STOCK_ADDITION", f"Inventory restored while updating {sale.invoice_number}")
         sale.items.clear(); db.flush()
     # Stores requested for the next steps.
     requested = [item.product_id for item in data.items]
@@ -97,11 +124,18 @@ def apply_items(db, company_id: UUID, sale: Sale, data: SaleWrite, restore: bool
         # Stores line total for the next steps.
         line_total = money(item.quantity * item.unit_price - item.discount + item.tax)
         product.stock_quantity -= item.quantity
+        # Every sold quantity becomes a SALE movement in Inventory history.
+        inventory = record_inventory_movement(db, company_id, product, user_id, -item.quantity, "SALE", f"Sold via invoice {sale.invoice_number}")
         # Checks whether this condition is true.
         if product.stock_quantity == 0:
             product.status = "OUT_OF_STOCK"; alerts.append(f"{product.name} is now out of stock.")
+            # Notify all Company Admins when the sale exhausts product stock.
+            db.add(InventoryNotification(company_id=company_id, product_id=product.id, title="Product out of stock", message=f"{product.name} is now out of stock after {sale.invoice_number}."))
         # Checks the next possible condition.
-        elif product.stock_quantity <= LOW_STOCK_THRESHOLD: alerts.append(f"{product.name} is low in stock ({product.stock_quantity} remaining).")
+        elif inventory.stock_status == "LOW_STOCK":
+            alerts.append(f"{product.name} is low in stock ({product.stock_quantity} remaining).")
+            # Notify Company Admins when availability reaches the reorder level.
+            db.add(InventoryNotification(company_id=company_id, product_id=product.id, title="Low stock alert", message=f"{product.name} has only {inventory.available_stock} available."))
         sale.items.append(SaleItem(product_id=product.id, category_id=product.category_id, quantity=item.quantity, unit_price=money(item.unit_price), discount=money(item.discount), tax=money(item.tax), total=line_total)); total += line_total
     sale.customer_name=data.customer_name.strip(); sale.sale_date=data.sale_date; sale.sales_channel=data.sales_channel; sale.payment_method=data.payment_method; sale.total_amount=money(total)
     # Returns the completed value to the caller.
@@ -158,7 +192,7 @@ def detail(sale_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher) ->
 @router.post("", response_model=SaleResponse, status_code=status.HTTP_201_CREATED)
 def create(data: SaleWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo) -> SaleResponse:
     # Stores sale for the next steps.
-    sale=Sale(company_id=current_user.company_id, invoice_number=next_invoice(db,current_user.company_id,data.sale_date), customer_name=data.customer_name.strip(), sale_date=data.sale_date, sales_channel=data.sales_channel, payment_method=data.payment_method, total_amount=0, created_by_id=current_user.id); db.add(sale); db.flush(); alerts=apply_items(db,current_user.company_id,sale,data); log(db,current_user,AuditAction.SALE_CREATED,sale,client_ip,browser); log(db,current_user,AuditAction.INVENTORY_UPDATED,sale,client_ip,browser)
+    sale=Sale(company_id=current_user.company_id, invoice_number=next_invoice(db,current_user.company_id,data.sale_date), customer_name=data.customer_name.strip(), sale_date=data.sale_date, sales_channel=data.sales_channel, payment_method=data.payment_method, total_amount=0, created_by_id=current_user.id); db.add(sale); db.flush(); alerts=apply_items(db,current_user.company_id,sale,data,current_user.id); log(db,current_user,AuditAction.SALE_CREATED,sale,client_ip,browser); log(db,current_user,AuditAction.INVENTORY_UPDATED,sale,client_ip,browser)
     # Checks whether this condition is true.
     if any("out of stock" in a for a in alerts): log(db,current_user,AuditAction.PRODUCT_OUT_OF_STOCK,sale,client_ip,browser)
     # Applies this change to the database session.
@@ -168,7 +202,7 @@ def create(data: SaleWrite, db: DatabaseSession, current_user: AnalystOrHigher, 
 @router.put("/{sale_id}", response_model=SaleResponse)
 def update(sale_id: UUID, data: SaleWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo) -> SaleResponse:
     # Stores sale for the next steps.
-    sale=get_sale(db,current_user.company_id,sale_id); alerts=apply_items(db,current_user.company_id,sale,data,True); log(db,current_user,AuditAction.SALE_UPDATED,sale,client_ip,browser); log(db,current_user,AuditAction.INVENTORY_UPDATED,sale,client_ip,browser); db.commit(); return response(get_sale(db,current_user.company_id,sale.id),alerts)
+    sale=get_sale(db,current_user.company_id,sale_id); alerts=apply_items(db,current_user.company_id,sale,data,current_user.id,True); log(db,current_user,AuditAction.SALE_UPDATED,sale,client_ip,browser); log(db,current_user,AuditAction.INVENTORY_UPDATED,sale,client_ip,browser); db.commit(); return response(get_sale(db,current_user.company_id,sale.id),alerts)
 
 # Removes delete.
 @router.delete("/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -178,6 +212,7 @@ def delete(sale_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, cl
     # Repeats this work for the matching values.
     for item in sale.items:
         item.product.stock_quantity += item.quantity
+        record_inventory_movement(db, current_user.company_id, item.product, current_user.id, item.quantity, "STOCK_ADDITION", f"Inventory restored after deleting {sale.invoice_number}")
         # Checks whether this condition is true.
         if item.product.status == "OUT_OF_STOCK": item.product.status="ACTIVE"
     log(db,current_user,AuditAction.SALE_DELETED,sale,client_ip,browser,"; inventory restored"); log(db,current_user,AuditAction.INVENTORY_UPDATED,sale,client_ip,browser,"; inventory restored"); db.delete(sale); db.commit()

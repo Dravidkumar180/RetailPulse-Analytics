@@ -7,13 +7,7 @@
 import type { ReactNode } from "react";
 // Imports the needed tools from react-router-dom.
 import { NavLink } from "react-router-dom";
-import {
-  Box,
-  Divider,
-  Drawer,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Divider, Drawer, Tooltip, Typography } from "@mui/material";
 // Imports the needed tools from @mui/icons-material/DashboardOutlined.
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 // Imports the needed tools from @mui/icons-material/Inventory2Outlined.
@@ -72,10 +66,7 @@ const menuItems: SidebarMenuItem[] = [
     label: "Products",
     path: "/products",
     icon: <Inventory2OutlinedIcon />,
-    allowedRoles: [
-      "SUPER_ADMIN",
-      "COMPANY_ADMIN",
-    ],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
   },
   {
     label: "Categories",
@@ -87,34 +78,27 @@ const menuItems: SidebarMenuItem[] = [
     label: "Sales",
     path: "/sales",
     icon: <PointOfSaleOutlinedIcon />,
-    allowedRoles: [
-      "SUPER_ADMIN",
-      "COMPANY_ADMIN",
-      "ANALYST",
-      "VIEWER",
-    ],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+  },
+  {
+    // Inventory is visible to Admins and Analysts, as required by the module.
+    label: "Inventory",
+    path: "/inventory",
+    icon: <Inventory2OutlinedIcon />,
+    // Viewers cannot access company inventory; Analysts receive read-only access.
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"],
   },
   {
     label: "Analytics",
     path: "/analytics",
     icon: <AnalyticsOutlinedIcon />,
-    allowedRoles: [
-      "SUPER_ADMIN",
-      "COMPANY_ADMIN",
-      "ANALYST",
-      "VIEWER",
-    ],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Reports",
     path: "/reports",
     icon: <AssessmentOutlinedIcon />,
-    allowedRoles: [
-      "SUPER_ADMIN",
-      "COMPANY_ADMIN",
-      "ANALYST",
-      "VIEWER",
-    ],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Companies",
@@ -148,11 +132,7 @@ const menuItems: SidebarMenuItem[] = [
 ];
 
 // Shows the sidebar.
-const Sidebar = ({
-  mobileOpen,
-  collapsed,
-  onMobileClose,
-}: SidebarProps) => {
+const Sidebar = ({ mobileOpen, collapsed, onMobileClose }: SidebarProps) => {
   const { user } = useAuth();
 
   // Runs visible menu items logic.
@@ -175,11 +155,7 @@ const Sidebar = ({
 
   // Stores sidebar content for the steps below.
   const sidebarContent = (
-    <Box
-      className={`sidebar ${
-        collapsed ? "sidebar--collapsed" : ""
-      }`}
-    >
+    <Box className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
       <Box className="sidebar__brand">
         <Box className="sidebar__brand-icon">
           <BarChartOutlinedIcon />
@@ -210,18 +186,13 @@ const Sidebar = ({
               to={item.path}
               onClick={onMobileClose}
               className={({ isActive }) =>
-                `sidebar__link ${
-                  isActive ? "sidebar__link--active" : ""
-                }`
+                `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
               }
             >
               <Box className="sidebar__link-icon">{item.icon}</Box>
 
               {!collapsed && (
-                <Typography
-                  component="span"
-                  className="sidebar__link-label"
-                >
+                <Typography component="span" className="sidebar__link-label">
                   {item.label}
                 </Typography>
               )}
@@ -236,12 +207,7 @@ const Sidebar = ({
 
           // Builds the visible interface below.
           return (
-            <Tooltip
-              key={item.path}
-              title={item.label}
-              placement="right"
-              arrow
-            >
+            <Tooltip key={item.path} title={item.label} placement="right" arrow>
               {navigationLink}
             </Tooltip>
           );
@@ -251,10 +217,7 @@ const Sidebar = ({
       <Box className="sidebar__company">
         {!collapsed ? (
           <>
-            <Typography
-              component="p"
-              className="sidebar__company-label"
-            >
+            <Typography component="p" className="sidebar__company-label">
               Current Company
             </Typography>
 
@@ -283,9 +246,7 @@ const Sidebar = ({
   // Builds the visible interface below.
   return (
     <>
-      <Box className="sidebar__desktop-container">
-        {sidebarContent}
-      </Box>
+      <Box className="sidebar__desktop-container">{sidebarContent}</Box>
 
       <Drawer
         variant="temporary"

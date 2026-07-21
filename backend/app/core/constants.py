@@ -86,6 +86,20 @@ class AuditAction(StrEnum):
     INVENTORY_UPDATED = "INVENTORY_UPDATED"
     # Stores product out of stock for the next steps.
     PRODUCT_OUT_OF_STOCK = "PRODUCT_OUT_OF_STOCK"
+    # =====================================================
+    # Inventory Management audit actions
+    # =====================================================
+
+    # Records stock received through the Add Stock action.
+    STOCK_ADDED = "STOCK_ADDED"
+    # Records stock removed through the Remove Stock action.
+    STOCK_REMOVED = "STOCK_REMOVED"
+    # Records an exact manual inventory count correction.
+    STOCK_ADJUSTED = "STOCK_ADJUSTED"
+    # Records changes made to the product reorder threshold.
+    REORDER_LEVEL_UPDATED = "REORDER_LEVEL_UPDATED"
+    # Records the transition from healthy stock to low stock.
+    PRODUCT_LOW_STOCK = "PRODUCT_LOW_STOCK"
 
 
 # Stores company management roles for the next steps.
