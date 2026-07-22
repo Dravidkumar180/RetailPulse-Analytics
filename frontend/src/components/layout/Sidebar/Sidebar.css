@@ -30,7 +30,9 @@
 
 /* Styles the sidebar brand area. */
 .sidebar__brand {
-  height: 68px;
+  height: var(--navbar-height);
+  min-height: var(--navbar-height);
+  flex: 0 0 var(--navbar-height);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -71,6 +73,7 @@
 
 /* Styles the sidebar divider area. */
 .sidebar__divider {
+  flex-shrink: 0;
   margin: 0 0 20px !important;
   border-color: #334155 !important;
 }

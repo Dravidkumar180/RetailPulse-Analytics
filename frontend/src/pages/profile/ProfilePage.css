@@ -22,3 +22,35 @@
 .profile-page__password-dialog { padding: 0 !important; }.profile-page__password-dialog .change-password-form { max-width: none; border: 0; }
 @media (max-width: 800px) { .profile-page__profile-card { padding: 0 24px 30px; }.profile-page__details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .profile-page__profile-card { padding: 0 16px 24px; }.profile-page__profile-card::before { height: 205px; }.profile-page__identity-section { flex-direction: column; align-items: flex-start; padding-top: 25px; }.profile-page__avatar { width: 88px !important; height: 88px !important; }.profile-page__details-grid { grid-template-columns: 1fr; }.profile-page__password-button { width: 100%; margin-top: 28px !important; } }
+
+body.dark-theme .profile-page__title,
+body.dark-theme .profile-page__identity-section h2 {
+  color: #f8fafc;
+}
+body.dark-theme .profile-page__profile-card {
+  border-color: #334155;
+  background: #111827;
+  box-shadow: 0 12px 35px rgb(0 0 0 / 24%);
+}
+body.dark-theme .profile-page__profile-card::before {
+  border-bottom-color: #334155;
+  background: linear-gradient(120deg, #172033, #16243a 52%, #111827);
+}
+body.dark-theme .profile-page__avatar {
+  border-color: rgb(30 41 59 / 90%);
+}
+body.dark-theme .profile-page__identity-section p,
+body.dark-theme .profile-page__detail span {
+  color: #94a3b8;
+}
+body.dark-theme .profile-page__detail {
+  border-color: #334155;
+  background: linear-gradient(145deg, #172033, #111827);
+}
+body.dark-theme .profile-page__detail:hover {
+  border-color: #475569;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 22%);
+}
+body.dark-theme .profile-page__detail strong {
+  color: #e2e8f0;
+}

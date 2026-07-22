@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
     "dev:api": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/api.ps1",
+    "dev:api:reload": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/api.ps1 -Reload",
     "dev:web": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build"
   },

@@ -20,6 +20,7 @@
   width: calc(100% - var(--current-sidebar-width));
   min-height: 100vh;
   margin-left: var(--current-sidebar-width);
+  padding-top: var(--navbar-height);
   transition:
     width 200ms ease,
     margin-left 200ms ease;
@@ -28,7 +29,7 @@
 /* Styles the dashboard layout content area. */
 .dashboard-layout__content {
   width: 100%;
-  min-height: calc(100vh - 68px);
+  min-height: calc(100vh - var(--navbar-height));
   padding: 24px;
 }
 
@@ -110,4 +111,34 @@ body.dark-theme .MuiTableCell-head,
 body.dark-theme .MuiOutlinedInput-root {
   background-color: #172033;
   color: #e2e8f0;
+}
+
+/* Keep all table pagination controls readable on dark surfaces. */
+body.dark-theme .MuiPaginationItem-root {
+  color: #cbd5e1;
+}
+
+body.dark-theme .MuiPaginationItem-root:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+body.dark-theme .MuiPaginationItem-root.Mui-selected {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+body.dark-theme .MuiPaginationItem-root.Mui-selected:hover {
+  background-color: #1d4ed8;
+}
+
+body.dark-theme .MuiPaginationItem-root.Mui-disabled {
+  color: #64748b;
+  opacity: 1;
+}
+
+body.dark-theme .catalog-pagination,
+body.dark-theme .sales-pagination,
+body.dark-theme .inventory-pagination {
+  border-top-color: #334155;
 }

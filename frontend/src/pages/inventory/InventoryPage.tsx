@@ -3,7 +3,7 @@
  * ========================================================= */
 
 // React state controls filters, dialogs and adjustment form values.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogTitle,
   MenuItem,
+  Pagination,
   TextField,
   Typography,
 } from "@mui/material";
@@ -80,6 +81,7 @@ const InventoryPage = () => {
   const [brand, setBrand] = useState("");
   const [stockStatus, setStockStatus] = useState("");
   const [sort, setSort] = useState("product");
+  const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   // Movement history and stock adjustment dialog state.
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -137,7 +139,31 @@ const InventoryPage = () => {
 
   // Always provide an empty array while the first request is loading.
   const items = inventoryQuery.data?.items ?? [];
+  const pageSize = 5;
+  const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+  const visibleItems = items.slice((page - 1) * pageSize, page * pageSize);
+  useEffect(() => setPage(1), [search, category, brand, stockStatus, sort]);
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
   const summary = inventoryQuery.data?.summary;
+  const stockCounts = Object.fromEntries(
+    (summary?.stockStatusDistribution ?? []).map((item) => [
+      item.name,
+      item.value,
+    ]),
+  );
+  const inStock = stockCounts.IN_STOCK ?? 0;
+  const lowStock = stockCounts.LOW_STOCK ?? 0;
+  const outOfStock = stockCounts.OUT_OF_STOCK ?? 0;
+  const stockTotal = inStock + lowStock + outOfStock;
+  const inStockEnd = stockTotal ? (inStock / stockTotal) * 100 : 0;
+  const lowStockEnd = stockTotal
+    ? ((inStock + lowStock) / stockTotal) * 100
+    : 0;
+  const stockChartBackground = stockTotal
+    ? `conic-gradient(#10b981 0 ${inStockEnd}%, #f59e0b ${inStockEnd}% ${lowStockEnd}%, #ef4444 ${lowStockEnd}% 100%)`
+    : "conic-gradient(#e2e8f0 0 100%)";
   const maxCategory = Math.max(
     ...(summary?.inventoryByCategory.map((x) => x.value) ?? [1]),
     1,
@@ -381,7 +407,7 @@ const InventoryPage = () => {
               </tr>
             </thead>
             <tbody>
-              {items.map((row) => (
+              {visibleItems.map((row) => (
                 <tr key={row.id}>
                   <td>
                     <strong>{row.productName}</strong>
@@ -407,6 +433,16 @@ const InventoryPage = () => {
           {!inventoryQuery.isLoading && items.length === 0 && (
             <Box className="inventory-empty">
               No inventory products match your filters.
+            </Box>
+          )}
+          {pageCount > 1 && (
+            <Box className="inventory-pagination">
+              <Pagination
+                count={pageCount}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                color="primary"
+              />
             </Box>
           )}
         </Box>
@@ -438,14 +474,27 @@ const InventoryPage = () => {
         </Box>
         <Box className="inventory-chart">
           <Typography component="h2">Stock Status Distribution</Typography>
-          <Box className="status-distribution">
-            {summary?.stockStatusDistribution.map((x) => (
-              <Box key={x.name}>
-                <i className={`dot dot--${x.name.toLowerCase()}`} />
-                <span>{statusLabel[x.name]}</span>
-                <strong>{x.value}</strong>
+          <Box className="stock-status-chart">
+            <Box
+              className="stock-status-chart__donut"
+              style={{ background: stockChartBackground }}
+              role="img"
+              aria-label={`${inStock} in stock, ${lowStock} low stock, ${outOfStock} out of stock`}
+            >
+              <Box className="stock-status-chart__center">
+                <strong>{stockTotal}</strong>
+                <span>Products</span>
               </Box>
-            ))}
+            </Box>
+            <Box className="status-distribution">
+              {(summary?.stockStatusDistribution ?? []).map((x) => (
+                <Box key={x.name}>
+                  <i className={`dot dot--${x.name.toLowerCase()}`} />
+                  <span>{statusLabel[x.name]}</span>
+                  <strong>{x.value}</strong>
+                </Box>
+              ))}
+            </Box>
           </Box>
         </Box>
         {/* Quantity-changing actions are hidden from non-admin users. */}

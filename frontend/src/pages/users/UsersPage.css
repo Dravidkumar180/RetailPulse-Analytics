@@ -6,6 +6,41 @@
   width: 100%;
 }
 
+body.dark-theme .users-page__filters,
+body.dark-theme .users-page__table-container {
+  border-color: #334155;
+  background-color: #111827;
+}
+body.dark-theme .users-page__table-container .MuiTableCell-head {
+  border-color: #334155;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+body.dark-theme .users-page__table-container .MuiTableCell-body {
+  border-color: #334155;
+  color: #cbd5e1;
+}
+body.dark-theme .users-page__table-container .MuiTableRow-root:hover {
+  background-color: #172033;
+}
+body.dark-theme .users-page__user strong,
+body.dark-theme .users-page__empty h3 {
+  color: #f8fafc;
+}
+body.dark-theme .users-page__user span,
+body.dark-theme .users-page__empty {
+  color: #94a3b8;
+}
+body.dark-theme .users-page__avatar {
+  background-color: #1e3a5f;
+  color: #93c5fd;
+}
+body.dark-theme .users-page__status-select {
+  border-color: #475569;
+  background-color: #172033;
+  color: #e2e8f0;
+}
+
 /* Styles the users page filters area. */
 .users-page__filters {
   display: grid;

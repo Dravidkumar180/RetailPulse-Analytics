@@ -220,7 +220,7 @@
 .status-distribution {
   display: grid;
   gap: 15px;
-  margin-top: 20px;
+  min-width: 120px;
 }
 .status-distribution > div {
   display: grid;
@@ -310,6 +310,10 @@
   background: #111827;
   border-color: #273449;
 }
+.dark-theme .stock-status-chart__center {
+  background: #111827;
+}
+
 .dark-theme .inventory-table-wrap th {
   background: #1f2937;
 }
@@ -352,5 +356,57 @@
     align-items: flex-start;
     gap: 12px;
     flex-direction: column;
+  }
+}
+.inventory-pagination {
+  display: flex;
+  justify-content: center;
+  padding: 18px 16px;
+  border-top: 1px solid #e2e8f0;
+}
+.stock-status-chart {
+  min-height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 18px 4px 6px;
+}
+.stock-status-chart__donut {
+  width: 144px;
+  height: 144px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 10%);
+}
+.stock-status-chart__center {
+  width: 88px;
+  height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--surface, #fff);
+}
+.stock-status-chart__center strong {
+  font-size: 24px;
+  line-height: 1;
+}
+.stock-status-chart__center span {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+@media (max-width: 800px) {
+  .stock-status-chart {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .status-distribution {
+    width: min(100%, 220px);
   }
 }

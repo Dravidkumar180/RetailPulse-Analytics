@@ -4,13 +4,30 @@
  */
 
 // Imports the needed tools from react.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 // Imports the needed tools from @tanstack/react-query.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // Imports the needed tools from @mui/material.
-import { Alert, Box, Dialog, DialogContent, DialogTitle, Drawer, IconButton, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Drawer,
+  IconButton,
+  MenuItem,
+  Pagination,
+  TextField,
+  Typography,
+} from "@mui/material";
 // Imports the needed tools from @mui/icons-material/Add.
-import AddIcon from "@mui/icons-material/Add"; import CloseIcon from "@mui/icons-material/Close"; import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined"; import EditIcon from "@mui/icons-material/EditOutlined"; import VisibilityIcon from "@mui/icons-material/VisibilityOutlined"; import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import EditIcon from "@mui/icons-material/EditOutlined";
+import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
+import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 // Imports the needed tools from ../../components/common/Button/Button.
 import Button from "../../components/common/Button/Button";
 // Imports the needed tools from ../../components/common/PageHeader/PageHeader.
@@ -18,39 +35,556 @@ import PageHeader from "../../components/common/PageHeader/PageHeader";
 // Imports the needed tools from ../../api/catalogApi.
 import { getCategories, getProducts, type Product } from "../../api/catalogApi";
 // Imports the needed tools from ../../api/salesApi.
-import { createSale, deleteSale, getSales, getSalesSummary, updateSale, type Sale, type SaleInput, type SaleItemInput } from "../../api/salesApi";
+import {
+  createSale,
+  deleteSale,
+  getSales,
+  getSalesSummary,
+  updateSale,
+  type Sale,
+  type SaleInput,
+  type SaleItemInput,
+} from "../../api/salesApi";
 // Loads ./SalesPage.css styles or setup.
 import "./SalesPage.css";
 
 // Creates an empty sale form.
-const empty = ():SaleInput => ({customerName:"",saleDate:new Date().toISOString().slice(0,16),salesChannel:"RETAIL_STORE",paymentMethod:"CARD",items:[]});
+const empty = (): SaleInput => ({
+  customerName: "",
+  saleDate: new Date().toISOString().slice(0, 16),
+  salesChannel: "RETAIL_STORE",
+  paymentMethod: "CARD",
+  items: [],
+});
 // Makes option names readable.
-const display = (value:string) => value.toLowerCase().replaceAll("_"," ").replace(/\b\w/g, c=>c.toUpperCase());
+const display = (value: string) =>
+  value
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 // Formats money in rupees.
-const currency = (value:number) => new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR"}).format(Number(value));
+const currency = (value: number) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+    Number(value),
+  );
 
 // Add and manage sales starts here.
-const SalesPage=()=>{
- // Keeps sales data up to date.
- const qc=useQueryClient(); const [search,setSearch]=useState(""); const [categoryId,setCategoryId]=useState(""); const [channel,setChannel]=useState(""); const [payment,setPayment]=useState(""); const [sort,setSort]=useState("date"); const [open,setOpen]=useState(false); const [view,setView]=useState<Sale|null>(null); const [editing,setEditing]=useState<Sale|null>(null); const [form,setForm]=useState<SaleInput>(empty()); const [error,setError]=useState("");
- // Gets products and categories.
- const products=useQuery({queryKey:["products","sales"],queryFn:()=>getProducts({status:"ACTIVE",sort:"name"})}); const categories=useQuery({queryKey:["categories"],queryFn:()=>getCategories()});
- // Gets sales and summary totals.
- const sales=useQuery({queryKey:["sales",search,categoryId,channel,payment,sort],queryFn:()=>getSales({search:search||undefined,categoryId:categoryId||undefined,salesChannel:channel||undefined,paymentMethod:payment||undefined,sort})}); const summary=useQuery({queryKey:["sales-summary"],queryFn:getSalesSummary});
- // Refreshes changed sales data.
- const refresh=()=>{qc.invalidateQueries({queryKey:["sales"]});qc.invalidateQueries({queryKey:["sales-summary"]});qc.invalidateQueries({queryKey:["products"]});};
- // Saves a new or edited sale.
- const save=useMutation({mutationFn:()=>editing?updateSale(editing.id,form):createSale(form),onSuccess:(sale)=>{sale.inventoryAlerts.forEach(message=>window.dispatchEvent(new CustomEvent("retailpulse:notification",{detail:{title:"Inventory alert",message,path:"/products"}})));refresh();setOpen(false);},onError:(e:any)=>setError(e.response?.data?.detail||e.message)}); const remove=useMutation({mutationFn:deleteSale,onSuccess:refresh});
- // Calculates the sale total.
- const total=useMemo(()=>form.items.reduce((sum,item)=>sum+(item.quantity*item.unitPrice-item.discount+item.tax),0),[form.items]);
- // Opens the sale form.
- const begin=(sale?:Sale)=>{setEditing(sale||null);setError("");setForm(sale?{customerName:sale.customerName,saleDate:sale.saleDate.slice(0,16),salesChannel:sale.salesChannel,paymentMethod:sale.paymentMethod,items:sale.items.map(({productId,quantity,unitPrice,discount,tax})=>({productId,quantity,unitPrice:Number(unitPrice),discount:Number(discount),tax:Number(tax)}))}:empty());setOpen(true)};
- // Adds item.
- const addItem=()=>{const first=products.data?.items.find(p=>!form.items.some(i=>i.productId===p.id));if(!first){setError("Create an active product with available stock before adding a sale item.");return;}setForm(f=>({...f,items:[...f.items,{productId:first.id,quantity:1,unitPrice:Number(first.unitPrice),discount:0,tax:0}]}));};
- // Updates one sale item.
- const updateItem=(index:number,key:keyof SaleItemInput,value:string)=>setForm(f=>({...f,items:f.items.map((item,i)=>i===index?{...item,[key]:key==="productId"?value:Number(value)}:item)}));
- // Finds the selected product.
- const selected=(id:string)=>products.data?.items.find(p=>p.id===id);
- // Returns the completed result to the caller.
- return <Box className="sales-page"><PageHeader title="Sales Management" subtitle="Record transactions and track revenue, orders and stock." icon={<PointOfSaleOutlinedIcon/>} actions={<Button startIcon={<AddIcon/>} onClick={()=>begin()}>New Sale</Button>}/><Box className="sales-summary">{[["Total Sales",summary.data?.totalSales||0,"blue"],["Total Revenue",currency(Number(summary.data?.totalRevenue||0)),"green"],["Total Orders",summary.data?.totalOrders||0,"purple"],["Average Order Value",currency(Number(summary.data?.averageOrderValue||0)),"orange"]].map(([label,value,color])=><Box className="sales-stat" key={String(label)}><i className={String(color)} /> <div><small>{label}</small><strong>{value}</strong></div></Box>)}</Box><Box className="sales-panel"><Box className="sales-filters"><TextField size="small" placeholder="Invoice, customer or product" value={search} onChange={e=>setSearch(e.target.value)}/><TextField select size="small" label="Category" value={categoryId} onChange={e=>setCategoryId(e.target.value)}><MenuItem value="">All Categories</MenuItem>{categories.data?.items.map(c=><MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}</TextField><TextField select size="small" label="Channel" value={channel} onChange={e=>setChannel(e.target.value)}><MenuItem value="">All Channels</MenuItem>{["RETAIL_STORE","ONLINE_STORE","MARKETPLACE"].map(x=><MenuItem key={x} value={x}>{display(x)}</MenuItem>)}</TextField><TextField select size="small" label="Payment" value={payment} onChange={e=>setPayment(e.target.value)}><MenuItem value="">All Methods</MenuItem>{["CASH","CARD","UPI","BANK_TRANSFER"].map(x=><MenuItem key={x} value={x}>{display(x)}</MenuItem>)}</TextField><TextField select size="small" label="Sort" value={sort} onChange={e=>setSort(e.target.value)}><MenuItem value="date">Date</MenuItem><MenuItem value="invoice">Invoice</MenuItem><MenuItem value="total">Total Amount</MenuItem></TextField></Box>{sales.isError?<Alert severity="error">Unable to load sales.</Alert>:<Box className="sales-table"><table><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Channel</th><th>Payment</th><th>Total</th><th>Actions</th></tr></thead><tbody>{sales.data?.items.map(s=><tr key={s.id}><td><strong>{s.invoiceNumber}</strong></td><td>{new Date(s.saleDate).toLocaleString("en-IN")}</td><td>{s.customerName}</td><td><span>{display(s.salesChannel)}</span></td><td>{display(s.paymentMethod)}</td><td><strong>{currency(Number(s.totalAmount))}</strong></td><td><IconButton onClick={()=>setView(s)}><VisibilityIcon/></IconButton><IconButton onClick={()=>begin(s)}><EditIcon/></IconButton><IconButton color="error" onClick={()=>confirm(`Delete ${s.invoiceNumber}? Stock will be restored.`)&&remove.mutate(s.id)}><DeleteIcon/></IconButton></td></tr>)}</tbody></table>{!sales.data?.items.length&&<p className="sales-empty">No sales found. Create your first transaction.</p>}</Box>}</Box><Drawer anchor="right" open={open} onClose={()=>setOpen(false)}><Box className="sales-drawer"><Box className="sales-drawer__head"><Typography component="h2">{editing?`Edit ${editing.invoiceNumber}`:"New Sale"}</Typography><IconButton onClick={()=>setOpen(false)}><CloseIcon/></IconButton></Box>{error&&<Alert severity="error">{error}</Alert>}<TextField required label="Customer Name" value={form.customerName} onChange={e=>setForm(f=>({...f,customerName:e.target.value}))}/><TextField select required label="Sales Channel" value={form.salesChannel} onChange={e=>setForm(f=>({...f,salesChannel:e.target.value as SaleInput["salesChannel"]}))}>{["RETAIL_STORE","ONLINE_STORE","MARKETPLACE"].map(x=><MenuItem key={x} value={x}>{display(x)}</MenuItem>)}</TextField><TextField select required label="Payment Method" value={form.paymentMethod} onChange={e=>setForm(f=>({...f,paymentMethod:e.target.value as SaleInput["paymentMethod"]}))}>{["CASH","CARD","UPI","BANK_TRANSFER"].map(x=><MenuItem key={x} value={x}>{display(x)}</MenuItem>)}</TextField><TextField required type="datetime-local" label="Sale Date & Time" value={form.saleDate} onChange={e=>setForm(f=>({...f,saleDate:e.target.value}))} slotProps={{inputLabel:{shrink:true}}}/><Box className="sales-items-title"><Typography component="h3">Sale Items</Typography><Button variant="outlined" size="small" onClick={addItem}>Add Product</Button></Box>{form.items.map((item,index)=>{const product=selected(item.productId);return <Box className="sales-item" key={`${item.productId}-${index}`}><Box className="sales-item__head"><Typography>{product?.name||"Product"}</Typography><IconButton color="error" onClick={()=>setForm(f=>({...f,items:f.items.filter((_,i)=>i!==index)}))}><CloseIcon/></IconButton></Box><TextField select label="Product" value={item.productId} onChange={e=>updateItem(index,"productId",e.target.value)}>{products.data?.items.map((p:Product)=><MenuItem key={p.id} value={p.id}>{p.name} ({p.stockQuantity} in stock)</MenuItem>)}</TextField><small>Category: {product?.categoryName||"—"} · Available: {product?.stockQuantity??0}</small><Box className="sales-item__numbers">{([['quantity','Qty'],['unitPrice','Unit Price'],['discount','Discount'],['tax','Tax']] as const).map(([key,label])=><TextField key={key} type="number" label={label} value={item[key]} onChange={e=>updateItem(index,key,e.target.value)} inputProps={{min:0,max:key==='quantity'?product?.stockQuantity:undefined}}/>)}</Box><strong>Line total: {currency(item.quantity*item.unitPrice-item.discount+item.tax)}</strong></Box>})}<Box className="sales-total">Total Amount <strong>{currency(total)}</strong></Box><Box className="sales-drawer__actions"><Button variant="outlined" onClick={()=>setOpen(false)}>Cancel</Button><Button loading={save.isPending} disabled={!form.items.length} onClick={()=>save.mutate()}>Save Sale</Button></Box></Box></Drawer><Dialog open={Boolean(view)} onClose={()=>setView(null)} fullWidth maxWidth="sm"><DialogTitle>{view?.invoiceNumber}</DialogTitle><DialogContent>{view&&<Box className="sales-details"><p><strong>Customer:</strong> {view.customerName}</p><p><strong>Date:</strong> {new Date(view.saleDate).toLocaleString("en-IN")}</p><p><strong>Channel:</strong> {display(view.salesChannel)} · <strong>Payment:</strong> {display(view.paymentMethod)}</p>{view.items.map(i=><Box key={i.id} className="sales-details__item"><strong>{i.productName}</strong><span>{i.categoryName} · {i.quantity} × {currency(Number(i.unitPrice))}</span><span>Discount {currency(Number(i.discount))} · Tax {currency(Number(i.tax))}</span><b>{currency(Number(i.total))}</b></Box>)}<h3>Final Amount: {currency(Number(view.totalAmount))}</h3></Box>}</DialogContent></Dialog></Box>;
-}; export default SalesPage;
+const SalesPage = () => {
+  // Keeps sales data up to date.
+  const qc = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [channel, setChannel] = useState("");
+  const [payment, setPayment] = useState("");
+  const [sort, setSort] = useState("date");
+  const [page, setPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<Sale | null>(null);
+  const [editing, setEditing] = useState<Sale | null>(null);
+  const [form, setForm] = useState<SaleInput>(empty());
+  const [error, setError] = useState("");
+  // Gets products and categories.
+  const products = useQuery({
+    queryKey: ["products", "sales"],
+    queryFn: () => getProducts({ status: "ACTIVE", sort: "name" }),
+  });
+  const categories = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => getCategories(),
+  });
+  // Gets sales and summary totals.
+  const sales = useQuery({
+    queryKey: ["sales", search, categoryId, channel, payment, sort],
+    queryFn: () =>
+      getSales({
+        search: search || undefined,
+        categoryId: categoryId || undefined,
+        salesChannel: channel || undefined,
+        paymentMethod: payment || undefined,
+        sort,
+      }),
+  });
+  const summary = useQuery({
+    queryKey: ["sales-summary"],
+    queryFn: getSalesSummary,
+  });
+  // Refreshes changed sales data.
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["sales"] });
+    qc.invalidateQueries({ queryKey: ["sales-summary"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+  };
+  // Saves a new or edited sale.
+  const save = useMutation({
+    mutationFn: () =>
+      editing ? updateSale(editing.id, form) : createSale(form),
+    onSuccess: (sale) => {
+      sale.inventoryAlerts.forEach((message) =>
+        window.dispatchEvent(
+          new CustomEvent("retailpulse:notification", {
+            detail: { title: "Inventory alert", message, path: "/products" },
+          }),
+        ),
+      );
+      refresh();
+      setOpen(false);
+    },
+    onError: (e: any) => setError(e.response?.data?.detail || e.message),
+  });
+  const remove = useMutation({ mutationFn: deleteSale, onSuccess: refresh });
+  // Calculates the sale total.
+  const total = useMemo(
+    () =>
+      form.items.reduce(
+        (sum, item) =>
+          sum + (item.quantity * item.unitPrice - item.discount + item.tax),
+        0,
+      ),
+    [form.items],
+  );
+  const pageSize = 5;
+  const filteredSales = sales.data?.items ?? [];
+  const pageCount = Math.max(1, Math.ceil(filteredSales.length / pageSize));
+  const visibleSales = filteredSales.slice(
+    (page - 1) * pageSize,
+    page * pageSize,
+  );
+  useEffect(() => setPage(1), [search, categoryId, channel, payment, sort]);
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+  // Opens the sale form.
+  const begin = (sale?: Sale) => {
+    setEditing(sale || null);
+    setError("");
+    setForm(
+      sale
+        ? {
+            customerName: sale.customerName,
+            saleDate: sale.saleDate.slice(0, 16),
+            salesChannel: sale.salesChannel,
+            paymentMethod: sale.paymentMethod,
+            items: sale.items.map(
+              ({ productId, quantity, unitPrice, discount, tax }) => ({
+                productId,
+                quantity,
+                unitPrice: Number(unitPrice),
+                discount: Number(discount),
+                tax: Number(tax),
+              }),
+            ),
+          }
+        : empty(),
+    );
+    setOpen(true);
+  };
+  // Adds item.
+  const addItem = () => {
+    const first = products.data?.items.find(
+      (p) => !form.items.some((i) => i.productId === p.id),
+    );
+    if (!first) {
+      setError(
+        "Create an active product with available stock before adding a sale item.",
+      );
+      return;
+    }
+    setForm((f) => ({
+      ...f,
+      items: [
+        ...f.items,
+        {
+          productId: first.id,
+          quantity: 1,
+          unitPrice: Number(first.unitPrice),
+          discount: 0,
+          tax: 0,
+        },
+      ],
+    }));
+  };
+  // Updates one sale item.
+  const updateItem = (index: number, key: keyof SaleItemInput, value: string) =>
+    setForm((f) => ({
+      ...f,
+      items: f.items.map((item, i) =>
+        i === index
+          ? { ...item, [key]: key === "productId" ? value : Number(value) }
+          : item,
+      ),
+    }));
+  // Finds the selected product.
+  const selected = (id: string) =>
+    products.data?.items.find((p) => p.id === id);
+  // Returns the completed result to the caller.
+  return (
+    <Box className="sales-page">
+      <PageHeader
+        title="Sales Management"
+        subtitle="Record transactions and track revenue, orders and stock."
+        icon={<PointOfSaleOutlinedIcon />}
+        actions={
+          <Button startIcon={<AddIcon />} onClick={() => begin()}>
+            New Sale
+          </Button>
+        }
+      />
+      <Box className="sales-summary">
+        {[
+          ["Total Sales", summary.data?.totalSales || 0, "blue"],
+          [
+            "Total Revenue",
+            currency(Number(summary.data?.totalRevenue || 0)),
+            "green",
+          ],
+          ["Total Orders", summary.data?.totalOrders || 0, "purple"],
+          [
+            "Average Order Value",
+            currency(Number(summary.data?.averageOrderValue || 0)),
+            "orange",
+          ],
+        ].map(([label, value, color]) => (
+          <Box className="sales-stat" key={String(label)}>
+            <i className={String(color)} />{" "}
+            <div>
+              <small>{label}</small>
+              <strong>{value}</strong>
+            </div>
+          </Box>
+        ))}
+      </Box>
+      <Box className="sales-panel">
+        <Box className="sales-filters">
+          <TextField
+            size="small"
+            placeholder="Invoice, customer or product"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <TextField
+            select
+            size="small"
+            label="Category"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <MenuItem value="">All Categories</MenuItem>
+            {categories.data?.items.map((c) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            size="small"
+            label="Channel"
+            value={channel}
+            onChange={(e) => setChannel(e.target.value)}
+          >
+            <MenuItem value="">All Channels</MenuItem>
+            {["RETAIL_STORE", "ONLINE_STORE", "MARKETPLACE"].map((x) => (
+              <MenuItem key={x} value={x}>
+                {display(x)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            size="small"
+            label="Payment"
+            value={payment}
+            onChange={(e) => setPayment(e.target.value)}
+          >
+            <MenuItem value="">All Methods</MenuItem>
+            {["CASH", "CARD", "UPI", "BANK_TRANSFER"].map((x) => (
+              <MenuItem key={x} value={x}>
+                {display(x)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            size="small"
+            label="Sort"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <MenuItem value="date">Date</MenuItem>
+            <MenuItem value="invoice">Invoice</MenuItem>
+            <MenuItem value="total">Total Amount</MenuItem>
+          </TextField>
+        </Box>
+        {sales.isError ? (
+          <Alert severity="error">Unable to load sales.</Alert>
+        ) : (
+          <Box className="sales-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Channel</th>
+                  <th>Payment</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleSales.map((s) => (
+                  <tr key={s.id}>
+                    <td>
+                      <strong>{s.invoiceNumber}</strong>
+                    </td>
+                    <td>{new Date(s.saleDate).toLocaleString("en-IN")}</td>
+                    <td>{s.customerName}</td>
+                    <td>
+                      <span>{display(s.salesChannel)}</span>
+                    </td>
+                    <td>{display(s.paymentMethod)}</td>
+                    <td>
+                      <strong>{currency(Number(s.totalAmount))}</strong>
+                    </td>
+                    <td>
+                      <IconButton onClick={() => setView(s)}>
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton onClick={() => begin(s)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() =>
+                          confirm(
+                            `Delete ${s.invoiceNumber}? Stock will be restored.`,
+                          ) && remove.mutate(s.id)
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!sales.data?.items.length && (
+              <p className="sales-empty">
+                No sales found. Create your first transaction.
+              </p>
+            )}
+            {pageCount > 1 && (
+              <Box className="sales-pagination">
+                <Pagination
+                  count={pageCount}
+                  page={page}
+                  onChange={(_, value) => setPage(value)}
+                  color="primary"
+                />
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
+        <Box className="sales-drawer">
+          <Box className="sales-drawer__head">
+            <Typography component="h2">
+              {editing ? `Edit ${editing.invoiceNumber}` : "New Sale"}
+            </Typography>
+            <IconButton onClick={() => setOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          {error && <Alert severity="error">{error}</Alert>}
+          <TextField
+            required
+            label="Customer Name"
+            value={form.customerName}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, customerName: e.target.value }))
+            }
+          />
+          <TextField
+            select
+            required
+            label="Sales Channel"
+            value={form.salesChannel}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                salesChannel: e.target.value as SaleInput["salesChannel"],
+              }))
+            }
+          >
+            {["RETAIL_STORE", "ONLINE_STORE", "MARKETPLACE"].map((x) => (
+              <MenuItem key={x} value={x}>
+                {display(x)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            required
+            label="Payment Method"
+            value={form.paymentMethod}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                paymentMethod: e.target.value as SaleInput["paymentMethod"],
+              }))
+            }
+          >
+            {["CASH", "CARD", "UPI", "BANK_TRANSFER"].map((x) => (
+              <MenuItem key={x} value={x}>
+                {display(x)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            required
+            type="datetime-local"
+            label="Sale Date & Time"
+            value={form.saleDate}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, saleDate: e.target.value }))
+            }
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          <Box className="sales-items-title">
+            <Typography component="h3">Sale Items</Typography>
+            <Button variant="outlined" size="small" onClick={addItem}>
+              Add Product
+            </Button>
+          </Box>
+          {form.items.map((item, index) => {
+            const product = selected(item.productId);
+            return (
+              <Box className="sales-item" key={`${item.productId}-${index}`}>
+                <Box className="sales-item__head">
+                  <Typography>{product?.name || "Product"}</Typography>
+                  <IconButton
+                    color="error"
+                    onClick={() =>
+                      setForm((f) => ({
+                        ...f,
+                        items: f.items.filter((_, i) => i !== index),
+                      }))
+                    }
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+                <TextField
+                  select
+                  label="Product"
+                  value={item.productId}
+                  onChange={(e) =>
+                    updateItem(index, "productId", e.target.value)
+                  }
+                >
+                  {products.data?.items.map((p: Product) => (
+                    <MenuItem key={p.id} value={p.id}>
+                      {p.name} ({p.stockQuantity} in stock)
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <small>
+                  Category: {product?.categoryName || "—"} · Available:{" "}
+                  {product?.stockQuantity ?? 0}
+                </small>
+                <Box className="sales-item__numbers">
+                  {(
+                    [
+                      ["quantity", "Qty"],
+                      ["unitPrice", "Unit Price"],
+                      ["discount", "Discount"],
+                      ["tax", "Tax"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <TextField
+                      key={key}
+                      type="number"
+                      label={label}
+                      value={item[key]}
+                      onChange={(e) => updateItem(index, key, e.target.value)}
+                      inputProps={{
+                        min: 0,
+                        max:
+                          key === "quantity"
+                            ? product?.stockQuantity
+                            : undefined,
+                      }}
+                    />
+                  ))}
+                </Box>
+                <strong>
+                  Line total:{" "}
+                  {currency(
+                    item.quantity * item.unitPrice - item.discount + item.tax,
+                  )}
+                </strong>
+              </Box>
+            );
+          })}
+          <Box className="sales-total">
+            Total Amount <strong>{currency(total)}</strong>
+          </Box>
+          <Box className="sales-drawer__actions">
+            <Button variant="outlined" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              loading={save.isPending}
+              disabled={!form.items.length}
+              onClick={() => save.mutate()}
+            >
+              Save Sale
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
+      <Dialog
+        open={Boolean(view)}
+        onClose={() => setView(null)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>{view?.invoiceNumber}</DialogTitle>
+        <DialogContent>
+          {view && (
+            <Box className="sales-details">
+              <p>
+                <strong>Customer:</strong> {view.customerName}
+              </p>
+              <p>
+                <strong>Date:</strong>{" "}
+                {new Date(view.saleDate).toLocaleString("en-IN")}
+              </p>
+              <p>
+                <strong>Channel:</strong> {display(view.salesChannel)} ·{" "}
+                <strong>Payment:</strong> {display(view.paymentMethod)}
+              </p>
+              {view.items.map((i) => (
+                <Box key={i.id} className="sales-details__item">
+                  <strong>{i.productName}</strong>
+                  <span>
+                    {i.categoryName} · {i.quantity} ×{" "}
+                    {currency(Number(i.unitPrice))}
+                  </span>
+                  <span>
+                    Discount {currency(Number(i.discount))} · Tax{" "}
+                    {currency(Number(i.tax))}
+                  </span>
+                  <b>{currency(Number(i.total))}</b>
+                </Box>
+              ))}
+              <h3>Final Amount: {currency(Number(view.totalAmount))}</h3>
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
+    </Box>
+  );
+};
+export default SalesPage;

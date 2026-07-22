@@ -6,6 +6,50 @@
   width: 100%;
 }
 
+body.dark-theme .audit-logs-page__filters,
+body.dark-theme .audit-logs-page__table-container {
+  border-color: #334155;
+  background-color: #111827;
+}
+body.dark-theme .audit-logs-page__table-container .MuiTableCell-head {
+  border-color: #334155;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+body.dark-theme .audit-logs-page__table-container .MuiTableCell-body {
+  border-color: #334155;
+  color: #cbd5e1;
+}
+body.dark-theme .audit-logs-page__table-container .MuiTableRow-root:hover {
+  background-color: #172033;
+}
+body.dark-theme .audit-logs-page__company,
+body.dark-theme .audit-logs-page__user strong,
+body.dark-theme .audit-logs-page__empty h3 {
+  color: #f8fafc;
+}
+body.dark-theme .audit-logs-page__user span,
+body.dark-theme .audit-logs-page__system-user,
+body.dark-theme .audit-logs-page__empty {
+  color: #94a3b8;
+}
+body.dark-theme .audit-logs-page__action--company_registered {
+  background-color: #1e3a5f;
+  color: #93c5fd;
+}
+body.dark-theme .audit-logs-page__action--user_login {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+body.dark-theme .audit-logs-page__action--user_logout {
+  background-color: #334155;
+  color: #cbd5e1;
+}
+body.dark-theme .audit-logs-page__action--password_changed {
+  background-color: #78350f;
+  color: #fde68a;
+}
+
 /* Styles the audit logs page filters area. */
 .audit-logs-page__filters {
   display: grid;
