@@ -98,6 +98,7 @@ class AuditLogRepository:
         search: str | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
+        exclude_authentication: bool = False,
     ) -> tuple[list[AuditLog], int]:
         # Stores filters for the next steps.
         filters = []
@@ -111,6 +112,13 @@ class AuditLogRepository:
         # Checks whether this condition is true.
         if action:
             filters.append(AuditLog.action == action)
+
+        if exclude_authentication:
+            filters.append(
+                AuditLog.action.notin_(
+                    [AuditAction.USER_LOGIN, AuditAction.USER_LOGOUT]
+                )
+            )
 
         # Checks whether this condition is true.
         if user_id:

@@ -159,6 +159,8 @@ class CompanyService:
         *,
         current_user: User,
         request_data: UpdateCompanyRequest,
+        ip_address: str,
+        browser: str,
     ) -> CompanyResponse:
         # Stores company for the next steps.
         company = company_repository.get_by_id(
@@ -221,6 +223,18 @@ class CompanyService:
             db,
             company,
             values=values,
+        )
+        audit_log_service.create_log(
+            db,
+            company_id=current_user.company_id,
+            user_id=current_user.id,
+            action=AuditAction.SETTINGS_UPDATED,
+            ip_address=ip_address,
+            browser=browser,
+            details=(
+                "Company settings updated: "
+                + ", ".join(sorted(values.keys()))
+            ),
         )
 
         # Applies this change to the database session.

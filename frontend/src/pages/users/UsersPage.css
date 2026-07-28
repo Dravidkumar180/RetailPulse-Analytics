@@ -6,6 +6,98 @@
   width: 100%;
 }
 
+.users-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.users-page__invite-button.app-button.MuiButton-containedPrimary {
+  background-color: #14b8a6;
+  color: #062e2c;
+  box-shadow: 0 8px 18px rgb(20 184 166 / 24%);
+}
+
+.users-page__invite-button.app-button.MuiButton-containedPrimary:hover {
+  background-color: #0d9488;
+}
+
+.users-page__dialog .MuiBackdrop-root {
+  background-color: rgb(3 10 23 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.users-page__dialog .MuiDialog-paper {
+  border: 1px solid #263449;
+  border-radius: 14px;
+  background: #111827;
+  color: #f8fafc;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 45%);
+}
+
+.users-page__dialog .MuiDialogTitle-root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 30px 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.users-page__dialog .MuiDialogTitle-root .MuiIconButton-root {
+  color: #94a3b8;
+}
+
+.users-page__dialog .MuiDialogContent-root {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 14px 30px 20px;
+}
+
+.users-page__dialog .MuiDialogActions-root {
+  gap: 10px;
+  padding: 0 30px 30px;
+}
+
+.users-page__dialog .MuiInputLabel-root {
+  color: #94a3b8;
+}
+
+.users-page__dialog .MuiInputLabel-root.Mui-focused {
+  color: #2dd4bf;
+}
+
+.users-page__dialog .MuiOutlinedInput-root {
+  border-radius: 10px;
+  color: #f8fafc;
+}
+
+.users-page__dialog .MuiOutlinedInput-notchedOutline {
+  border-color: #3b475b;
+}
+
+.users-page__dialog .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #64748b;
+}
+
+.users-page__dialog .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #14b8a6;
+}
+
+.users-page__dialog .MuiSvgIcon-root {
+  color: #94a3b8;
+}
+
+.users-page__dialog .MuiDialogActions-root .MuiButton-containedPrimary {
+  background-color: #14b8a6;
+  color: #062e2c;
+}
+
+.users-page__dialog .MuiDialogActions-root .MuiButton-containedPrimary:hover {
+  background-color: #0d9488;
+}
+
 body.dark-theme .users-page__filters,
 body.dark-theme .users-page__table-container {
   border-color: #334155;
@@ -182,6 +274,27 @@ body.dark-theme .users-page__status-select {
 
 /* Adjusts the layout for this screen size. */
 @media (max-width: 520px) {
+  .users-page__header-actions {
+    width: 100%;
+    flex-direction: column-reverse;
+  }
+
+  .users-page__header-actions .app-button {
+    width: 100%;
+  }
+
+  .users-page__dialog .MuiDialogTitle-root {
+    padding: 22px 20px 10px;
+  }
+
+  .users-page__dialog .MuiDialogContent-root {
+    padding: 12px 20px 18px;
+  }
+
+  .users-page__dialog .MuiDialogActions-root {
+    padding: 0 20px 22px;
+  }
+
   /* Styles the users page filters area. */
   .users-page__filters {
     grid-template-columns: 1fr;

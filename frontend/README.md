@@ -1,3 +1,23 @@
+# RetailPulse Analytics frontend
+
+## Development
+
+Run the following command from either the repository root or this `frontend`
+directory:
+
+```powershell
+npm run dev
+```
+
+This starts both the FastAPI backend on `http://127.0.0.1:8000` and the Vite
+frontend. Do not start Vite directly unless the API is already running.
+
+To intentionally start only Vite, use:
+
+```powershell
+npm run dev:vite
+```
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

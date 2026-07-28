@@ -12,11 +12,38 @@ export type AuditAction =
   | "USER_LOGIN"
   | "USER_LOGOUT"
   | "PASSWORD_CHANGED"
+  | "USER_INVITED"
+  | "USER_UPDATED"
+  | "CATEGORY_CREATED"
+  | "CATEGORY_UPDATED"
+  | "CATEGORY_DELETED"
+  | "PRODUCT_CREATED"
+  | "PRODUCT_UPDATED"
+  | "PRODUCT_DELETED"
+  | "PRODUCT_ACTIVATED"
+  | "PRODUCT_DEACTIVATED"
   | "SALE_CREATED"
   | "SALE_UPDATED"
   | "SALE_DELETED"
   | "INVENTORY_UPDATED"
-  | "PRODUCT_OUT_OF_STOCK";
+  | "PRODUCT_OUT_OF_STOCK"
+  | "STOCK_ADDED"
+  | "STOCK_REMOVED"
+  | "STOCK_ADJUSTED"
+  | "REORDER_LEVEL_UPDATED"
+  | "PRODUCT_LOW_STOCK"
+  | "DASHBOARD_VIEWED"
+  | "REPORT_EXPORTED"
+  | "DASHBOARD_FILTERS_APPLIED"
+  | "PROFILE_UPDATED"
+  | "SETTINGS_UPDATED"
+  | "CUSTOMER_CREATED"
+  | "CUSTOMER_UPDATED"
+  | "CUSTOMER_DELETED"
+  | "CUSTOMER_ACTIVATED"
+  | "CUSTOMER_DEACTIVATED"
+  | "CUSTOMER_STATUS_CHANGED"
+  | "CUSTOMER_EXPORTED";
 
 // Defines the fields allowed in audit log company.
 export interface AuditLogCompany {
@@ -52,6 +79,7 @@ export interface AuditLogFilters {
   search?: string;
   startDate?: string;
   endDate?: string;
+  excludeAuthentication?: boolean;
 }
 
 // Defines the fields allowed in audit log list response.
@@ -79,6 +107,7 @@ export const getAuditLogs = async (
         search: filters.search,
         startDate: filters.startDate,
         endDate: filters.endDate,
+        excludeAuthentication: filters.excludeAuthentication,
       },
     },
   );
@@ -86,6 +115,25 @@ export const getAuditLogs = async (
   // Returns the completed result to the caller.
   return response.data;
 };
+
+export interface AuthenticationSummary {
+  userId: string;
+  name: string;
+  email: string;
+  loginCount: number;
+  logoutCount: number;
+  lastLogin: string | null;
+  lastLogout: string | null;
+  state: "SIGNED_IN" | "SIGNED_OUT";
+}
+
+export const getAuthenticationSummary =
+  async (): Promise<AuthenticationSummary[]> => {
+    const response = await axiosInstance.get<AuthenticationSummary[]>(
+      "/audit-logs/authentication-summary",
+    );
+    return response.data;
+  };
 
 // Gets audit log by id.
 export const getAuditLogById = async (

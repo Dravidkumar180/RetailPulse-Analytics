@@ -12,7 +12,7 @@ $apiProcess = $null
 $ownsApiProcess = $false
 
 try {
-    $existingApi = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:8001/" -TimeoutSec 2
+    $existingApi = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:8000/" -TimeoutSec 2
 }
 catch {
     $existingApi = $null
@@ -21,9 +21,9 @@ catch {
 if ($null -eq $existingApi -or $existingApi.StatusCode -ne 200) {
     $apiProcess = Start-Process `
         -FilePath $pythonPath `
-        -ArgumentList "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8001" `
+        -ArgumentList "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000" `
         -WorkingDirectory $backendPath `
-        -NoNewWindow `
+        -WindowStyle Hidden `
         -PassThru
     $ownsApiProcess = $true
 }
@@ -36,7 +36,7 @@ try {
         }
 
         try {
-            $response = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:8001/" -TimeoutSec 1
+            $response = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:8000/" -TimeoutSec 1
             if ($response.StatusCode -eq 200) {
                 $apiReady = $true
                 break
@@ -48,10 +48,12 @@ try {
     }
 
     if (-not $apiReady) {
-        throw "The API did not become ready at http://127.0.0.1:8001."
+        throw "The API did not become ready at http://127.0.0.1:8000."
     }
 
-    & npm.cmd --prefix (Join-Path $projectRoot "frontend") run dev
+    Write-Host "RetailPulse API is ready at http://127.0.0.1:8000."
+    Write-Host "Starting the frontend..."
+    & npm.cmd --prefix (Join-Path $projectRoot "frontend") run dev:vite
 }
 finally {
     if ($ownsApiProcess -and $null -ne $apiProcess -and -not $apiProcess.HasExited) {

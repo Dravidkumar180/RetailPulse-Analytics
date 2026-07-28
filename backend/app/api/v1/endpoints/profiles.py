@@ -5,9 +5,10 @@
 from fastapi import APIRouter
 
 # Imports the needed names from app.api.dependencies.
-from app.api.dependencies import DatabaseSession
+from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.security.
 from app.core.security import CurrentActiveUser
+from app.core.permissions import AnalystOrHigher
 # Imports the needed names from app.schemas.profile.
 from app.schemas.profile import (
     UpdateProfileRequest,
@@ -47,11 +48,15 @@ def get_current_profile(
 def update_current_profile(
     request_data: UpdateProfileRequest,
     db: DatabaseSession,
-    current_user: CurrentActiveUser,
+    current_user: AnalystOrHigher,
+    client_ip: ClientIp,
+    browser: BrowserInfo,
 ) -> UserProfileResponse:
     # Returns the completed value to the caller.
     return profile_service.update_current_profile(
         db=db,
         current_user=current_user,
         request_data=request_data,
+        ip_address=client_ip,
+        browser=browser,
     )

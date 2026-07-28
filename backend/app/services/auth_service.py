@@ -104,6 +104,7 @@ class AuthService:
                 action=AuditAction.USER_LOGIN,
                 ip_address=ip_address,
                 browser=browser,
+                details=f"User logged in: {user.email}.",
             )
 
             # Applies this change to the database session.
@@ -214,6 +215,7 @@ class AuthService:
                 action=AuditAction.USER_LOGOUT,
                 ip_address=ip_address,
                 browser=browser,
+                details=f"User logged out: {current_user.email}.",
             )
 
             # Applies this change to the database session.
@@ -267,6 +269,7 @@ class AuthService:
                 action=AuditAction.PASSWORD_CHANGED,
                 ip_address=ip_address,
                 browser=browser,
+                details="Password changed from the authenticated profile.",
             )
 
             # Applies this change to the database session.
@@ -384,6 +387,7 @@ class AuthService:
                 action=AuditAction.PASSWORD_CHANGED,
                 ip_address=ip_address,
                 browser=browser,
+                details="Password changed using a password reset token.",
             )
 
             # Applies this change to the database session.

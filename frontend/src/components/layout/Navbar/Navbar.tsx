@@ -123,6 +123,7 @@ const Navbar = ({
     { label: "Sales", path: "/sales" },
     // Makes the Inventory Management page available through global page search.
     { label: "Inventory", path: "/inventory" },
+    { label: "Customers", path: "/customers" },
     { label: "Analytics", path: "/analytics" },
     { label: "Reports", path: "/reports" },
     { label: "Users", path: "/users" },
@@ -371,7 +372,7 @@ const Navbar = ({
             My Profile
           </MenuItem>
 
-          {(user?.role === "SUPER_ADMIN" || user?.role === "COMPANY_ADMIN") && (
+          {user?.role && (
             <MenuItem onClick={() => handleNavigate("/settings")}>
               <ListItemIcon>
                 <SettingsOutlinedIcon fontSize="small" />

@@ -66,13 +66,13 @@ const menuItems: SidebarMenuItem[] = [
     label: "Products",
     path: "/products",
     icon: <Inventory2OutlinedIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Categories",
     path: "/categories",
     icon: <BusinessOutlinedIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Sales",
@@ -86,7 +86,13 @@ const menuItems: SidebarMenuItem[] = [
     path: "/inventory",
     icon: <Inventory2OutlinedIcon />,
     // Viewers cannot access company inventory; Analysts receive read-only access.
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+  },
+  {
+    label: "Customers",
+    path: "/customers",
+    icon: <PeopleOutlineIcon />,
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Analytics",
@@ -110,13 +116,13 @@ const menuItems: SidebarMenuItem[] = [
     label: "Users",
     path: "/users",
     icon: <PeopleOutlineIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Audit Logs",
     path: "/audit-logs",
     icon: <HistoryOutlinedIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
     label: "Profile",
@@ -127,7 +133,7 @@ const menuItems: SidebarMenuItem[] = [
     label: "Settings",
     path: "/settings",
     icon: <SettingsOutlinedIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
 ];
 

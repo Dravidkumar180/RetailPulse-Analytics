@@ -15,7 +15,7 @@ if (-not (Test-Path -LiteralPath $pythonPath)) {
 # Avoid launching a second server into an occupied port. This also makes
 # repeated `npm run dev:api` calls harmless when RetailPulse is already up.
 try {
-    $existingApi = Invoke-RestMethod -Uri "http://127.0.0.1:8001/" -TimeoutSec 2
+    $existingApi = Invoke-RestMethod -Uri "http://127.0.0.1:8000/" -TimeoutSec 2
 }
 catch {
     $existingApi = $null
@@ -23,11 +23,11 @@ catch {
 
 if ($null -ne $existingApi) {
     if ($existingApi.application -eq "RetailPulse Analytics") {
-        Write-Host "RetailPulse API is already running at http://127.0.0.1:8001."
+        Write-Host "RetailPulse API is already running at http://127.0.0.1:8000."
         exit 0
     }
 
-    throw "Port 8001 is already in use by another application. Stop it or configure a different API port."
+    throw "Port 8000 is already in use by another application. Stop it or configure a different API port."
 }
 
 Push-Location $backendPath
@@ -39,7 +39,7 @@ try {
     $uvicornArguments = @(
         "-m", "uvicorn", "app.main:app",
         "--host", "127.0.0.1",
-        "--port", "8001"
+        "--port", "8000"
     )
 
     if ($Reload) {

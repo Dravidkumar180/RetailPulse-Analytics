@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query, status
 
 # Imports the needed names from app.api.dependencies.
-from app.api.dependencies import DatabaseSession
+from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.constants.
 from app.core.constants import (
     DEFAULT_PAGE,
@@ -16,12 +16,13 @@ from app.core.constants import (
     MAX_PAGE_SIZE,
 )
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import CompanyAdminOrSuperAdmin
+from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 # Imports the needed names from app.models.user.
 from app.models.user import User
 # Imports the needed names from app.schemas.user.
 from app.schemas.user import (
     CreateUserRequest,
+    UpdateUserRequest,
     UpdateUserStatusRequest,
     UserListResponse,
     UserResponse,
@@ -42,7 +43,7 @@ router = APIRouter()
 # Gets users.
 def list_users(
     db: DatabaseSession,
-    current_user: CompanyAdminOrSuperAdmin,
+    current_user: AllAuthenticatedRoles,
     page: Annotated[
         int,
         Query(ge=1),
@@ -86,13 +87,17 @@ def list_users(
 def create_user(
     request_data: CreateUserRequest,
     db: DatabaseSession,
-    current_user: CompanyAdminOrSuperAdmin,
+    current_user: AnalystOrHigher,
+    client_ip: ClientIp,
+    browser: BrowserInfo,
 ) -> UserResponse:
     # Returns the completed value to the caller.
     return user_service.create_company_user(
         db=db,
         current_user=current_user,
         request_data=request_data,
+        ip_address=client_ip,
+        browser=browser,
     )
 
 
@@ -106,7 +111,7 @@ def update_user_status(
     user_id: str,
     request_data: UpdateUserStatusRequest,
     db: DatabaseSession,
-    current_user: CompanyAdminOrSuperAdmin,
+    current_user: AnalystOrHigher,
 ) -> UserResponse:
     # Returns the completed value to the caller.
     return user_service.update_user_status(
@@ -114,4 +119,27 @@ def update_user_status(
         current_user=current_user,
         user_id=user_id,
         request_data=request_data,
+    )
+
+
+@router.patch(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="Update user role and account status",
+)
+def update_user(
+    user_id: str,
+    request_data: UpdateUserRequest,
+    db: DatabaseSession,
+    current_user: AnalystOrHigher,
+    client_ip: ClientIp,
+    browser: BrowserInfo,
+) -> UserResponse:
+    return user_service.update_user(
+        db=db,
+        current_user=current_user,
+        user_id=user_id,
+        request_data=request_data,
+        ip_address=client_ip,
+        browser=browser,
     )

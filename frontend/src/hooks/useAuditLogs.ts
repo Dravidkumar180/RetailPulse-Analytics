@@ -34,9 +34,7 @@ export const useAuditLogs = (
   } = useAuth();
 
   // Checks view audit logs.
-  const canViewAuditLogs =
-    user?.role === "SUPER_ADMIN" ||
-    user?.role === "COMPANY_ADMIN";
+  const canViewAuditLogs = Boolean(user?.role);
 
   // Returns the completed result to the caller.
   return useQuery<AuditLogListResponse, Error>({

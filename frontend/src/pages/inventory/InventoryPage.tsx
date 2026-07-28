@@ -73,7 +73,7 @@ const reasons = [
 const InventoryPage = () => {
   // Analysts can view inventory, while only Admins can change quantities.
   const { user } = useAuth();
-  const admin = user?.role === "COMPANY_ADMIN" || user?.role === "SUPER_ADMIN";
+  const admin = user?.role !== "VIEWER";
   const queryClient = useQueryClient();
   // Overview search, filter, sorting and toolbar state.
   const [search, setSearch] = useState("");

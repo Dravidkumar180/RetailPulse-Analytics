@@ -13,7 +13,7 @@ from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.constants.
 from app.core.constants import AuditAction
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import CompanyAdminOrSuperAdmin
+from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 # Imports the needed names from app.models.catalog.
 from app.models.catalog import Category, Product
 # Imports the needed names from app.schemas.catalog.
@@ -64,7 +64,7 @@ def validate(db, company_id, data, product_id=None):
 
 # Gets products.
 @router.get("", response_model=ProductList)
-def list_products(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, search: str | None = None, category_id: UUID | None = Query(default=None, alias="categoryId"), product_status: str | None = Query(default=None, alias="status"), brand: str | None = None, sort: str = "recent") -> ProductList:
+def list_products(db: DatabaseSession, current_user: AllAuthenticatedRoles, search: str | None = None, category_id: UUID | None = Query(default=None, alias="categoryId"), product_status: str | None = Query(default=None, alias="status"), brand: str | None = None, sort: str = "recent") -> ProductList:
     # Stores company id for the next steps.
     company_id = current_user.company_id
     # Stores statement for the next steps.
@@ -92,22 +92,22 @@ def list_products(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, s
 
 # Runs product detail logic.
 @router.get("/{product_id}", response_model=ProductResponse)
-def product_detail(product_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin): return response(get_item(db, current_user.company_id, product_id))
+def product_detail(product_id: UUID, db: DatabaseSession, current_user: AllAuthenticatedRoles): return response(get_item(db, current_user.company_id, product_id))
 
 # Adds product.
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-def create_product(data: ProductWrite, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo):
+def create_product(data: ProductWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     validate(db, current_user.company_id, data)
     # Stores item for the next steps.
     item = Product(company_id=current_user.company_id, **data.model_dump()); item.name=item.name.strip(); item.sku=item.sku.strip().upper()
     # Applies this change to the database session.
-    db.add(item); db.flush(); audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.PRODUCT_CREATED, ip_address=client_ip, browser=browser); db.commit(); db.refresh(item)
+    db.add(item); db.flush(); audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.PRODUCT_CREATED, ip_address=client_ip, browser=browser, details=f"Created product: {item.name} ({item.sku})."); db.commit(); db.refresh(item)
     # Returns the completed value to the caller.
     return response(item)
 
 # Saves product.
 @router.put("/{product_id}", response_model=ProductResponse)
-def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo):
+def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     # Stores item for the next steps.
     item=get_item(db,current_user.company_id,product_id); old=item.status; validate(db,current_user.company_id,data,product_id)
     # Repeats this work for the matching values.
@@ -115,10 +115,10 @@ def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, cu
     item.name=item.name.strip(); item.sku=item.sku.strip().upper()
     # Stores action for the next steps.
     action = AuditAction.PRODUCT_ACTIVATED if old != item.status and item.status == "ACTIVE" else AuditAction.PRODUCT_DEACTIVATED if old != item.status else AuditAction.PRODUCT_UPDATED
-    audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=action,ip_address=client_ip,browser=browser); db.commit(); db.refresh(item); return response(item)
+    audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=action,ip_address=client_ip,browser=browser,details=f"Updated product: {item.name} ({item.sku})."); db.commit(); db.refresh(item); return response(item)
 
 # Removes product.
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_product(product_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo):
+def delete_product(product_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     # Stores item for the next steps.
-    item=get_item(db,current_user.company_id,product_id); db.delete(item); audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=AuditAction.PRODUCT_DELETED,ip_address=client_ip,browser=browser); db.commit()
+    item=get_item(db,current_user.company_id,product_id); deleted_name=f"{item.name} ({item.sku})"; db.delete(item); audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=AuditAction.PRODUCT_DELETED,ip_address=client_ip,browser=browser,details=f"Deleted product: {deleted_name}."); db.commit()

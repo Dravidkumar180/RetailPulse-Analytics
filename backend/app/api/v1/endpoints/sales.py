@@ -20,7 +20,7 @@ from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.constants.
 from app.core.constants import AuditAction
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import AnalystOrHigher
+from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 # Imports the needed names from app.models.catalog.
 from app.models.catalog import Product
 # Imports the needed names from app.models.sales.
@@ -155,14 +155,14 @@ def log(db, user, action: AuditAction, sale: Sale, ip: str, browser: str, suffix
 
 # Runs summary logic.
 @router.get("/summary", response_model=SalesSummary)
-def summary(db: DatabaseSession, current_user: AnalystOrHigher) -> SalesSummary:
+def summary(db: DatabaseSession, current_user: AllAuthenticatedRoles) -> SalesSummary:
     orders, revenue = db.execute(select(func.count(Sale.id), func.coalesce(func.sum(Sale.total_amount), 0)).where(Sale.company_id == current_user.company_id)).one(); total = Decimal(revenue)
     # Returns the completed value to the caller.
     return SalesSummary(total_sales=orders, total_revenue=total, total_orders=orders, average_order_value=money(total/orders) if orders else Decimal("0"))
 
 # Gets sales.
 @router.get("", response_model=SaleList)
-def list_sales(db: DatabaseSession, current_user: AnalystOrHigher, search: str | None = None, start_date: date | None = Query(None, alias="startDate"), end_date: date | None = Query(None, alias="endDate"), category_id: UUID | None = Query(None, alias="categoryId"), sales_channel: str | None = Query(None, alias="salesChannel"), payment_method: str | None = Query(None, alias="paymentMethod"), sort: str = "date") -> SaleList:
+def list_sales(db: DatabaseSession, current_user: AllAuthenticatedRoles, search: str | None = None, start_date: date | None = Query(None, alias="startDate"), end_date: date | None = Query(None, alias="endDate"), category_id: UUID | None = Query(None, alias="categoryId"), sales_channel: str | None = Query(None, alias="salesChannel"), payment_method: str | None = Query(None, alias="paymentMethod"), sort: str = "date") -> SaleList:
     # Stores filters for the next steps.
     filters = [Sale.company_id == current_user.company_id]
     # Checks whether this condition is true.
@@ -186,7 +186,7 @@ def list_sales(db: DatabaseSession, current_user: AnalystOrHigher, search: str |
 
 # Runs detail logic.
 @router.get("/{sale_id}", response_model=SaleResponse)
-def detail(sale_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher) -> SaleResponse: return response(get_sale(db, current_user.company_id, sale_id))
+def detail(sale_id: UUID, db: DatabaseSession, current_user: AllAuthenticatedRoles) -> SaleResponse: return response(get_sale(db, current_user.company_id, sale_id))
 
 # Adds create.
 @router.post("", response_model=SaleResponse, status_code=status.HTTP_201_CREATED)

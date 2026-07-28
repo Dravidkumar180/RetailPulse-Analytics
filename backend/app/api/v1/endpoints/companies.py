@@ -5,9 +5,9 @@
 from fastapi import APIRouter, status
 
 # Imports the needed names from app.api.dependencies.
-from app.api.dependencies import DatabaseSession
+from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import CompanyAdminOrSuperAdmin
+from app.core.permissions import AnalystOrHigher
 # Imports the needed names from app.core.security.
 from app.core.security import CurrentActiveUser
 # Imports the needed names from app.schemas.company.
@@ -50,13 +50,17 @@ def get_current_company(
 def update_current_company(
     request_data: UpdateCompanyRequest,
     db: DatabaseSession,
-    current_user: CompanyAdminOrSuperAdmin,
+    current_user: AnalystOrHigher,
+    client_ip: ClientIp,
+    browser: BrowserInfo,
 ) -> CompanyResponse:
     # Returns the completed value to the caller.
     return company_service.update_company(
         db=db,
         current_user=current_user,
         request_data=request_data,
+        ip_address=client_ip,
+        browser=browser,
     )
 
 

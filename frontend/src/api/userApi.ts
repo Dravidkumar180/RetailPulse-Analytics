@@ -53,6 +53,11 @@ export interface UpdateUserStatusRequest {
   status: AccountStatus;
 }
 
+export interface UpdateUserRequest {
+  role: Exclude<UserRole, "SUPER_ADMIN">;
+  status: AccountStatus;
+}
+
 // Gets company users.
 export const getCompanyUsers = async (
   filters: UserFilters = {},
@@ -101,5 +106,16 @@ export const updateUserStatus = async (
   );
 
   // Returns the completed result to the caller.
+  return response.data;
+};
+
+export const updateCompanyUser = async (
+  userId: string,
+  requestData: UpdateUserRequest,
+): Promise<CompanyUser> => {
+  const response = await axiosInstance.patch<CompanyUser>(
+    `/users/${userId}`,
+    requestData,
+  );
   return response.data;
 };

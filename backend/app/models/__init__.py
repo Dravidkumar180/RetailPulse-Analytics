@@ -17,6 +17,7 @@ from app.models.catalog import Category, Product
 from app.models.sales import Sale, SaleItem
 # Imports Inventory Management tables so create_all and metadata can discover them.
 from app.models.inventory import Inventory, InventoryMovement, InventoryNotification
+from app.models.customer import Customer, CustomerPurchaseSummary, CustomerTimeline, CustomerNotification
 
 # Stores  all  for the next steps.
 __all__ = [
@@ -33,4 +34,8 @@ __all__ = [
     "Inventory",
     "InventoryMovement",
     "InventoryNotification",
+    "Customer",
+    "CustomerPurchaseSummary",
+    "CustomerTimeline",
+    "CustomerNotification",
 ]

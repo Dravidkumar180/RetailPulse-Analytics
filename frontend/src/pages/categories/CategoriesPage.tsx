@@ -35,6 +35,8 @@ import {
 } from "../../api/catalogApi";
 // Imports the needed tools from ../../components/common/Button/Button.
 import Button from "../../components/common/Button/Button";
+import PageHeader from "../../components/common/PageHeader/PageHeader";
+import { useAuth } from "../../hooks/useAuth";
 // Loads ../products/ProductsPage.css styles or setup.
 import "../products/ProductsPage.css";
 // Loads ./CategoriesPage.css styles or setup.
@@ -45,6 +47,8 @@ const empty: CategoryInput = { name: "", description: "", status: "ACTIVE" };
 // Add and manage categories starts here.
 const CategoriesPage = () => {
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const canEdit = user?.role !== "VIEWER";
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
@@ -93,6 +97,10 @@ const CategoriesPage = () => {
   }, [page, pageCount]);
   return (
     <Box className="catalog-page">
+      <PageHeader
+        title="Categories Management"
+        subtitle="Create and organize product categories for your company."
+      />
       <Box className="catalog-summary">
         <Box className="catalog-stat">
           <span className="catalog-stat__icon purple">▦</span>
@@ -126,9 +134,11 @@ const CategoriesPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button startIcon={<AddIcon />} onClick={() => show()}>
-            Add Category
-          </Button>
+          {canEdit && (
+            <Button startIcon={<AddIcon />} onClick={() => show()}>
+              Add Category
+            </Button>
+          )}
         </Box>
         <Box className="catalog-table">
           <table>
@@ -159,7 +169,7 @@ const CategoriesPage = () => {
                   </td>
                   <td>{c.productCount}</td>
                   <td>
-                    <Box className="category-actions">
+                    {canEdit ? <Box className="category-actions">
                       <IconButton onClick={() => show(c)}>
                         <EditIcon />
                       </IconButton>
@@ -172,7 +182,7 @@ const CategoriesPage = () => {
                       >
                         <DeleteIcon />
                       </IconButton>
-                    </Box>
+                    </Box> : <Typography component="span">View only</Typography>}
                   </td>
                 </tr>
               ))}

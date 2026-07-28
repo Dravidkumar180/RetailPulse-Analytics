@@ -14,3 +14,54 @@
 @media (max-width: 1050px) { .overview-dashboard__primary, .overview-dashboard__compact { grid-template-columns: repeat(2, 1fr); }.categories-content { gap: 25px; }.dashboard-tables-row { grid-template-columns: 1fr; }.dashboard-tables-row > .overview-panel { height: auto; } }
 @media (max-width: 760px) { .dashboard-analytics-row { grid-template-columns: 1fr; }.overview-dashboard__header { gap: 15px; }.overview-dashboard__date { display: none; }.products-table-card { overflow-x: auto; }.products-table { min-width: 650px; }.categories-content { flex-direction: column; gap: 18px; padding: 25px 0; }.categories-legend { width: 230px; }.recent-orders-card { overflow-x: auto; }.recent-orders-table { min-width: 520px; } }
 @media (max-width: 520px) { .overview-dashboard__primary, .overview-dashboard__compact { grid-template-columns: 1fr; }.sales-channel-bars { gap: 8px; padding-inline: 0; }.sales-overview-chart { margin-left: 42px; }.overview-panel .MuiCardContent-root { padding: 16px !important; } }
+
+body.dark-theme .overview-dashboard,
+body.dark-theme .overview-dashboard h1,
+body.dark-theme .overview-dashboard h2,
+body.dark-theme .overview-dashboard strong {
+  color: #f8fafc;
+}
+body.dark-theme .overview-dashboard__header p,
+body.dark-theme .overview-dashboard__date,
+body.dark-theme .overview-dashboard__primary span,
+body.dark-theme .overview-dashboard__compact span,
+body.dark-theme .sales-channel-bars span,
+body.dark-theme .categories-donut span,
+body.dark-theme .categories-legend > div,
+body.dark-theme .sales-axis,
+body.dark-theme .sales-dates,
+body.dark-theme .recent-head {
+  color: #cbd5e1;
+}
+body.dark-theme .overview-dashboard__date,
+body.dark-theme .dashboard-panel-title button,
+body.dark-theme .overview-dashboard__primary .MuiCard-root,
+body.dark-theme .overview-dashboard__compact .MuiCard-root,
+body.dark-theme .overview-panel {
+  background: #111827;
+  color: #f8fafc;
+  border-color: #334155;
+}
+body.dark-theme .overview-dashboard__compact i,
+body.dark-theme .product-thumb {
+  color: #e2e8f0;
+}
+body.dark-theme .categories-donut::after {
+  background: #111827;
+}
+body.dark-theme .sales-channel-bars,
+body.dark-theme .products-table,
+body.dark-theme .products-row,
+body.dark-theme .recent-order {
+  border-color: #334155;
+}
+body.dark-theme .sales-channel-bars {
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 54px, #263449 55px);
+}
+body.dark-theme .products-head {
+  background: #1e293b;
+  color: #f8fafc;
+}
+body.dark-theme .sales-overview-chart .grid {
+  stroke: #334155;
+}

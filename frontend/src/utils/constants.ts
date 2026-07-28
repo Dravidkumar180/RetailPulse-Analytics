@@ -118,6 +118,18 @@ export const AUDIT_ACTIONS: {
     label: "Password Changed",
     value: "PASSWORD_CHANGED" as AuditAction,
   },
+  {
+    label: "Dashboard Viewed",
+    value: "DASHBOARD_VIEWED" as AuditAction,
+  },
+  {
+    label: "Report Exported",
+    value: "REPORT_EXPORTED" as AuditAction,
+  },
+  {
+    label: "Dashboard Filters Applied",
+    value: "DASHBOARD_FILTERS_APPLIED" as AuditAction,
+  },
 ];
 
 // Stores industry options for the steps below.

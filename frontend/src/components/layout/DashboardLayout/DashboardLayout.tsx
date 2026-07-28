@@ -16,6 +16,7 @@ import {
   getInventoryNotifications,
 } from "../../../api/inventoryApi";
 import { useAuth } from "../../../hooks/useAuth";
+import { clearCustomerNotifications, getCustomerNotifications } from "../../../api/customerApi";
 
 // Imports the needed tools from ../Navbar/Navbar.
 import Navbar from "../Navbar/Navbar";
@@ -49,15 +50,22 @@ const DashboardLayout = () => {
    * Inventory Management notifications
    * ======================================================= */
 
-  // Inventory alerts are visible only to Company Admins and Super Admins.
+  // Editors receive actionable inventory alerts; viewers remain read-only.
   const canSeeInventoryNotifications =
-    user?.role === "SUPER_ADMIN" || user?.role === "COMPANY_ADMIN";
+    Boolean(user?.role && user.role !== "VIEWER");
   // Poll the backend so new low-stock and out-of-stock alerts reach the bell.
   const inventoryNotifications = useQuery({
     queryKey: ["inventory-notifications"],
     queryFn: getInventoryNotifications,
     enabled: canSeeInventoryNotifications,
     refetchInterval: 30000,
+  });
+  const canSeeCustomerNotifications = user?.role === "COMPANY_ADMIN" || user?.role === "SUPER_ADMIN";
+  const customerNotifications = useQuery({
+    queryKey:["customer-notifications"],
+    queryFn:getCustomerNotifications,
+    enabled:canSeeCustomerNotifications,
+    refetchInterval:30000,
   });
   // Mark all Inventory notifications as read on the backend.
   const clearNotificationsMutation = useMutation({
@@ -71,6 +79,9 @@ const DashboardLayout = () => {
       title: item.title,
       message: item.message,
       path: "/inventory",
+    })),
+    ...(customerNotifications.data ?? []).map((item)=>({
+      id:item.id,title:item.title,message:item.message,path:`/customers?customer=${item.customerId}`,
     })),
     ...notifications,
   ];
@@ -147,6 +158,9 @@ const DashboardLayout = () => {
             setNotifications([]);
             if (canSeeInventoryNotifications)
               clearNotificationsMutation.mutate();
+            if (canSeeCustomerNotifications) {
+              clearCustomerNotifications().then(()=>queryClient.setQueryData(["customer-notifications"],[]));
+            }
           }}
           onReviewNotification={(id) =>
             // Updates the page or stored state with this result.

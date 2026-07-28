@@ -13,7 +13,7 @@ from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.constants.
 from app.core.constants import AuditAction
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import CompanyAdminOrSuperAdmin
+from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 # Imports the needed names from app.models.catalog.
 from app.models.catalog import Category, Product
 # Imports the needed names from app.schemas.catalog.
@@ -35,7 +35,7 @@ def response(category: Category, count: int = 0) -> CategoryResponse:
 
 # Category list starts here.
 @router.get("", response_model=CategoryList)
-def list_categories(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, search: str | None = Query(default=None, max_length=120)) -> CategoryList:
+def list_categories(db: DatabaseSession, current_user: AllAuthenticatedRoles, search: str | None = Query(default=None, max_length=120)) -> CategoryList:
     # Stores statement for the next steps.
     statement = (select(Category, func.count(Product.id)).outerjoin(Product).where(Category.company_id == current_user.company_id).group_by(Category.id).order_by(Category.name))
     # Checks whether this condition is true.
@@ -49,7 +49,7 @@ def list_categories(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin,
 
 # Add category starts here.
 @router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
-def create_category(data: CategoryWrite, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo) -> CategoryResponse:
+def create_category(data: CategoryWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo) -> CategoryResponse:
     # Stores duplicate for the next steps.
     duplicate = db.scalar(select(Category).where(Category.company_id == current_user.company_id, func.lower(Category.name) == data.name.strip().lower()))
     # Checks whether this condition is true.
@@ -60,7 +60,7 @@ def create_category(data: CategoryWrite, db: DatabaseSession, current_user: Comp
     item = Category(company_id=current_user.company_id, name=data.name.strip(), description=data.description, status=data.status)
     # Applies this change to the database session.
     db.add(item); db.flush()
-    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_CREATED, ip_address=client_ip, browser=browser)
+    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_CREATED, ip_address=client_ip, browser=browser, details=f"Created category: {item.name}.")
     # Applies this change to the database session.
     db.commit(); db.refresh(item)
     # Returns the completed value to the caller.
@@ -68,7 +68,7 @@ def create_category(data: CategoryWrite, db: DatabaseSession, current_user: Comp
 
 # Update category starts here.
 @router.put("/{category_id}", response_model=CategoryResponse)
-def update_category(category_id: UUID, data: CategoryWrite, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo) -> CategoryResponse:
+def update_category(category_id: UUID, data: CategoryWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo) -> CategoryResponse:
     # Stores item for the next steps.
     item = db.scalar(select(Category).where(Category.id == category_id, Category.company_id == current_user.company_id))
     # Checks whether this condition is true.
@@ -78,7 +78,7 @@ def update_category(category_id: UUID, data: CategoryWrite, db: DatabaseSession,
     # Checks whether this condition is true.
     if duplicate: raise HTTPException(status_code=409, detail="A category with this name already exists.")
     item.name, item.description, item.status = data.name.strip(), data.description, data.status
-    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_UPDATED, ip_address=client_ip, browser=browser)
+    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_UPDATED, ip_address=client_ip, browser=browser, details=f"Updated category: {item.name}.")
     # Applies this change to the database session.
     db.commit(); db.refresh(item)
     # Stores count for the next steps.
@@ -88,7 +88,7 @@ def update_category(category_id: UUID, data: CategoryWrite, db: DatabaseSession,
 
 # Delete category starts here.
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_category(category_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo) -> None:
+def delete_category(category_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo) -> None:
     # Stores item for the next steps.
     item = db.scalar(select(Category).where(Category.id == category_id, Category.company_id == current_user.company_id))
     # Checks whether this condition is true.
@@ -98,7 +98,8 @@ def delete_category(category_id: UUID, db: DatabaseSession, current_user: Compan
         # Stops here and reports the problem.
         raise HTTPException(status_code=409, detail="Delete or move products in this category first.")
     # Applies this change to the database session.
+    deleted_name = item.name
     db.delete(item)
-    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_DELETED, ip_address=client_ip, browser=browser)
+    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.CATEGORY_DELETED, ip_address=client_ip, browser=browser, details=f"Deleted category: {deleted_name}.")
     # Applies this change to the database session.
     db.commit()

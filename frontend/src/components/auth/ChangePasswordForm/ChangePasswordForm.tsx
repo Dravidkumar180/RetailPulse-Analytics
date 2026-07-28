@@ -207,9 +207,9 @@ const ChangePasswordForm = ({
                   "New password must contain at least 8 characters.",
               },
               maxLength: {
-                value: 128,
+                value: 72,
                 message:
-                  "New password must not exceed 128 characters.",
+                  "New password must not exceed 72 characters.",
               },
               pattern: {
                 value:

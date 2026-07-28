@@ -10,7 +10,7 @@ from sqlalchemy.orm import joinedload
 
 from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 from app.core.constants import AuditAction
-from app.core.permissions import AnalystOrHigher, CompanyAdminOrSuperAdmin
+from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 from app.models.catalog import Category, Product
 from app.models.inventory import Inventory, InventoryMovement, InventoryNotification
 from app.schemas.inventory import (
@@ -134,7 +134,7 @@ def item_response(row: Inventory) -> InventoryItem:
 @router.get("", response_model=InventoryList)
 def list_inventory(
     db: DatabaseSession,
-    current_user: AnalystOrHigher,
+    current_user: AllAuthenticatedRoles,
     search: str | None = None,
     category_id: UUID | None = Query(None, alias="categoryId"),
     brand: str | None = None,
@@ -231,7 +231,7 @@ def list_inventory(
 @router.get("/movements", response_model=list[MovementResponse])
 def list_movements(
     db: DatabaseSession,
-    current_user: AnalystOrHigher,
+    current_user: AllAuthenticatedRoles,
     movement_type: str | None = Query(None, alias="movementType"),
     product_id: UUID | None = Query(None, alias="productId"),
 ) -> list[MovementResponse]:
@@ -287,7 +287,7 @@ def list_movements(
 def adjust_stock(
     data: StockAdjustment,
     db: DatabaseSession,
-    current_user: CompanyAdminOrSuperAdmin,
+    current_user: AnalystOrHigher,
     client_ip: ClientIp,
     browser: BrowserInfo,
 ) -> MovementResponse:
@@ -442,7 +442,7 @@ def adjust_stock(
 
 @router.get("/notifications", response_model=list[NotificationResponse])
 def list_notifications(
-    db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin
+    db: DatabaseSession, current_user: AllAuthenticatedRoles
 ) -> list[NotificationResponse]:
     """Return recent stock alerts for the current company's bell icon."""
 
@@ -457,7 +457,7 @@ def list_notifications(
 
 @router.delete("/notifications", status_code=status.HTTP_204_NO_CONTENT)
 def clear_notifications(
-    db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin
+    db: DatabaseSession, current_user: AnalystOrHigher
 ) -> None:
     """Mark all company inventory notifications as read by removing them."""
 

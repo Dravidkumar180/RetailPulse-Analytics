@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from app.models.catalog import Category, Product
     # Imports the needed names from app.models.sales.
     from app.models.sales import Sale
+    from app.models.customer import Customer
 
 
 # Groups company behavior.
@@ -95,6 +96,9 @@ class Company(
     )
     # Stores sales for the next steps.
     sales: Mapped[list["Sale"]] = relationship(
+        back_populates="company", cascade="all, delete-orphan", passive_deletes=True,
+    )
+    customers: Mapped[list["Customer"]] = relationship(
         back_populates="company", cascade="all, delete-orphan", passive_deletes=True,
     )
 

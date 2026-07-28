@@ -1,10 +1,4 @@
-/* Teaching guide: This file contains the users page page.
- * Follow the comments from imports and setup through actions and output.
- * These comments explain the existing code without changing its behavior.
- */
-
-// Imports the needed tools from react.
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   useMutation,
   useQuery,
@@ -13,7 +7,13 @@ import {
 import {
   Alert,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Pagination,
@@ -27,76 +27,85 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-// Imports the needed tools from @mui/icons-material/PeopleOutlined.
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutlined";
-// Imports the needed tools from @mui/icons-material/RefreshOutlined.
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 import type {
   AccountStatus,
   UserRole,
 } from "../../api/authApi";
 import {
+  createCompanyUser,
   getCompanyUsers,
-  updateUserStatus,
-  // Defines the company user type.
+  updateCompanyUser,
   type CompanyUser,
+  type CreateUserRequest,
+  type UpdateUserRequest,
 } from "../../api/userApi";
-// Imports the needed tools from ../../components/common/Button/Button.
 import Button from "../../components/common/Button/Button";
-// Imports the needed tools from ../../components/common/LoadingSpinner/LoadingSpinner.
 import LoadingSpinner from "../../components/common/LoadingSpinner/LoadingSpinner";
-// Imports the needed tools from ../../components/common/PageHeader/PageHeader.
 import PageHeader from "../../components/common/PageHeader/PageHeader";
-// Imports the needed tools from ../../components/common/StatusBadge/StatusBadge.
 import StatusBadge from "../../components/common/StatusBadge/StatusBadge";
+import { useAuth } from "../../hooks/useAuth";
 
-// Loads ./UsersPage.css styles or setup.
 import "./UsersPage.css";
 
-// Runs format date time logic.
-const formatDateTime = (date?: string | null): string => {
-  // Checks whether this condition is true.
-  if (!date) {
-    // Returns the completed result to the caller.
-    return "Never";
-  }
+const editableRoles: Array<Exclude<UserRole, "SUPER_ADMIN">> = [
+  "VIEWER",
+  "ANALYST",
+  "COMPANY_ADMIN",
+];
+const accountStatuses: AccountStatus[] = [
+  "ACTIVE",
+  "INACTIVE",
+  "SUSPENDED",
+];
 
-  // Returns the completed result to the caller.
+const emptyInvite: CreateUserRequest = {
+  name: "",
+  email: "",
+  password: "",
+  role: "VIEWER",
+};
+
+const formatDateTime = (date?: string | null): string => {
+  if (!date) return "Never";
   return new Intl.DateTimeFormat("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(date));
 };
 
-// Runs format role logic.
-const formatRole = (role: string): string => {
-  // Returns the completed result to the caller.
-  return role
+const formatLabel = (value: string): string =>
+  value
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
-};
 
-// Shows the users page.
 const UsersPage = () => {
-  // Stores query client for the steps below.
   const queryClient = useQueryClient();
-
+  const { user: currentUser } = useAuth();
+  const canEdit = currentUser?.role !== "VIEWER";
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<UserRole | "">("");
   const [status, setStatus] = useState<AccountStatus | "">("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [invite, setInvite] = useState<CreateUserRequest>(emptyInvite);
+  const [editingUser, setEditingUser] = useState<CompanyUser | null>(null);
+  const [editValues, setEditValues] = useState<UpdateUserRequest>({
+    role: "VIEWER",
+    status: "ACTIVE",
+  });
 
-  // Stores users query for the steps below.
   const usersQuery = useQuery({
-    queryKey: [
-      "company-users",
-      page,
-      search,
-      role,
-      status,
-    ],
+    queryKey: ["company-users", page, search, role, status],
     queryFn: () =>
       getCompanyUsers({
         page,
@@ -107,45 +116,69 @@ const UsersPage = () => {
       }),
   });
 
-  // Stores status mutation for the steps below.
-  const statusMutation = useMutation({
-    mutationFn: ({
-      userId,
-      newStatus,
-    }: {
-      userId: string;
-      newStatus: AccountStatus;
-    }) =>
-      updateUserStatus(userId, {
-        status: newStatus,
-      }),
-    onSuccess: async (_, variables) => {
-      // Waits for this asynchronous work to finish.
+  const inviteMutation = useMutation({
+    mutationFn: createCompanyUser,
+    onSuccess: async (_, invitedUser) => {
       await queryClient.invalidateQueries({
         queryKey: ["company-users"],
       });
+      setInviteOpen(false);
+      setInvite(emptyInvite);
+      setShowPassword(false);
       window.dispatchEvent(new CustomEvent("retailpulse:notification", {
         detail: {
-          title: "User status updated",
-          message: `A user account was changed to ${formatRole(variables.newStatus)}.`,
+          title: "User invited",
+          message: `${invitedUser.name.trim()} was invited as ${formatLabel(invitedUser.role)}.`,
           path: "/users",
         },
       }));
     },
   });
 
-  // Handles status change.
-  const handleStatusChange = (
-    user: CompanyUser,
-    newStatus: AccountStatus,
-  ) => {
-    statusMutation.mutate({
-      userId: user.id,
-      newStatus,
+  const editMutation = useMutation({
+    mutationFn: ({
+      userId,
+      values,
+    }: {
+      userId: string;
+      values: UpdateUserRequest;
+    }) => updateCompanyUser(userId, values),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["company-users"],
+      });
+      setEditingUser(null);
+    },
+  });
+
+  const openEdit = (user: CompanyUser) => {
+    setEditingUser(user);
+    setEditValues({
+      role: user.role === "SUPER_ADMIN" ? "COMPANY_ADMIN" : user.role,
+      status: user.status,
+    });
+    editMutation.reset();
+  };
+
+  const submitInvite = (event: FormEvent) => {
+    event.preventDefault();
+    inviteMutation.mutate({
+      ...invite,
+      name: invite.name.trim(),
+      email: invite.email.trim(),
     });
   };
 
-  // Builds the visible interface below.
+  const submitEdit = (event: FormEvent) => {
+    event.preventDefault();
+    if (editingUser) {
+      editMutation.mutate({
+        userId: editingUser.id,
+        values: editValues,
+      });
+    }
+  };
+
   return (
     <Box className="users-page">
       <PageHeader
@@ -153,13 +186,27 @@ const UsersPage = () => {
         subtitle="Manage users belonging to your company."
         icon={<PeopleOutlineIcon />}
         actions={
-          <Button
-            variant="outlined"
-            startIcon={<RefreshOutlinedIcon />}
-            onClick={() => usersQuery.refetch()}
-          >
-            Refresh
-          </Button>
+          <Box className="users-page__header-actions">
+            <Button
+              variant="outlined"
+              startIcon={<RefreshOutlinedIcon />}
+              onClick={() => usersQuery.refetch()}
+            >
+              Refresh
+            </Button>
+            {canEdit && (
+              <Button
+                startIcon={<AddIcon />}
+                className="users-page__invite-button"
+                onClick={() => {
+                  inviteMutation.reset();
+                  setInviteOpen(true);
+                }}
+              >
+                Invite User
+              </Button>
+            )}
+          </Box>
         }
       />
 
@@ -169,80 +216,55 @@ const UsersPage = () => {
           placeholder="Search by name or email"
           value={search}
           onChange={(event) => {
-            // Updates the page or stored state with this result.
             setSearch(event.target.value);
-            // Updates the page or stored state with this result.
             setPage(1);
           }}
           className="users-page__search"
         />
-
         <FormControl className="users-page__filter">
-          <InputLabel id="user-role-filter-label">
-            Role
-          </InputLabel>
-
+          <InputLabel id="user-role-filter-label">Role</InputLabel>
           <Select
             labelId="user-role-filter-label"
             label="Role"
             value={role}
             onChange={(event) => {
-              // Updates the page or stored state with this result.
               setRole(event.target.value as UserRole | "");
-              // Updates the page or stored state with this result.
               setPage(1);
             }}
           >
             <MenuItem value="">All Roles</MenuItem>
-            <MenuItem value="COMPANY_ADMIN">
-              Company Admin
-            </MenuItem>
-            <MenuItem value="ANALYST">Analyst</MenuItem>
-            <MenuItem value="VIEWER">Viewer</MenuItem>
+            {editableRoles.map((item) => (
+              <MenuItem key={item} value={item}>
+                {formatLabel(item)}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
-
         <FormControl className="users-page__filter">
-          <InputLabel id="user-status-filter-label">
-            Status
-          </InputLabel>
-
+          <InputLabel id="user-status-filter-label">Status</InputLabel>
           <Select
             labelId="user-status-filter-label"
             label="Status"
             value={status}
             onChange={(event) => {
-              // Updates the page or stored state with this result.
-              setStatus(
-                event.target.value as AccountStatus | "",
-              );
-              // Updates the page or stored state with this result.
+              setStatus(event.target.value as AccountStatus | "");
               setPage(1);
             }}
           >
             <MenuItem value="">All Statuses</MenuItem>
-            <MenuItem value="ACTIVE">Active</MenuItem>
-            <MenuItem value="INACTIVE">Inactive</MenuItem>
-            <MenuItem value="SUSPENDED">Suspended</MenuItem>
+            {accountStatuses.map((item) => (
+              <MenuItem key={item} value={item}>
+                {formatLabel(item)}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
 
-      {statusMutation.isError && (
-        <Alert
-          severity="error"
-          className="users-page__alert"
-        >
-          Unable to update the user status.
-        </Alert>
-      )}
-
       {usersQuery.isLoading ? (
         <LoadingSpinner message="Loading company users..." />
       ) : usersQuery.isError ? (
-        <Alert severity="error">
-          Unable to load company users.
-        </Alert>
+        <Alert severity="error">Unable to load company users.</Alert>
       ) : (
         <>
           <TableContainer className="users-page__table-container">
@@ -254,12 +276,9 @@ const UsersPage = () => {
                   <TableCell>Status</TableCell>
                   <TableCell>Last Login</TableCell>
                   <TableCell>Created</TableCell>
-                  <TableCell align="right">
-                    Change Status
-                  </TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {usersQuery.data?.items.length ? (
                   usersQuery.data.items.map((user) => (
@@ -269,59 +288,35 @@ const UsersPage = () => {
                           <Box className="users-page__avatar">
                             {user.name.charAt(0).toUpperCase()}
                           </Box>
-
                           <Box>
                             <Typography component="strong">
                               {user.name}
                             </Typography>
-
                             <Typography component="span">
                               {user.email}
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
-
-                      <TableCell>
-                        {formatRole(user.role)}
-                      </TableCell>
-
+                      <TableCell>{formatLabel(user.role)}</TableCell>
                       <TableCell>
                         <StatusBadge status={user.status} />
                       </TableCell>
-
-                      <TableCell>
-                        {formatDateTime(user.lastLogin)}
-                      </TableCell>
-
-                      <TableCell>
-                        {formatDateTime(user.createdAt)}
-                      </TableCell>
-
+                      <TableCell>{formatDateTime(user.lastLogin)}</TableCell>
+                      <TableCell>{formatDateTime(user.createdAt)}</TableCell>
                       <TableCell align="right">
-                        <Select
-                          size="small"
-                          value={user.status}
-                          disabled={statusMutation.isPending}
-                          onChange={(event) =>
-                            handleStatusChange(
-                              user,
-                              event.target
-                                .value as AccountStatus,
-                            )
-                          }
-                          className="users-page__status-select"
-                        >
-                          <MenuItem value="ACTIVE">
-                            Active
-                          </MenuItem>
-                          <MenuItem value="INACTIVE">
-                            Inactive
-                          </MenuItem>
-                          <MenuItem value="SUSPENDED">
-                            Suspended
-                          </MenuItem>
-                        </Select>
+                        {canEdit ? (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<EditOutlinedIcon />}
+                            onClick={() => openEdit(user)}
+                          >
+                            Edit
+                          </Button>
+                        ) : (
+                          <Typography component="span">View only</Typography>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -330,14 +325,9 @@ const UsersPage = () => {
                     <TableCell colSpan={6}>
                       <Box className="users-page__empty">
                         <PeopleOutlineIcon />
-
-                        <Typography component="h3">
-                          No users found
-                        </Typography>
-
+                        <Typography component="h3">No users found</Typography>
                         <Typography component="p">
-                          No company users match the selected
-                          filters.
+                          No company users match the selected filters.
                         </Typography>
                       </Box>
                     </TableCell>
@@ -346,22 +336,208 @@ const UsersPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
           {(usersQuery.data?.totalPages ?? 0) > 1 && (
             <Box className="users-page__pagination">
               <Pagination
                 page={page}
                 count={usersQuery.data?.totalPages ?? 1}
-                onChange={(_, selectedPage) =>
-                  // Updates the page or stored state with this result.
-                  setPage(selectedPage)
-                }
+                onChange={(_, selectedPage) => setPage(selectedPage)}
                 color="primary"
               />
             </Box>
           )}
         </>
       )}
+
+      <Dialog
+        open={inviteOpen}
+        onClose={() => !inviteMutation.isPending && setInviteOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        className="users-page__dialog"
+      >
+        <Box component="form" onSubmit={submitInvite}>
+          <DialogTitle>
+            Invite User
+            <IconButton
+              aria-label="Close invite dialog"
+              onClick={() => setInviteOpen(false)}
+              disabled={inviteMutation.isPending}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {inviteMutation.isError && (
+              <Alert severity="error">
+                Unable to invite this user. Check the details or use a different email.
+              </Alert>
+            )}
+            <TextField
+              label="Full Name"
+              value={invite.name}
+              onChange={(event) =>
+                setInvite({ ...invite, name: event.target.value })
+              }
+              required
+              inputProps={{ minLength: 2, maxLength: 100 }}
+              fullWidth
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={invite.email}
+              onChange={(event) =>
+                setInvite({ ...invite, email: event.target.value })
+              }
+              required
+              fullWidth
+            />
+            <TextField
+              label="Temporary Password"
+              type={showPassword ? "text" : "password"}
+              value={invite.password}
+              onChange={(event) =>
+                setInvite({ ...invite, password: event.target.value })
+              }
+              required
+              fullWidth
+              slotProps={{
+                htmlInput: { minLength: 8, maxLength: 72 },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        onClick={() => setShowPassword((current) => !current)}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffOutlinedIcon />
+                        ) : (
+                          <VisibilityOutlinedIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <FormControl fullWidth>
+              <InputLabel id="invite-role-label">Role</InputLabel>
+              <Select
+                labelId="invite-role-label"
+                label="Role"
+                value={invite.role}
+                onChange={(event) =>
+                  setInvite({
+                    ...invite,
+                    role: event.target.value as CreateUserRequest["role"],
+                  })
+                }
+              >
+                {editableRoles.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {formatLabel(item)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="outlined"
+              onClick={() => setInviteOpen(false)}
+              disabled={inviteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={inviteMutation.isPending}>
+              Send Invite
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(editingUser)}
+        onClose={() => !editMutation.isPending && setEditingUser(null)}
+        fullWidth
+        maxWidth="sm"
+        className="users-page__dialog"
+      >
+        <Box component="form" onSubmit={submitEdit}>
+          <DialogTitle>
+            Edit {editingUser?.name}
+            <IconButton
+              aria-label="Close edit dialog"
+              onClick={() => setEditingUser(null)}
+              disabled={editMutation.isPending}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {editMutation.isError && (
+              <Alert severity="error">
+                Unable to save this user. Please try again.
+              </Alert>
+            )}
+            <FormControl fullWidth>
+              <InputLabel id="edit-role-label">Role</InputLabel>
+              <Select
+                labelId="edit-role-label"
+                label="Role"
+                value={editValues.role}
+                onChange={(event) =>
+                  setEditValues({
+                    ...editValues,
+                    role: event.target.value as UpdateUserRequest["role"],
+                  })
+                }
+              >
+                {editableRoles.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {formatLabel(item)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="edit-status-label">Status</InputLabel>
+              <Select
+                labelId="edit-status-label"
+                label="Status"
+                value={editValues.status}
+                onChange={(event) =>
+                  setEditValues({
+                    ...editValues,
+                    status: event.target.value as AccountStatus,
+                  })
+                }
+              >
+                {accountStatuses.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {formatLabel(item)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="outlined"
+              onClick={() => setEditingUser(null)}
+              disabled={editMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={editMutation.isPending}>
+              Save Changes
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
     </Box>
   );
 };

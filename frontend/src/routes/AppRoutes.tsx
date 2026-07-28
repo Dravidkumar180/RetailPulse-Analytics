@@ -43,6 +43,8 @@ import CategoriesPage from "../pages/categories/CategoriesPage";
 import SalesPage from "../pages/sales/SalesPage";
 // Imports the Inventory Management overview and stock movement page.
 import InventoryPage from "../pages/inventory/InventoryPage";
+import AnalyticsPage from "../pages/analytics/AnalyticsPage";
+import CustomersPage from "../pages/customers/CustomersPage";
 
 // Imports the needed tools from ./routePaths.
 import { ROUTE_PATHS } from "./routePaths";
@@ -85,16 +87,18 @@ const AppRoutes = () => {
           <Route
             element={
               <RoleProtectedRoute
-                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"]}
+                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"]}
               />
             }
           >
             <Route path={ROUTE_PATHS.sales} element={<SalesPage />} />
             {/* Inventory is shared by Admins and Analysts under this role guard. */}
             <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
+            <Route path={ROUTE_PATHS.analytics} element={<AnalyticsPage />} />
+            <Route path={ROUTE_PATHS.customers} element={<CustomersPage />} />
           </Route>
 
-          {[ROUTE_PATHS.analytics, ROUTE_PATHS.reports].map((path) => (
+          {[ROUTE_PATHS.reports].map((path) => (
             <Route key={path} path={path} element={<SectionPage />} />
           ))}
 
@@ -102,7 +106,7 @@ const AppRoutes = () => {
           <Route
             element={
               <RoleProtectedRoute
-                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN"]}
+                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"]}
               />
             }
           >

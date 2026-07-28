@@ -91,10 +91,15 @@ ROLE_PERMISSIONS: dict[UserRole, set[Permission]] = {
         Permission.VIEW_DASHBOARD,
         Permission.VIEW_PROFILE,
         Permission.VIEW_PRODUCTS,
+        Permission.MANAGE_PRODUCTS,
         Permission.VIEW_SALES,
+        Permission.MANAGE_SALES,
         Permission.VIEW_ANALYTICS,
         Permission.CREATE_ANALYTICS,
         Permission.VIEW_REPORTS,
+        Permission.MANAGE_USERS,
+        Permission.VIEW_AUDIT_LOGS,
+        Permission.MANAGE_SETTINGS,
     },
     UserRole.VIEWER: {
         Permission.VIEW_DASHBOARD,
@@ -103,6 +108,7 @@ ROLE_PERMISSIONS: dict[UserRole, set[Permission]] = {
         Permission.VIEW_SALES,
         Permission.VIEW_ANALYTICS,
         Permission.VIEW_REPORTS,
+        Permission.VIEW_AUDIT_LOGS,
     },
 }
 

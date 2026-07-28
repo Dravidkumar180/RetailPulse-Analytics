@@ -3,6 +3,7 @@
 # The comments explain the code only; they do not change how it runs.
 
 from sqlalchemy.orm import Session
+from app.core.constants import AuditAction
 
 # Imports the needed names from app.models.user.
 from app.models.user import User
@@ -15,6 +16,7 @@ from app.schemas.profile import (
     UpdateProfileRequest,
     UserProfileResponse,
 )
+from app.services.audit_log_service import audit_log_service
 
 
 # Groups profile service behavior.
@@ -57,11 +59,22 @@ class ProfileService:
         *,
         current_user: User,
         request_data: UpdateProfileRequest,
+        ip_address: str,
+        browser: str,
     ) -> UserProfileResponse:
         user_repository.update_name(
             db,
             current_user,
             request_data.name,
+        )
+        audit_log_service.create_log(
+            db,
+            company_id=current_user.company_id,
+            user_id=current_user.id,
+            action=AuditAction.PROFILE_UPDATED,
+            ip_address=ip_address,
+            browser=browser,
+            details=f"Profile name updated to {request_data.name.strip()}.",
         )
 
         # Applies this change to the database session.

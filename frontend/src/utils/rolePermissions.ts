@@ -62,10 +62,15 @@ const rolePermissionMap: Record<
     "VIEW_DASHBOARD",
     "VIEW_PROFILE",
     "VIEW_PRODUCTS",
+    "MANAGE_PRODUCTS",
     "VIEW_SALES",
+    "MANAGE_SALES",
     "VIEW_ANALYTICS",
     "CREATE_ANALYTICS",
     "VIEW_REPORTS",
+    "MANAGE_USERS",
+    "VIEW_AUDIT_LOGS",
+    "MANAGE_SETTINGS",
   ],
 
   VIEWER: [
@@ -75,6 +80,7 @@ const rolePermissionMap: Record<
     "VIEW_SALES",
     "VIEW_ANALYTICS",
     "VIEW_REPORTS",
+    "VIEW_AUDIT_LOGS",
   ],
 };
 

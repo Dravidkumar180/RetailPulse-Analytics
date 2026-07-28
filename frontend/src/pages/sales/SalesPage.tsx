@@ -32,6 +32,7 @@ import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 import Button from "../../components/common/Button/Button";
 // Imports the needed tools from ../../components/common/PageHeader/PageHeader.
 import PageHeader from "../../components/common/PageHeader/PageHeader";
+import { useAuth } from "../../hooks/useAuth";
 // Imports the needed tools from ../../api/catalogApi.
 import { getCategories, getProducts, type Product } from "../../api/catalogApi";
 // Imports the needed tools from ../../api/salesApi.
@@ -72,6 +73,8 @@ const currency = (value: number) =>
 const SalesPage = () => {
   // Keeps sales data up to date.
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const canEdit = user?.role !== "VIEWER";
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [channel, setChannel] = useState("");
@@ -223,11 +226,11 @@ const SalesPage = () => {
         title="Sales Management"
         subtitle="Record transactions and track revenue, orders and stock."
         icon={<PointOfSaleOutlinedIcon />}
-        actions={
+        actions={canEdit ? (
           <Button startIcon={<AddIcon />} onClick={() => begin()}>
             New Sale
           </Button>
-        }
+        ) : undefined}
       />
       <Box className="sales-summary">
         {[
@@ -350,19 +353,23 @@ const SalesPage = () => {
                       <IconButton onClick={() => setView(s)}>
                         <VisibilityIcon />
                       </IconButton>
-                      <IconButton onClick={() => begin(s)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() =>
-                          confirm(
-                            `Delete ${s.invoiceNumber}? Stock will be restored.`,
-                          ) && remove.mutate(s.id)
-                        }
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {canEdit && (
+                        <>
+                          <IconButton onClick={() => begin(s)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() =>
+                              confirm(
+                                `Delete ${s.invoiceNumber}? Stock will be restored.`,
+                              ) && remove.mutate(s.id)
+                            }
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}

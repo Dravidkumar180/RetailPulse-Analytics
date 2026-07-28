@@ -7,7 +7,7 @@ from datetime import datetime
 from uuid import UUID
 
 # Imports the needed names from pydantic.
-from pydantic import EmailStr, Field
+from pydantic import EmailStr, Field, model_validator
 
 # Imports the needed names from app.core.constants.
 from app.core.constants import UserRole, UserStatus
@@ -67,6 +67,19 @@ class CreateUserRequest(CamelCaseModel):
 # Groups update user status request behavior.
 class UpdateUserStatusRequest(CamelCaseModel):
     status: UserStatus
+
+
+class UpdateUserRequest(CamelCaseModel):
+    role: UserRole
+    status: UserStatus
+
+    @model_validator(mode="after")
+    def disallow_super_admin(self) -> "UpdateUserRequest":
+        if self.role == UserRole.SUPER_ADMIN:
+            raise ValueError(
+                "Super Admin cannot be assigned through this endpoint."
+            )
+        return self
 
 
 # Groups user list response behavior.

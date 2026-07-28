@@ -15,6 +15,9 @@
 }
 .inventory-heading h1 {
   font-size: 25px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #0f172a;
   margin: 0 0 4px;
 }
 .inventory-heading p {
@@ -399,6 +402,24 @@
   margin-top: 6px;
   color: #64748b;
   font-size: 11px;
+}
+
+body.dark-theme .inventory-page,
+body.dark-theme .inventory-page h1,
+body.dark-theme .inventory-page h2,
+body.dark-theme .inventory-page h3,
+body.dark-theme .inventory-page strong,
+body.dark-theme .inventory-table-wrap td {
+  color: #f8fafc;
+}
+body.dark-theme .inventory-page p,
+body.dark-theme .inventory-page small,
+body.dark-theme .inventory-page label,
+body.dark-theme .inventory-table-wrap th,
+body.dark-theme .inventory-card span,
+body.dark-theme .stock-status-chart__legend,
+body.dark-theme .stock-status-chart__center span {
+  color: #cbd5e1;
 }
 
 @media (max-width: 800px) {

@@ -60,6 +60,7 @@ class AuditLogService:
         search: str | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
+        exclude_authentication: bool = False,
     ) -> AuditLogListResponse:
         # Stores company id for the next steps.
         company_id = None if current_user.role == UserRole.SUPER_ADMIN else current_user.company_id
@@ -75,6 +76,7 @@ class AuditLogService:
             search=search,
             start_date=start_date,
             end_date=end_date,
+            exclude_authentication=exclude_authentication,
         )
         # Returns the completed value to the caller.
         return AuditLogListResponse(
