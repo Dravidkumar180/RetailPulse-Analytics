@@ -27,6 +27,7 @@ export const ROUTE_PATHS = {
   reports: "/reports",
   analytics: "/analytics",
   customers: "/customers",
+  demandForecasting: "/demand-forecasting",
   companies: "/companies",
   settings: "/settings",
 
@@ -53,6 +54,7 @@ export type RoutePath =
   | typeof ROUTE_PATHS.reports
   | typeof ROUTE_PATHS.analytics
   | typeof ROUTE_PATHS.customers
+  | typeof ROUTE_PATHS.demandForecasting
   | typeof ROUTE_PATHS.companies
   | typeof ROUTE_PATHS.settings
   | typeof ROUTE_PATHS.unauthorized;

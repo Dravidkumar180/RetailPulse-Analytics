@@ -30,6 +30,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 // Imports the needed tools from @mui/icons-material/BarChartOutlined.
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
+import AutoGraphOutlinedIcon from "@mui/icons-material/AutoGraphOutlined";
 
 // Imports the needed tools from ../../../hooks/useAuth.
 import { useAuth } from "../../../hooks/useAuth";
@@ -99,6 +100,12 @@ const menuItems: SidebarMenuItem[] = [
     path: "/analytics",
     icon: <AnalyticsOutlinedIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+  },
+  {
+    label: "Demand Forecasting",
+    path: "/demand-forecasting",
+    icon: <AutoGraphOutlinedIcon />,
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"],
   },
   {
     label: "Reports",

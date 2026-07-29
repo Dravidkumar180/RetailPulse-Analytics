@@ -94,3 +94,17 @@ def initialize_development_database() -> None:
                 connection.execute(
                     text("ALTER TABLE audit_logs ADD COLUMN details TEXT")
                 )
+        # Keep existing local customer databases compatible with soft deletion.
+        customer_columns = {
+            column["name"]
+            for column in inspect(engine).get_columns("customers")
+        }
+        with engine.begin() as connection:
+            if "isDeleted" not in customer_columns:
+                connection.execute(
+                    text('ALTER TABLE customers ADD COLUMN "isDeleted" BOOLEAN NOT NULL DEFAULT 0')
+                )
+            if "deletedAt" not in customer_columns:
+                connection.execute(
+                    text('ALTER TABLE customers ADD COLUMN "deletedAt" DATETIME')
+                )

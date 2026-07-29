@@ -43,7 +43,11 @@ export type AuditAction =
   | "CUSTOMER_ACTIVATED"
   | "CUSTOMER_DEACTIVATED"
   | "CUSTOMER_STATUS_CHANGED"
-  | "CUSTOMER_EXPORTED";
+  | "CUSTOMER_EXPORTED"
+  | "FORECAST_GENERATED"
+  | "FORECAST_EXPORTED"
+  | "FORECAST_REFRESHED"
+  | "INVENTORY_RECOMMENDATION_GENERATED";
 
 // Defines the fields allowed in audit log company.
 export interface AuditLogCompany {

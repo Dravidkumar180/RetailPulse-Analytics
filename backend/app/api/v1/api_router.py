@@ -19,6 +19,7 @@ from app.api.v1.endpoints import (
     inventory,
     analytics,
     customers,
+    forecasts,
 )
 
 
@@ -72,3 +73,4 @@ api_router.include_router(sales.router, prefix="/sales", tags=["Sales"])
 api_router.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 api_router.include_router(customers.router, prefix="/customers", tags=["Customers"])
+api_router.include_router(forecasts.router, prefix="/forecasts", tags=["Demand Forecasting"])

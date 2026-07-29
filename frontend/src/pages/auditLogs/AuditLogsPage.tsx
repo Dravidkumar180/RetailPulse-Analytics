@@ -68,6 +68,10 @@ const auditActions: AuditAction[] = [
   "CUSTOMER_DEACTIVATED",
   "CUSTOMER_STATUS_CHANGED",
   "CUSTOMER_EXPORTED",
+  "FORECAST_GENERATED",
+  "FORECAST_EXPORTED",
+  "FORECAST_REFRESHED",
+  "INVENTORY_RECOMMENDATION_GENERATED",
 ];
 
 const formatDateTime = (date: string): string =>

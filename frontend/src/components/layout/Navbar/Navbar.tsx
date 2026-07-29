@@ -125,6 +125,7 @@ const Navbar = ({
     { label: "Inventory", path: "/inventory" },
     { label: "Customers", path: "/customers" },
     { label: "Analytics", path: "/analytics" },
+    { label: "Demand Forecasting", path: "/demand-forecasting" },
     { label: "Reports", path: "/reports" },
     { label: "Users", path: "/users" },
     { label: "Audit Logs", path: "/audit-logs" },

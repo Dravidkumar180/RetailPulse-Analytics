@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Imports the needed names from app.api.v1.api_router.
 from app.api.v1.api_router import api_router
+from app.api.v1.endpoints import customers as customer_endpoints
 # Imports the needed names from app.core.config.
 from app.core.config import settings
 # Imports the needed names from app.core.database.
@@ -110,6 +111,14 @@ register_exception_handlers(app)
 app.include_router(
     api_router,
     prefix=settings.API_V1_PREFIX,
+)
+
+# Backward-compatible customer CRUD paths required by external integrations.
+# The frontend continues to use the versioned /api/v1/customers contract.
+app.include_router(
+    customer_endpoints.router,
+    prefix="/api/customers",
+    tags=["Customers"],
 )
 
 

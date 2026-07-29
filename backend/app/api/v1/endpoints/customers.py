@@ -54,11 +54,13 @@ def import_sales_customers(db, company_id: UUID) -> int:
 
 
 def segment(orders: int, revenue: Decimal) -> str:
-    if revenue >= 10000 or orders >= 20:
+    # Calibrated to the current retail catalogue and average order values.
+    # Segments continue to update automatically as real purchases accumulate.
+    if revenue >= 1000 or orders >= 10:
         return "VIP Customer"
-    if orders >= 8:
+    if revenue >= 500 or orders >= 5:
         return "Loyal Customer"
-    if orders >= 2:
+    if orders >= 1:
         return "Regular Customer"
     return "New Customer"
 
@@ -155,18 +157,30 @@ def serialize(db, customer: Customer) -> CustomerResponse:
 
 
 def get_customer(db, company_id: UUID, customer_id: UUID) -> Customer:
-    item = db.scalar(select(Customer).options(joinedload(Customer.summary), joinedload(Customer.timeline)).where(Customer.id == customer_id, Customer.company_id == company_id))
+    item = db.scalar(select(Customer).options(joinedload(Customer.summary), joinedload(Customer.timeline)).where(Customer.id == customer_id, Customer.company_id == company_id, Customer.is_deleted.is_(False)))
     if not item:
         raise HTTPException(404, "Customer not found.")
     return item
 
 
 def ensure_unique(db, company_id: UUID, data: CustomerWrite, exclude: UUID | None = None):
-    filters = [Customer.company_id == company_id, or_(func.lower(Customer.email) == data.email.lower(), Customer.phone == data.phone)]
+    base_filters = [Customer.company_id == company_id]
     if exclude:
-        filters.append(Customer.id != exclude)
-    if db.scalar(select(Customer.id).where(*filters)):
-        raise HTTPException(409, "A customer with this email or phone already exists in your company.")
+        base_filters.append(Customer.id != exclude)
+    if db.scalar(
+        select(Customer.id).where(
+            *base_filters,
+            func.lower(Customer.email) == data.email.lower(),
+        )
+    ):
+        raise HTTPException(409, "A customer with this email already exists.")
+    if db.scalar(
+        select(Customer.id).where(
+            *base_filters,
+            Customer.phone == data.phone,
+        )
+    ):
+        raise HTTPException(409, "A customer with this phone number already exists.")
 
 
 def audit(db, user, action, customer, ip, browser):
@@ -177,7 +191,7 @@ def audit(db, user, action, customer, ip, browser):
 def list_customers(db: DatabaseSession, current_user: AllAuthenticatedRoles, search: str | None = None, customer_type: str | None = Query(None, alias="customerType"), customer_status: str | None = Query(None, alias="status"), city: str | None = None, state: str | None = None, country: str | None = None, sort: str = "name"):
     import_sales_customers(db, current_user.company_id)
     db.flush()
-    filters = [Customer.company_id == current_user.company_id]
+    filters = [Customer.company_id == current_user.company_id, Customer.is_deleted.is_(False)]
     if search:
         term = f"%{search}%"
         filters.append(or_(Customer.full_name.ilike(term), Customer.customer_id.ilike(term), Customer.email.ilike(term), Customer.phone.ilike(term)))
@@ -200,7 +214,7 @@ def list_customers(db: DatabaseSession, current_user: AllAuthenticatedRoles, sea
 def analytics(db: DatabaseSession, current_user: AllAuthenticatedRoles):
     import_sales_customers(db, current_user.company_id)
     db.flush()
-    customers = list(db.scalars(select(Customer).options(joinedload(Customer.summary), joinedload(Customer.timeline)).where(Customer.company_id == current_user.company_id)).unique().all())
+    customers = list(db.scalars(select(Customer).options(joinedload(Customer.summary), joinedload(Customer.timeline)).where(Customer.company_id == current_user.company_id, Customer.is_deleted.is_(False))).unique().all())
     rows = [serialize(db, c) for c in customers]
     now = datetime.now(UTC)
     total_revenue = sum((Decimal(r.summary.total_revenue) for r in rows), Decimal("0"))
@@ -304,4 +318,14 @@ def update(customer_id: UUID, data: CustomerWrite, db: DatabaseSession, current_
 def delete(customer_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     customer = get_customer(db, current_user.company_id, customer_id)
     audit(db, current_user, AuditAction.CUSTOMER_DELETED, customer, client_ip, browser)
-    db.delete(customer); db.commit()
+    customer.is_deleted = True
+    customer.deleted_at = datetime.now(UTC)
+    customer.status = "INACTIVE"
+    db.add(
+        CustomerTimeline(
+            customer_id=customer.id,
+            event="Customer Deleted",
+            details="Customer was soft deleted and removed from active customer views.",
+        )
+    )
+    db.commit()

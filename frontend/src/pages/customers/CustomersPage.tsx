@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Pagination, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Pagination, Skeleton, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import EditIcon from "@mui/icons-material/EditOutlined";
@@ -9,7 +9,7 @@ import PeopleIcon from "@mui/icons-material/PeopleOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import FilterIcon from "@mui/icons-material/FilterAltOutlined";
-import MoreIcon from "@mui/icons-material/MoreHoriz";
+import SearchOffIcon from "@mui/icons-material/SearchOffOutlined";
 import toast from "react-hot-toast";
 import { createPdfReport } from "../../utils/createPdfReport";
 import { useAuth } from "../../hooks/useAuth";
@@ -21,6 +21,48 @@ const empty:CustomerInput={fullName:"",email:"",phone:"",gender:"",dateOfBirth:"
 const money=(n:number)=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(n);
 const date=(value?:string)=>value?new Intl.DateTimeFormat("en-IN",{dateStyle:"medium"}).format(new Date(value)):"—";
 const title=(value:string)=>value.replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase());
+type CustomerIssue={title:string;message:string;severity:"error"|"warning"};
+function CustomerError({issue,onClose,onRetry}:{issue:CustomerIssue;onClose?:()=>void;onRetry?:()=>void}){
+  return <Alert severity={issue.severity} className="customer-error-alert" onClose={onClose} action={onRetry?<Button size="small" variant="outlined" onClick={onRetry}>Retry</Button>:undefined}><strong>{issue.title}</strong><span>{issue.message}</span></Alert>;
+}
+type CustomerSegment="vip"|"loyal"|"regular"|"new";
+const segmentKey=(value:string):CustomerSegment=>{
+  const key=value.split(" ")[0].toLowerCase();
+  return (["vip","loyal","regular","new"].includes(key)?key:"new") as CustomerSegment;
+};
+const segmentLabels:Record<CustomerSegment,string>={vip:"VIP",loyal:"Loyal",regular:"Regular",new:"New"};
+function SegmentBadge({segment}:{segment:string}){
+  const key=segmentKey(segment);
+  return <span className={`customer-segment-badge customer-segment-badge--${key}`}>{segmentLabels[key]}</span>;
+}
+function CustomerSegmentGuide(){
+  const items:[CustomerSegment,string,string][]=[
+    ["vip","VIP Customers","High value customers"],
+    ["loyal","Loyal Customers","Frequent purchasers"],
+    ["regular","Regular Customers","Consistent shoppers"],
+    ["new","New Customers","Recently joined"],
+  ];
+  return <Box className="customer-segment-guide"><Typography component="h3">Customer Segment Badges</Typography><Box>{items.map(([key,label,description])=><Box key={key}><SegmentBadge segment={key}/><span><strong>{label}</strong><small>{description}</small></span></Box>)}</Box></Box>;
+}
+function CustomerLoadingState(){
+  return <Box className="customer-loading-state" aria-label="Loading customers">
+    {Array.from({length:5},(_,index)=><Box key={index}>{Array.from({length:8},(_,cell)=><Skeleton key={cell} variant="rounded" height={18}/>)}</Box>)}
+  </Box>;
+}
+const customerIssueFromError=(error:any):CustomerIssue=>{
+  const detail=error?.response?.data?.detail;
+  const message=Array.isArray(detail)
+    ? detail.map((item:any)=>item?.msg).filter(Boolean).join(" ")
+    : String(detail||"Something went wrong while processing the customer request.");
+  const normalized=message.toLowerCase();
+  if(normalized.includes("email")&&normalized.includes("already"))
+    return {title:"Duplicate Email",message:"A customer with this email already exists.",severity:"error"};
+  if(normalized.includes("phone")&&normalized.includes("already"))
+    return {title:"Duplicate Phone Number",message:"A customer with this phone number already exists.",severity:"error"};
+  if(error?.response?.status===422)
+    return {title:"Validation Error",message:message||"Please fill all required fields correctly.",severity:"warning"};
+  return {title:"Failed API Request",message, severity:"error"};
+};
 
 function MiniBars({data,moneyValue=false}:{data:{name:string;value:number}[];moneyValue?:boolean}){
   const max=Math.max(1,...data.map(x=>x.value));
@@ -54,22 +96,35 @@ function LocationMap({data}:{data:{name:string;value:number}[]}){
   const ranked=[...data].sort((a,b)=>b.value-a.value).slice(0,8);
   return <Box className="location-ranking">{ranked.length?ranked.map((item,index)=><Box className="location-ranking__row" key={item.name}><span className="location-ranking__rank">{index+1}</span><span className="location-ranking__name">{item.name}</span><Box className="location-ranking__track"><i style={{width:`${Math.max(7,item.value/max*100)}%`}}/></Box><b>{item.value}</b></Box>):<Typography>No customer locations available.</Typography>}</Box>
 }
-function CustomerForm({open,customer,onClose,onSave}:{open:boolean;customer?:Customer;onClose:()=>void;onSave:(v:CustomerInput)=>void}){
+function CustomerForm({open,customer,issue,onClose,onSave,onValidationError}:{open:boolean;customer?:Customer;issue:CustomerIssue|null;onClose:()=>void;onSave:(v:CustomerInput)=>void;onValidationError:(issue:CustomerIssue)=>void}){
   const [form,setForm]=useState<CustomerInput>(empty);
   useEffect(()=>setForm(customer?{fullName:customer.fullName,email:customer.email,phone:customer.phone,gender:customer.gender||"",dateOfBirth:customer.dateOfBirth||"",address:customer.address||"",city:customer.city||"",state:customer.state||"",country:customer.country||"",customerType:customer.customerType,preferredSalesChannel:customer.preferredSalesChannel||"",status:customer.status}:empty),[customer,open]);
   const set=(key:keyof CustomerInput,value:string)=>setForm(v=>({...v,[key]:value}));
+  const submit=()=>{
+    if(!form.fullName.trim()||!form.email.trim()||!form.phone.trim()){
+      onValidationError({title:"Validation Error",message:"Please fill all required fields correctly.",severity:"warning"});return;
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)){
+      onValidationError({title:"Validation Error",message:"Enter a valid customer email address.",severity:"warning"});return;
+    }
+    if(form.phone.trim().length<7){
+      onValidationError({title:"Validation Error",message:"Phone number must contain at least 7 characters.",severity:"warning"});return;
+    }
+    onSave(form);
+  };
   return <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth><DialogTitle>{customer?"Edit customer":"Add new customer"}</DialogTitle><DialogContent className="customer-form">
+    {issue&&<CustomerError issue={issue}/>}
     <TextField required label="Full name" value={form.fullName} onChange={e=>set("fullName",e.target.value)}/><TextField required type="email" label="Email" value={form.email} onChange={e=>set("email",e.target.value)}/>
     <TextField required label="Phone" value={form.phone} onChange={e=>set("phone",e.target.value)}/><TextField select label="Customer type" value={form.customerType} onChange={e=>set("customerType",e.target.value)}>{["RETAIL","WHOLESALE","CORPORATE"].map(x=><MenuItem key={x} value={x}>{title(x)}</MenuItem>)}</TextField>
     <TextField select label="Status" value={form.status} onChange={e=>set("status",e.target.value)}>{["ACTIVE","INACTIVE"].map(x=><MenuItem key={x} value={x}>{title(x)}</MenuItem>)}</TextField><TextField select label="Gender" value={form.gender} onChange={e=>set("gender",e.target.value)}><MenuItem value="">Not specified</MenuItem>{["Male","Female","Other"].map(x=><MenuItem key={x} value={x}>{x}</MenuItem>)}</TextField>
     <TextField type="date" label="Date of birth" value={form.dateOfBirth} onChange={e=>set("dateOfBirth",e.target.value)} slotProps={{inputLabel:{shrink:true}}}/><TextField select label="Preferred channel" value={form.preferredSalesChannel} onChange={e=>set("preferredSalesChannel",e.target.value)}>{["RETAIL_STORE","ONLINE_STORE","MARKETPLACE"].map(x=><MenuItem key={x} value={x}>{title(x)}</MenuItem>)}</TextField>
     <TextField label="Address" value={form.address} onChange={e=>set("address",e.target.value)}/><TextField label="City" value={form.city} onChange={e=>set("city",e.target.value)}/><TextField label="State" value={form.state} onChange={e=>set("state",e.target.value)}/><TextField label="Country" value={form.country} onChange={e=>set("country",e.target.value)}/>
-  </DialogContent><DialogActions><Button onClick={onClose}>Cancel</Button><Button variant="contained" disabled={!form.fullName||!form.email||!form.phone} onClick={()=>onSave(form)}>Save customer</Button></DialogActions></Dialog>
+  </DialogContent><DialogActions><Button onClick={onClose}>Cancel</Button><Button variant="contained" onClick={submit}>Save customer</Button></DialogActions></Dialog>
 }
 function Profile({customer,full=false}:{customer:Customer;full?:boolean}){
   const s=customer.summary;
   return <Box className={full?"customer-profile customer-profile--full":"customer-profile"}>
-    <Box className="customer-profile-head"><span className="customer-avatar">{customer.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><Box><h3>{customer.fullName}</h3><small>{customer.customerId}</small><div><Chip size="small" color={customer.status==="ACTIVE"?"success":"default"} label={title(customer.status)}/><Chip size="small" label={customer.segment}/></div></Box></Box>
+    <Box className="customer-profile-head"><span className="customer-avatar">{customer.fullName.split(" ").map(x=>x[0]).slice(0,2).join("")}</span><Box><h3>{customer.fullName}</h3><small>{customer.customerId}</small><div><Chip size="small" color={customer.status==="ACTIVE"?"success":"default"} label={title(customer.status)}/><SegmentBadge segment={customer.segment}/></div></Box></Box>
     <section><h4>Personal & Contact Information</h4><p>✉ {customer.email}</p><p>☎ {customer.phone}</p><p>⌖ {[customer.address,customer.city,customer.state,customer.country].filter(Boolean).join(", ")||"No address added"}</p>{full&&<><p>Date of birth <b>{date(customer.dateOfBirth)}</b></p><p>Gender <b>{customer.gender||"—"}</b></p><p>Customer type <b>{title(customer.customerType)}</b></p></>}</section>
     <section><h4>Business Information</h4><dl><div><dt>Lifetime Revenue</dt><dd>{money(s.totalRevenue)}</dd></div><div><dt>Total Orders</dt><dd>{s.totalOrders}</dd></div><div><dt>Average Order Value</dt><dd>{money(s.averageOrderValue)}</dd></div><div><dt>Purchase Frequency</dt><dd>{Number(s.purchaseFrequency).toFixed(1)} / month</dd></div><div><dt>Last Purchase</dt><dd>{date(s.lastPurchaseDate)}</dd></div>{full&&<><div><dt>Favorite Category</dt><dd>{s.favoriteCategory||"—"}</dd></div><div><dt>Favorite Product</dt><dd>{s.favoriteProduct||"—"}</dd></div></>}</dl></section>
   </Box>
@@ -148,14 +203,15 @@ function Analytics({data,customers}:{data?:CustomerAnalytics;customers:Customer[
 export default function CustomersPage(){
   const {user}=useAuth(),qc=useQueryClient(),editable=user?.role!=="VIEWER";
   const [tab,setTab]=useState<"customers"|"analytics"|"history">("customers"),[historyView,setHistoryView]=useState<HistoryView>("profile"),[search,setSearch]=useState(""),[type,setType]=useState(""),[status,setStatus]=useState(""),[city,setCity]=useState(""),[country,setCountry]=useState(""),[page,setPage]=useState(1),[selected,setSelected]=useState<Customer>(),[editing,setEditing]=useState<Customer|undefined>(),[formOpen,setFormOpen]=useState(false);
+  const [customerIssue,setCustomerIssue]=useState<CustomerIssue|null>(null);
   const sort="name";
   const pageSize=5;
   const customers=useQuery({queryKey:["customers-v2",search,type,status,sort],queryFn:()=>getCustomers({search:search||undefined,customerType:type||undefined,status:status||undefined,sort})});
   const analytics=useQuery({queryKey:["customer-analytics"],queryFn:getCustomerAnalytics});
   useEffect(()=>{if(customers.data?.items.length&&!selected)setSelected(customers.data.items[0])},[customers.data,selected]);
   const refresh=()=>{qc.invalidateQueries({queryKey:["customers-v2"]});qc.invalidateQueries({queryKey:["customer-analytics"]});qc.invalidateQueries({queryKey:["audit-logs"]});qc.invalidateQueries({queryKey:["customer-notifications"]})};
-  const save=useMutation({mutationFn:(v:CustomerInput)=>editing?updateCustomer(editing.id,v):createCustomer(v),onSuccess:(v)=>{toast.success(editing?"Customer updated":"Customer registered");setSelected(v);setFormOpen(false);setEditing(undefined);refresh()},onError:(e:any)=>toast.error(e?.response?.data?.detail||"Unable to save customer")});
-  const remove=useMutation({mutationFn:deleteCustomer,onSuccess:()=>{toast.success("Customer deleted");setSelected(undefined);refresh()}});
+  const save=useMutation({mutationFn:(v:CustomerInput)=>editing?updateCustomer(editing.id,v):createCustomer(v),onSuccess:(v)=>{setCustomerIssue(null);toast.success(editing?"Customer updated":"Customer registered");setSelected(v);setFormOpen(false);setEditing(undefined);refresh()},onError:(e:any)=>setCustomerIssue(customerIssueFromError(e))});
+  const remove=useMutation({mutationFn:deleteCustomer,onSuccess:()=>{setCustomerIssue(null);toast.success("Customer deleted");setSelected(undefined);refresh()},onError:(e:any)=>setCustomerIssue(customerIssueFromError(e))});
   const exportReport=async(kind:"customers"|"analytics"|"history",format:"CSV"|"PDF")=>{
     const selectedCustomer=customers.data?.items.find(x=>x.id===selected?.id)||selected;
     const rows=kind==="history"&&selectedCustomer?[selectedCustomer]:(customers.data?.items||[]);
@@ -201,11 +257,16 @@ export default function CustomersPage(){
         <Button variant="outlined" startIcon={<FilterIcon/>} onClick={()=>{setType("");setStatus("");setCity("");setCountry("")}}>Filters</Button>
         {editable&&<Box className="component-export"><Button variant="outlined" startIcon={<DownloadIcon/>} onClick={()=>exportReport("customers","CSV")}>CSV</Button><Button variant="outlined" startIcon={<DownloadIcon/>} onClick={()=>exportReport("customers","PDF")}>PDF</Button></Box>}
       </Box>
-      <Box className="customer-table-wrap"><table><thead><tr><th>Customer ID</th><th>Customer Name</th><th>Email</th><th>Phone</th><th>Customer Type</th><th>Total Orders</th><th>Total Revenue</th><th>Status</th><th>Segment</th><th>Actions</th></tr></thead><tbody>{visibleRows.map(c=><tr key={c.id}><td className="customer-code">{c.customerId}</td><td><b>{c.fullName}</b></td><td>{c.email}</td><td>{c.phone}</td><td>{title(c.customerType)}</td><td>{c.summary.totalOrders}</td><td><b>{money(c.summary.totalRevenue)}</b></td><td><Chip size="small" color={c.status==="ACTIVE"?"success":"default"} label={title(c.status)}/></td><td><Chip size="small" className={`segment-${c.segment.split(" ")[0].toLowerCase()}`} label={c.segment}/></td><td className="customer-actions"><IconButton size="small" title="View" onClick={()=>{setSelected(c);setTab("history")}}><VisibilityIcon/></IconButton>{editable&&<IconButton size="small" title="Edit" onClick={()=>{setEditing(c);setFormOpen(true)}}><EditIcon/></IconButton>}<IconButton size="small" title="More"><MoreIcon/></IconButton>{editable&&<IconButton className="delete-action" size="small" title="Delete" onClick={()=>confirm(`Delete ${c.fullName}?`)&&remove.mutate(c.id)}><DeleteIcon/></IconButton>}</td></tr>)}</tbody></table>
-        {customers.isError&&<Box className="customer-empty customer-error">Customers could not be loaded. Please refresh the page or sign in again.</Box>}
+      {customerIssue&&<CustomerError issue={customerIssue} onClose={()=>setCustomerIssue(null)}/>}
+      {customers.isError&&<CustomerError issue={{title:"Failed to Load Customers",message:"Something went wrong while fetching customers. Please try again.",severity:"error"}} onRetry={()=>customers.refetch()}/>}
+      {customers.isLoading&&<CustomerLoadingState/>}
+      {!customers.isLoading&&!customers.isError&&!allRows.length&&!search&&!type&&!status&&!city&&!country&&<Box className="customer-empty-state"><SearchOffIcon/><Typography component="h3">No Customers Found</Typography><Typography>There are no customers available. Add your first customer to get started.</Typography>{editable&&<Button variant="contained" startIcon={<AddIcon/>} onClick={()=>{setEditing(undefined);setCustomerIssue(null);setFormOpen(true)}}>Add Customer</Button>}</Box>}
+      {!customers.isLoading&&!customers.isError&&!allRows.length&&Boolean(search||type||status||city||country)&&<Box className="customer-empty-state"><SearchOffIcon/><Typography component="h3">No Customers Match</Typography><Typography>Try clearing or changing the current search and filters.</Typography><Button variant="outlined" onClick={()=>{setSearch("");setType("");setStatus("");setCity("");setCountry("")}}>Clear Filters</Button></Box>}
+      {!customers.isLoading&&!customers.isError&&allRows.length>0&&<><CustomerSegmentGuide/>
+      <Box className="customer-table-wrap"><table><thead><tr><th>Customer ID</th><th>Customer Name</th><th>Email</th><th>Phone</th><th>Customer Type</th><th>Total Orders</th><th>Total Revenue</th><th>Status</th><th>Customer Segment</th><th>Actions</th></tr></thead><tbody>{visibleRows.map(c=><tr key={c.id}><td className="customer-code">{c.customerId}</td><td><b>{c.fullName}</b></td><td>{c.email}</td><td>{c.phone}</td><td>{title(c.customerType)}</td><td>{c.summary.totalOrders}</td><td><b>{money(c.summary.totalRevenue)}</b></td><td><Chip size="small" color={c.status==="ACTIVE"?"success":"default"} label={title(c.status)}/></td><td><SegmentBadge segment={c.segment}/></td><td className="customer-actions"><IconButton size="small" title="View" onClick={()=>{setSelected(c);setTab("history")}}><VisibilityIcon/></IconButton>{editable&&<IconButton size="small" title="Edit" onClick={()=>{setEditing(c);setFormOpen(true)}}><EditIcon/></IconButton>}{editable&&<IconButton className="delete-action" size="small" title="Delete customer" disabled={remove.isPending} onClick={()=>confirm(`Delete ${c.fullName}?`)&&remove.mutate(c.id)}><DeleteIcon/></IconButton>}</td></tr>)}</tbody></table>
         {!customers.isError&&!visibleRows.length&&<Box className="customer-empty">No customers match the current filters.</Box>}
         <Box className="customer-pagination"><span>Showing {filteredRows.length?((page-1)*pageSize)+1:0} to {Math.min(page*pageSize,filteredRows.length)} of {filteredRows.length} customers</span><Pagination count={pageCount} page={Math.min(page,pageCount)} onChange={(_,value)=>setPage(value)} color="primary" size="small"/></Box>
-      </Box>
+      </Box></>}
     </Box>}
     {tab==="analytics"&&<Box className="component-panel"><Box className="component-panel__header"><Typography component="h2">Customer Analytics</Typography>{editable&&<Box className="component-export"><Button variant="outlined" startIcon={<DownloadIcon/>} onClick={()=>exportReport("analytics","CSV")}>CSV</Button><Button variant="outlined" startIcon={<DownloadIcon/>} onClick={()=>exportReport("analytics","PDF")}>PDF</Button></Box>}</Box><Analytics data={analytics.data} customers={customers.data?.items||[]}/></Box>}
     {tab==="history"&&<Box className="component-panel">
@@ -214,6 +275,6 @@ export default function CustomersPage(){
         ["profile","Profile Overview"],["purchase-history","Purchase History"],["recent-activity","Recent Activity"],["timeline","Timeline"],["notes","Notes"],
       ] as [HistoryView,string][]).map(([value,label])=><button key={value} className={historyView===value?"active":""} onClick={()=>setHistoryView(value)}>{label}</button>)}</aside>{current?<Box className="history-content history-content--single"><HistoryViewContent customer={current} view={historyView}/></Box>:<Box className="customer-empty">Add or select a customer to view their history.</Box>}</Box>
     </Box>}
-    <CustomerForm open={formOpen} customer={editing} onClose={()=>setFormOpen(false)} onSave={v=>save.mutate(v)}/>
+    <CustomerForm open={formOpen} customer={editing} issue={customerIssue} onClose={()=>{setFormOpen(false);setCustomerIssue(null)}} onSave={v=>save.mutate(v)} onValidationError={setCustomerIssue}/>
   </Box>
 }

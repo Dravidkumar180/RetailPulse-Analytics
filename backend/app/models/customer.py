@@ -35,6 +35,9 @@ class Customer(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     customer_type: Mapped[str] = mapped_column("customerType", String(20), nullable=False)
     preferred_sales_channel: Mapped[str | None] = mapped_column("preferredSalesChannel", String(30))
     status: Mapped[str] = mapped_column(String(10), nullable=False, default="ACTIVE")
+    # Soft-deletion preserves customer history, audit references and analytics integrity.
+    is_deleted: Mapped[bool] = mapped_column("isDeleted", Boolean, nullable=False, default=False, index=True)
+    deleted_at: Mapped[datetime | None] = mapped_column("deletedAt", DateTime(timezone=True), nullable=True)
     company: Mapped["Company"] = relationship(back_populates="customers")
     summary: Mapped["CustomerPurchaseSummary"] = relationship(back_populates="customer", cascade="all, delete-orphan", uselist=False)
     timeline: Mapped[list["CustomerTimeline"]] = relationship(back_populates="customer", cascade="all, delete-orphan")

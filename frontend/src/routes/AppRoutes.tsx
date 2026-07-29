@@ -45,6 +45,7 @@ import SalesPage from "../pages/sales/SalesPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
 import AnalyticsPage from "../pages/analytics/AnalyticsPage";
 import CustomersPage from "../pages/customers/CustomersPage";
+import DemandForecastingPage from "../pages/forecasting/DemandForecastingPage";
 
 // Imports the needed tools from ./routePaths.
 import { ROUTE_PATHS } from "./routePaths";
@@ -96,6 +97,19 @@ const AppRoutes = () => {
             <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
             <Route path={ROUTE_PATHS.analytics} element={<AnalyticsPage />} />
             <Route path={ROUTE_PATHS.customers} element={<CustomersPage />} />
+          </Route>
+
+          <Route
+            element={
+              <RoleProtectedRoute
+                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"]}
+              />
+            }
+          >
+            <Route
+              path={ROUTE_PATHS.demandForecasting}
+              element={<DemandForecastingPage />}
+            />
           </Route>
 
           {[ROUTE_PATHS.reports].map((path) => (
