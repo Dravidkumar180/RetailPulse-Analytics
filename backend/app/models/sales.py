@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 # Imports the needed names from sqlalchemy.
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Numeric, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Numeric, String, Text, UniqueConstraint
 # Imports the needed names from sqlalchemy.dialects.postgresql.
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 # Imports the needed names from sqlalchemy.orm.
@@ -37,6 +37,11 @@ class Sale(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     # Stores  table args  for the next steps.
     __table_args__ = (
         UniqueConstraint("companyId", "invoiceNumber", name="uq_sales_company_invoice"),
+        CheckConstraint('"paymentStatus" IN (\'PAID\', \'PENDING\', \'FAILED\')', name="sale_payment_status_valid"),
+        CheckConstraint('subtotal >= 0', name="sale_subtotal_nonnegative"),
+        CheckConstraint('discount >= 0', name="sale_discount_nonnegative"),
+        CheckConstraint('tax >= 0', name="sale_tax_nonnegative"),
+        CheckConstraint('"totalAmount" >= 0', name="sale_total_nonnegative"),
         Index("ix_sales_company_date", "companyId", "saleDate"),
     )
 
@@ -46,12 +51,18 @@ class Sale(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     invoice_number: Mapped[str] = mapped_column("invoiceNumber", String(40), nullable=False)
     # Stores customer name for the next steps.
     customer_name: Mapped[str] = mapped_column("customerName", String(160), nullable=False)
+    customer_id: Mapped[UUID | None] = mapped_column("customerId", PostgreSQLUUID(as_uuid=True), ForeignKey("customers.id", ondelete="RESTRICT"), nullable=True)
     # Stores sale date for the next steps.
     sale_date: Mapped[datetime] = mapped_column("saleDate", DateTime(timezone=True), nullable=False)
     # Stores sales channel for the next steps.
     sales_channel: Mapped[str] = mapped_column("salesChannel", String(30), nullable=False)
     # Stores payment method for the next steps.
     payment_method: Mapped[str] = mapped_column("paymentMethod", String(30), nullable=False)
+    payment_status: Mapped[str] = mapped_column("paymentStatus", String(20), nullable=False, default="PAID")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    subtotal: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False, default=0)
+    discount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False, default=0)
+    tax: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False, default=0)
     # Stores total amount for the next steps.
     total_amount: Mapped[Decimal] = mapped_column("totalAmount", Numeric(14, 2), nullable=False)
     # Stores created by id for the next steps.
@@ -71,9 +82,10 @@ class SaleItem(UUIDPrimaryKeyMixin, Base):
     # Stores  table args  for the next steps.
     __table_args__ = (
         CheckConstraint('"quantity" > 0', name="sale_item_quantity_positive"),
-        CheckConstraint('"unitPrice" >= 0', name="sale_item_unit_price_nonnegative"),
+        CheckConstraint('"unitPrice" > 0', name="sale_item_unit_price_positive"),
         CheckConstraint('"discount" >= 0', name="sale_item_discount_nonnegative"),
         CheckConstraint('"tax" >= 0', name="sale_item_tax_nonnegative"),
+        CheckConstraint('"lineTotal" >= 0', name="sale_item_total_nonnegative"),
     )
     # Stores sale id for the next steps.
     sale_id: Mapped[UUID] = mapped_column("saleId", PostgreSQLUUID(as_uuid=True), ForeignKey("sales.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -90,7 +102,7 @@ class SaleItem(UUIDPrimaryKeyMixin, Base):
     # Stores tax for the next steps.
     tax: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0)
     # Stores total for the next steps.
-    total: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
+    total: Mapped[Decimal] = mapped_column("lineTotal", Numeric(14, 2), nullable=False)
     # Stores sale for the next steps.
     sale: Mapped[Sale] = relationship(back_populates="items")
     # Stores product for the next steps.

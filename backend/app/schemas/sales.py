@@ -18,6 +18,7 @@ from app.schemas.common import CamelCaseModel
 SALES_CHANNELS = "^(RETAIL_STORE|ONLINE_STORE|MARKETPLACE)$"
 # Stores payment methods for the next steps.
 PAYMENT_METHODS = "^(CASH|CARD|UPI|BANK_TRANSFER)$"
+PAYMENT_STATUSES = "^(PAID|PENDING|FAILED)$"
 
 # Groups sale item write behavior.
 class SaleItemWrite(CamelCaseModel):
@@ -25,7 +26,7 @@ class SaleItemWrite(CamelCaseModel):
     # Stores quantity for the next steps.
     quantity: int = Field(gt=0)
     # Stores unit price for the next steps.
-    unit_price: Decimal = Field(ge=0)
+    unit_price: Decimal = Field(gt=0)
     # Stores discount for the next steps.
     discount: Decimal = Field(default=Decimal("0"), ge=0)
     # Stores tax for the next steps.
@@ -44,12 +45,15 @@ class SaleItemWrite(CamelCaseModel):
 # Groups sale write behavior.
 class SaleWrite(CamelCaseModel):
     # Stores customer name for the next steps.
-    customer_name: str = Field(min_length=1, max_length=160)
+    customer_name: str | None = Field(default=None, max_length=160)
+    customer_id: UUID
     sale_date: datetime
     # Stores sales channel for the next steps.
     sales_channel: str = Field(pattern=SALES_CHANNELS)
     # Stores payment method for the next steps.
     payment_method: str = Field(pattern=PAYMENT_METHODS)
+    payment_status: str = Field(default="PAID", pattern=PAYMENT_STATUSES)
+    notes: str | None = Field(default=None, max_length=1000)
     # Stores items for the next steps.
     items: list[SaleItemWrite] = Field(min_length=1)
 
@@ -84,9 +88,15 @@ class SaleResponse(CamelCaseModel):
     id: UUID
     invoice_number: str
     customer_name: str
+    customer_id: UUID | None
     sale_date: datetime
     sales_channel: str
     payment_method: str
+    payment_status: str
+    notes: str | None
+    subtotal: Decimal
+    discount: Decimal
+    tax: Decimal
     total_amount: Decimal
     created_by_name: str
     items: list[SaleItemResponse]

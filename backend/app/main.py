@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Imports the needed names from app.api.v1.api_router.
 from app.api.v1.api_router import api_router
 from app.api.v1.endpoints import customers as customer_endpoints
+from app.api.v1.endpoints import sales as sales_endpoints
 # Imports the needed names from app.core.config.
 from app.core.config import settings
 # Imports the needed names from app.core.database.
@@ -119,6 +120,13 @@ app.include_router(
     customer_endpoints.router,
     prefix="/api/customers",
     tags=["Customers"],
+)
+
+# Unversioned Sales CRUD paths required by the Sales Management contract.
+app.include_router(
+    sales_endpoints.router,
+    prefix="/api/sales",
+    tags=["Sales"],
 )
 
 

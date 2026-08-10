@@ -7,3 +7,26 @@
 .forecast-toolbar{grid-template-columns:1.05fr 1.15fr repeat(3,1fr) auto;align-items:end}.forecast-toolbar__actions{display:flex;align-items:center;gap:9px;padding-bottom:1px}.forecast-toolbar__actions button{height:40px;white-space:nowrap}@media(max-width:1200px){.forecast-toolbar{grid-template-columns:repeat(3,1fr)}.forecast-toolbar__actions{grid-column:span 1}}@media(max-width:760px){.forecast-toolbar{grid-template-columns:1fr}.forecast-toolbar__actions{grid-column:auto;justify-content:flex-end}}
 .chart-card__header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.chart-card__header h2{margin:0}.chart-range-select{min-width:116px;height:34px;background:#fff}.chart-range-select .MuiSelect-select{padding-top:6px;padding-bottom:6px;font-size:11px;font-weight:700;color:#475467}
 .history-grid{display:flex;flex-direction:column;gap:14px}.history-section-tabs{display:flex;gap:8px;padding:6px;background:#eef2f8;border-radius:10px;width:max-content}.history-section-tabs button{display:flex;align-items:center;gap:7px;border:0;background:transparent;color:#667085;padding:10px 16px;border-radius:7px;font-weight:700;cursor:pointer;white-space:nowrap}.history-section-tabs button svg{font-size:18px}.history-section-tabs button.active{background:#fff;color:#4f46e5;box-shadow:0 1px 4px rgba(16,24,40,.12)}.history-grid--inventory>.model-overview,.history-grid--inventory>.recent-activity,.history-grid--model>.inventory-recommendations,.history-grid--model>.recent-activity,.history-grid--activity>.inventory-recommendations,.history-grid--activity>.model-overview{display:none}.history-grid>.forecast-card{width:100%}.history-grid>.inventory-recommendations{grid-row:auto}@media(max-width:700px){.history-section-tabs{width:100%;overflow:auto}}
+
+/* Forecasting surfaces follow the shared dashboard dark theme. */
+body.dark-theme .forecast-page{color:#e5edf8}
+body.dark-theme .forecast-tabs{border-color:#334155}
+body.dark-theme .forecast-tabs button{color:#94a3b8}
+body.dark-theme .forecast-tabs button.active{color:#818cf8}
+body.dark-theme .forecast-toolbar,body.dark-theme .forecast-kpi,body.dark-theme .forecast-card,body.dark-theme .forecast-loading,body.dark-theme .forecast-empty,body.dark-theme .chart-range-select{background:#111827;border-color:#334155;color:#e5edf8}
+body.dark-theme .forecast-toolbar label,body.dark-theme .forecast-kpi span,body.dark-theme .forecast-kpi small,body.dark-theme .forecast-card__title span,body.dark-theme .forecast-empty p,body.dark-theme .chart-legend,body.dark-theme .forecast-pagination p{color:#94a3b8}
+body.dark-theme .forecast-toolbar input,body.dark-theme .forecast-toolbar .MuiInputBase-root,body.dark-theme .chart-range-select{background:#0f172a;border-color:#475569;color:#f8fafc}
+body.dark-theme .forecast-toolbar input,body.dark-theme .forecast-toolbar .MuiInputBase-input,body.dark-theme .forecast-toolbar .MuiSelect-select,body.dark-theme .chart-range-select .MuiSelect-select{color:#f8fafc}
+body.dark-theme .forecast-kpi__copy strong,body.dark-theme .forecast-card h2,body.dark-theme .forecast-card__title h2{color:#f8fafc}
+body.dark-theme .forecast-card__title,body.dark-theme .inventory-recommendations>h2,body.dark-theme .model-overview>h2,body.dark-theme .recent-activity>h2{border-color:#334155}
+body.dark-theme .forecast-card th{background:#1e293b;color:#cbd5e1}
+body.dark-theme .forecast-card td{border-color:#334155;color:#e5edf8}
+body.dark-theme .forecast-card td small,body.dark-theme .model-overview small,body.dark-theme .recent-activity small{color:#94a3b8}
+body.dark-theme .confidence:before,body.dark-theme .top-products i{background:#334155}
+body.dark-theme .dual-chart{background:repeating-linear-gradient(#111827,#111827 41px,#334155 42px)}
+body.dark-theme .category-bars{border-color:#475569}
+body.dark-theme .recommendation-kpis>div,body.dark-theme .model-overview>div,body.dark-theme .recent-activity>div{border-color:#334155;background:#172033}
+body.dark-theme .forecast-level-tabs,body.dark-theme .history-section-tabs{background:#1e293b}
+body.dark-theme .forecast-level-tabs button,body.dark-theme .history-section-tabs button{color:#94a3b8}
+body.dark-theme .forecast-level-tabs button.active,body.dark-theme .history-section-tabs button.active{background:#334155;color:#a5b4fc;box-shadow:none}
+body.dark-theme .forecast-level-tabs button span{background:#312e81;color:#c7d2fe}
