@@ -96,6 +96,7 @@ const AppRoutes = () => {
             {/* Inventory is shared by Admins and Analysts under this role guard. */}
             <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
             <Route path={ROUTE_PATHS.analytics} element={<AnalyticsPage />} />
+            <Route path="/analytics" element={<Navigate to={ROUTE_PATHS.analytics} replace />} />
             <Route path={ROUTE_PATHS.customers} element={<CustomersPage />} />
           </Route>
 

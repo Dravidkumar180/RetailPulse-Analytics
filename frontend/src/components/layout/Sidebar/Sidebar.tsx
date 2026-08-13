@@ -97,7 +97,7 @@ const menuItems: SidebarMenuItem[] = [
   },
   {
     label: "Analytics",
-    path: "/analytics",
+    path: "/analytics/sales",
     icon: <AnalyticsOutlinedIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },

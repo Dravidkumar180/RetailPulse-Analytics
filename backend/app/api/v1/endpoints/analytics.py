@@ -1,225 +1,142 @@
-from collections import defaultdict
 from datetime import UTC, date, datetime, time
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import APIRouter, Query
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload
+from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy import distinct, func, select
 
 from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 from app.core.constants import AuditAction
 from app.core.permissions import AllAuthenticatedRoles
 from app.models.catalog import Category, Product
-from app.models.inventory import Inventory
+from app.models.customer import Customer
 from app.models.sales import Sale, SaleItem
 from app.services.audit_log_service import audit_log_service
 
 router = APIRouter()
+VALID_INTERVALS = {"daily", "weekly", "monthly"}
+VALID_PAYMENTS = {"CASH", "CARD", "UPI", "BANK_TRANSFER"}
+VALID_STATUSES = {"PAID", "PENDING", "FAILED"}
 
 
-def as_money(value: Decimal | int | float) -> float:
-    return round(float(value), 2)
+def money(value: Decimal | int | float | None) -> float:
+    return round(float(value or 0), 2)
 
 
-def audit(db, user, action: AuditAction, ip: str, browser: str, details: str) -> None:
-    audit_log_service.create_log(
-        db,
-        company_id=user.company_id,
-        user_id=user.id,
-        action=action,
-        ip_address=ip,
-        browser=browser,
-        details=details,
-    )
+def record_audit(db, user, action: AuditAction, ip: str, browser: str, details: str) -> None:
+    audit_log_service.create_log(db, company_id=user.company_id, user_id=user.id,
+        action=action, ip_address=ip, browser=browser, details=details)
     db.commit()
 
 
-@router.get("/dashboard")
-def dashboard(
-    db: DatabaseSession,
-    current_user: AllAuthenticatedRoles,
-    client_ip: ClientIp,
-    browser: BrowserInfo,
+def validate_filters(start_date, end_date, interval, payment_method, payment_status):
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(422, "Start date must be on or before end date.")
+    if interval not in VALID_INTERVALS:
+        raise HTTPException(422, "Interval must be daily, weekly, or monthly.")
+    if payment_method and payment_method not in VALID_PAYMENTS:
+        raise HTTPException(422, "Invalid payment method.")
+    if payment_status and payment_status not in VALID_STATUSES:
+        raise HTTPException(422, "Invalid payment status.")
+
+
+@router.get("/sales/dashboard")
+@router.get("/dashboard", include_in_schema=False)
+def sales_dashboard(
+    db: DatabaseSession, current_user: AllAuthenticatedRoles,
     start_date: date | None = Query(None, alias="startDate"),
     end_date: date | None = Query(None, alias="endDate"),
     product_id: UUID | None = Query(None, alias="productId"),
     category_id: UUID | None = Query(None, alias="categoryId"),
-    brand: str | None = None,
-    sales_channel: str | None = Query(None, alias="salesChannel"),
+    customer_id: UUID | None = Query(None, alias="customerId"),
     payment_method: str | None = Query(None, alias="paymentMethod"),
+    payment_status: str | None = Query(None, alias="paymentStatus"),
     interval: str = "daily",
 ):
+    """Sales analytics in one cacheable response; all large calculations run in SQL."""
+    validate_filters(start_date, end_date, interval, payment_method, payment_status)
     company_id = current_user.company_id
-    product_filters = [Product.company_id == company_id]
-    if product_id:
-        product_filters.append(Product.id == product_id)
-    if category_id:
-        product_filters.append(Product.category_id == category_id)
-    if brand:
-        product_filters.append(Product.brand == brand)
-    products = list(
-        db.scalars(
-            select(Product)
-            .options(joinedload(Product.category))
-            .where(*product_filters)
-            .order_by(Product.name)
-        ).all()
-    )
-    selected_product_ids = {product.id for product in products}
-
-    sale_filters = [Sale.company_id == company_id]
+    filters = [Sale.company_id == company_id]
     if start_date:
-        sale_filters.append(Sale.sale_date >= datetime.combine(start_date, time.min, tzinfo=UTC))
+        filters.append(Sale.sale_date >= datetime.combine(start_date, time.min, tzinfo=UTC))
     if end_date:
-        sale_filters.append(Sale.sale_date <= datetime.combine(end_date, time.max, tzinfo=UTC))
-    if sales_channel:
-        sale_filters.append(Sale.sales_channel == sales_channel)
+        filters.append(Sale.sale_date <= datetime.combine(end_date, time.max, tzinfo=UTC))
+    if customer_id:
+        filters.append(Sale.customer_id == customer_id)
     if payment_method:
-        sale_filters.append(Sale.payment_method == payment_method)
-    if product_id or category_id or brand:
-        sale_filters.append(Sale.items.any(SaleItem.product_id.in_(selected_product_ids or {UUID(int=0)})))
-    sales = list(
-        db.scalars(
-            select(Sale)
-            .options(
-                joinedload(Sale.items).joinedload(SaleItem.product),
-                joinedload(Sale.items).joinedload(SaleItem.category),
-            )
-            .where(*sale_filters)
-            .order_by(Sale.sale_date)
-        ).unique().all()
-    )
+        filters.append(Sale.payment_method == payment_method)
+    if payment_status:
+        filters.append(Sale.payment_status == payment_status)
 
-    filtered_lines = []
-    for sale in sales:
-        for item in sale.items:
-            if (product_id or category_id or brand) and item.product_id not in selected_product_ids:
-                continue
-            filtered_lines.append((sale, item))
+    line_filters = [*filters]
+    if product_id:
+        line_filters.append(SaleItem.product_id == product_id)
+    if category_id:
+        line_filters.append(SaleItem.category_id == category_id)
 
-    revenue = sum((item.total for _, item in filtered_lines), Decimal("0"))
-    order_ids = {sale.id for sale, _ in filtered_lines}
-    units = sum(item.quantity for _, item in filtered_lines)
+    line_base = select(Sale.id.label("sale_id"), Sale.sale_date, Sale.customer_id,
+        Sale.customer_name, Sale.payment_method, SaleItem.product_id, SaleItem.quantity,
+        SaleItem.discount, SaleItem.tax, SaleItem.total).join(SaleItem).where(*line_filters).subquery()
+    totals = db.execute(select(func.coalesce(func.sum(line_base.c.total), 0),
+        func.count(distinct(line_base.c.sale_id)), func.coalesce(func.sum(line_base.c.quantity), 0),
+        func.coalesce(func.sum(line_base.c.discount), 0), func.coalesce(func.sum(line_base.c.tax), 0))).one()
+    revenue, orders, items = money(totals[0]), int(totals[1]), int(totals[2])
 
-    inventory_rows = list(
-        db.scalars(
-            select(Inventory)
-            .join(Inventory.product)
-            .options(joinedload(Inventory.product).joinedload(Product.category))
-            .where(Inventory.company_id == company_id, Product.id.in_(selected_product_ids or {UUID(int=0)}))
-        ).unique().all()
-    )
-    inventory_value = sum(
-        (row.product.cost_price * row.current_stock for row in inventory_rows),
-        Decimal("0"),
-    )
+    product_rows = db.execute(select(Product.id, Product.name, Product.sku,
+        func.sum(line_base.c.quantity).label("units"), func.sum(line_base.c.total).label("revenue"))
+        .join(line_base, line_base.c.product_id == Product.id).group_by(Product.id, Product.name, Product.sku)
+        .order_by(func.sum(line_base.c.total).desc()).limit(100)).all()
+    customer_rows = db.execute(select(line_base.c.customer_id, line_base.c.customer_name,
+        func.count(distinct(line_base.c.sale_id)).label("orders"), func.sum(line_base.c.total).label("spend"))
+        .group_by(line_base.c.customer_id, line_base.c.customer_name)
+        .order_by(func.sum(line_base.c.total).desc()).limit(100)).all()
+    payment_rows = db.execute(select(line_base.c.payment_method,
+        func.count(distinct(line_base.c.sale_id)), func.sum(line_base.c.total))
+        .group_by(line_base.c.payment_method).order_by(func.sum(line_base.c.total).desc())).all()
 
-    product_sales = defaultdict(lambda: {"units": 0, "revenue": Decimal("0"), "transactions": []})
-    category_sales = defaultdict(lambda: {"units": 0, "revenue": Decimal("0")})
-    payment_totals = defaultdict(Decimal)
-    channel_totals = defaultdict(Decimal)
-    trend = defaultdict(lambda: {"revenue": Decimal("0"), "units": 0, "orders": set()})
-    for sale, item in filtered_lines:
-        product_sales[item.product.name]["units"] += item.quantity
-        product_sales[item.product.name]["revenue"] += item.total
-        product_sales[item.product.name]["transactions"].append({
-            "id": str(sale.id), "invoiceNumber": sale.invoice_number,
-            "date": sale.sale_date.isoformat(), "quantity": item.quantity,
-            "amount": as_money(item.total), "customer": sale.customer_name,
-        })
-        category_sales[item.category.name]["units"] += item.quantity
-        category_sales[item.category.name]["revenue"] += item.total
-        payment_totals[sale.payment_method] += item.total
-        channel_totals[sale.sales_channel] += item.total
-        day = sale.sale_date.date()
-        if interval == "monthly":
-            key = day.strftime("%Y-%m")
+    # Only already-aggregated daily buckets are transformed in Python, keeping raw transactions off the wire.
+    daily_rows = db.execute(select(func.date(line_base.c.sale_date).label("day"),
+        func.sum(line_base.c.total), func.count(distinct(line_base.c.sale_id)))
+        .group_by(func.date(line_base.c.sale_date)).order_by(func.date(line_base.c.sale_date))).all()
+    buckets = {}
+    for raw_day, amount, count in daily_rows:
+        day = date.fromisoformat(str(raw_day)[:10])
+        if interval == "monthly": key = day.strftime("%Y-%m")
         elif interval == "weekly":
-            iso = day.isocalendar()
-            key = f"{iso.year}-W{iso.week:02d}"
-        else:
-            key = day.isoformat()
-        trend[key]["revenue"] += item.total
-        trend[key]["units"] += item.quantity
-        trend[key]["orders"].add(sale.id)
+            iso = day.isocalendar(); key = f"{iso.year}-W{iso.week:02d}"
+        else: key = day.isoformat()
+        bucket = buckets.setdefault(key, {"revenue": 0.0, "orders": 0})
+        bucket["revenue"] += money(amount); bucket["orders"] += int(count)
 
-    inventory_categories = defaultdict(lambda: {"quantity": 0, "value": Decimal("0")})
-    statuses = defaultdict(int)
-    for row in inventory_rows:
-        name = row.product.category.name
-        inventory_categories[name]["quantity"] += row.available_stock
-        inventory_categories[name]["value"] += row.product.cost_price * row.current_stock
-        statuses[row.stock_status] += 1
-
-    all_products = list(
-        db.scalars(
-            select(Product).options(joinedload(Product.category))
-            .where(Product.company_id == company_id).order_by(Product.name)
-        ).all()
-    )
-    categories = list(
-        db.scalars(select(Category).where(Category.company_id == company_id).order_by(Category.name)).all()
-    )
+    products = db.execute(select(Product.id, Product.name).where(Product.company_id == company_id).order_by(Product.name)).all()
+    categories = db.execute(select(Category.id, Category.name).where(Category.company_id == company_id).order_by(Category.name)).all()
+    customers = db.execute(select(Customer.id, Customer.full_name).where(Customer.company_id == company_id, Customer.is_deleted.is_(False)).order_by(Customer.full_name)).all()
     return {
-        "kpis": {
-            "totalRevenue": as_money(revenue),
-            "totalOrders": len(order_ids),
-            "totalProductsSold": units,
-            "averageOrderValue": as_money(revenue / len(order_ids)) if order_ids else 0,
-            "totalInventoryValue": as_money(inventory_value),
-            "lowStockProducts": statuses["LOW_STOCK"],
-            "outOfStockProducts": statuses["OUT_OF_STOCK"],
-            "totalCategories": len({product.category_id for product in products}),
-        },
-        "trend": [
-            {"label": key, "revenue": as_money(value["revenue"]), "sales": value["units"], "orders": len(value["orders"])}
-            for key, value in sorted(trend.items())
-        ],
-        "topProducts": [
-            {"name": name, "units": value["units"], "revenue": as_money(value["revenue"]), "transactions": value["transactions"]}
-            for name, value in sorted(product_sales.items(), key=lambda item: item[1]["units"], reverse=True)[:10]
-        ],
-        "topCategories": [
-            {"name": name, "units": value["units"], "revenue": as_money(value["revenue"])}
-            for name, value in sorted(category_sales.items(), key=lambda item: item[1]["revenue"], reverse=True)
-        ],
-        "paymentMethods": [{"name": key, "value": as_money(value)} for key, value in payment_totals.items()],
-        "salesChannels": [{"name": key, "value": as_money(value)} for key, value in channel_totals.items()],
-        "inventoryByCategory": [
-            {"name": key, "quantity": value["quantity"], "value": as_money(value["value"])}
-            for key, value in inventory_categories.items()
-        ],
-        "stockStatus": [{"name": key, "value": value} for key, value in statuses.items()],
-        "lowStock": [
-            {"productId": str(row.product_id), "name": row.product.name, "sku": row.product.sku, "stock": row.available_stock, "reorderLevel": row.reorder_level}
-            for row in sorted(inventory_rows, key=lambda item: item.available_stock) if row.stock_status == "LOW_STOCK"
-        ][:10],
-        "outOfStock": [
-            {"productId": str(row.product_id), "name": row.product.name, "sku": row.product.sku}
-            for row in inventory_rows if row.stock_status == "OUT_OF_STOCK"
-        ],
-        "options": {
-            "products": [{"id": str(product.id), "name": product.name} for product in all_products],
-            "categories": [{"id": str(category.id), "name": category.name} for category in categories],
-            "brands": sorted({product.brand for product in all_products if product.brand}),
-        },
+        "kpis": {"totalRevenue": revenue, "totalOrders": orders,
+            "averageOrderValue": money(revenue / orders) if orders else 0,
+            "totalItemsSold": items, "totalDiscount": money(totals[3]), "totalTax": money(totals[4])},
+        "trend": [{"label": key, **value} for key, value in buckets.items()],
+        "topProducts": [{"id": str(row.id), "name": row.name, "sku": row.sku,
+            "units": int(row.units), "revenue": money(row.revenue)} for row in product_rows],
+        "topCustomers": [{"id": str(row.customer_id) if row.customer_id else None,
+            "name": row.customer_name, "orders": int(row.orders), "totalSpend": money(row.spend),
+            "averageOrderValue": money(row.spend / row.orders) if row.orders else 0} for row in customer_rows],
+        "paymentMethods": [{"name": row[0], "transactions": int(row[1]), "revenue": money(row[2])} for row in payment_rows],
+        "options": {"products": [{"id": str(x.id), "name": x.name} for x in products],
+            "categories": [{"id": str(x.id), "name": x.name} for x in categories],
+            "customers": [{"id": str(x.id), "name": x.full_name} for x in customers],
+            "paymentMethods": sorted(VALID_PAYMENTS), "paymentStatuses": sorted(VALID_STATUSES)},
         "lastUpdated": datetime.now(UTC).isoformat(),
     }
 
 
 @router.post("/audit")
-def log_dashboard_action(
-    payload: dict,
-    db: DatabaseSession,
-    current_user: AllAuthenticatedRoles,
-    client_ip: ClientIp,
-    browser: BrowserInfo,
-):
+def log_dashboard_action(payload: dict, db: DatabaseSession, current_user: AllAuthenticatedRoles,
+    client_ip: ClientIp, browser: BrowserInfo):
     action = payload.get("action")
-    if action != "export":
-        return {"message": "No audit event required for this action."}
-    audit_action = AuditAction.REPORT_EXPORTED
-    details = payload.get("details") or "Analytics dashboard action"
-    audit(db, current_user, audit_action, client_ip, browser, details)
+    audit_action = AuditAction.REPORT_EXPORTED if action == "export" else AuditAction.DASHBOARD_FILTERS_APPLIED
+    if action not in {"export", "filters"}:
+        raise HTTPException(422, "Unsupported analytics audit action.")
+    record_audit(db, current_user, audit_action, client_ip, browser,
+        str(payload.get("details") or "Sales analytics action")[:2000])
     return {"message": "Audit event recorded."}

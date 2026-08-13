@@ -25,7 +25,7 @@ export const ROUTE_PATHS = {
   // Stores the Inventory Management sidebar and protected-route path.
   inventory: "/inventory",
   reports: "/reports",
-  analytics: "/analytics",
+  analytics: "/analytics/sales",
   customers: "/customers",
   demandForecasting: "/demand-forecasting",
   companies: "/companies",

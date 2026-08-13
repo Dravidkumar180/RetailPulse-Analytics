@@ -43,3 +43,71 @@ body.dark-theme .analytics-bar-row > i {
 body.dark-theme .detail-table > div {
   border-color: #334155;
 }
+.analytics-filter-card>.MuiCardContent-root:first-child{display:grid;grid-template-columns:minmax(420px,2fr) repeat(2,minmax(135px,1fr));align-items:center}.date-presets{display:flex;gap:6px;flex-wrap:wrap}.date-presets button{border:1px solid #dbe4f0;font-size:10px}.filter-selects{display:grid!important;grid-template-columns:repeat(5,minmax(130px,1fr)) auto!important;padding-top:0!important}.filter-error{margin:0 14px 12px;color:#b91c1c;font-size:11px}.analytics-alert{display:flex;align-items:center;gap:8px;margin:14px 0;padding:10px 14px;border:1px solid #fecaca;border-radius:9px;background:#fff1f2;color:#b91c1c;font-size:11px}.analytics-alert button{margin-left:auto}.sales-bi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.dual-chart{height:210px;display:flex;align-items:flex-end;gap:7px;border-bottom:1px solid #dce4ef}.dual-chart>div{height:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;position:relative;padding-bottom:22px}.dual-chart i,.dual-chart b{width:34%;max-width:18px;background:#2563eb;border-radius:3px 3px 0 0}.dual-chart b{background:#14b8a6}.dual-chart span{position:absolute;bottom:3px;font-size:7px;color:#64748b}.analytics-table{display:grid;overflow:auto}.analytics-table>div{display:grid;grid-template-columns:minmax(130px,1fr) 60px 90px;gap:10px;align-items:center;padding:9px 5px;border-bottom:1px solid #edf1f5;font-size:9px}.analytics-table small,.payment-legend small{display:block;color:#94a3b8;margin-top:2px}.customer-table>div{grid-template-columns:minmax(130px,1fr) 55px 90px 90px}.payment-legend{display:grid;gap:10px}.payment-legend>div{display:grid;grid-template-columns:8px minmax(80px,1fr) auto;gap:6px;align-items:center;font-size:8px}.payment-legend i{width:8px;height:8px;border-radius:2px}.payment-legend strong{text-align:right}.analytics-kpis{grid-template-columns:repeat(6,1fr)}
+@media(max-width:1200px){.analytics-kpis{grid-template-columns:repeat(3,1fr)}.sales-bi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.filter-selects{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:700px){.analytics-filter-card>.MuiCardContent-root:first-child,.filter-selects{grid-template-columns:1fr!important}.analytics-kpis,.sales-bi-grid{grid-template-columns:1fr}.analytics-table{overflow-x:auto}.analytics-table>div{min-width:400px}.analytics-actions{width:100%}.analytics-actions button{flex:1;font-size:9px}}
+
+/* Sales filter layout: two intentional rows with consistent field heights. */
+.analytics-filter-card .filter-date-row{
+  display:grid!important;
+  grid-template-columns:minmax(420px,1.25fr) minmax(390px,1fr)!important;
+  gap:24px!important;
+  align-items:end;
+  padding:18px 18px 14px!important;
+}
+.filter-group{display:grid;gap:8px;min-width:0}
+.filter-group-label{color:#475569;font-size:10px!important;font-weight:700;letter-spacing:.02em}
+.date-presets{display:grid;grid-template-columns:repeat(5,minmax(74px,1fr));gap:8px;flex-wrap:unset}
+.date-presets button{height:44px;white-space:nowrap;border-color:#d7e0ed;border-radius:8px;font-weight:650}
+.custom-date-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.analytics-filter-card .MuiOutlinedInput-root{height:48px;border-radius:9px;background:#fff}
+.analytics-filter-card .filter-selects{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(145px,1fr)) auto!important;
+  gap:10px!important;
+  align-items:center;
+  padding:14px 18px 18px!important;
+  border-top:1px solid #edf1f5;
+}
+.filter-buttons{justify-content:flex-end;gap:8px;white-space:nowrap}
+.filter-buttons button{height:44px;padding-inline:16px}
+.filter-buttons .MuiButton-contained{min-width:116px}
+@media(max-width:1100px){
+  .analytics-filter-card .filter-date-row{grid-template-columns:1fr!important}
+  .analytics-filter-card .filter-selects{grid-template-columns:repeat(3,minmax(150px,1fr))!important}
+  .filter-buttons{grid-column:span 3}
+}
+@media(max-width:700px){
+  .analytics-filter-card .filter-date-row,.analytics-filter-card .filter-selects{grid-template-columns:1fr!important;padding:14px!important}
+  .date-presets{display:flex;overflow-x:auto;padding-bottom:3px}
+  .date-presets button{min-width:96px}
+  .custom-date-fields{grid-template-columns:1fr}
+  .filter-buttons{grid-column:auto;width:100%;display:grid;grid-template-columns:1fr 1fr}
+}
+@keyframes analytics-spin{to{transform:rotate(360deg)}}
+.analytics-spin{animation:analytics-spin .8s linear infinite}
+.analytics-empty__icon{width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#f0f4fa;color:#274777}
+.analytics-empty .analytics-empty__icon svg{font-size:31px}
+.analytics-empty--products .analytics-empty__icon{background:#eef3ff;color:#31539a}
+.analytics-empty--customers .analytics-empty__icon{background:#f2efff;color:#5b45a8}
+.analytics-empty--payments .analytics-empty__icon{background:#e9f8f5;color:#0f8f7f}
+body.dark-theme .analytics-empty__icon{background:#1e293b}
+.analytics-table-skeleton{display:grid;gap:6px;padding-top:4px}.analytics-table-skeleton>div{display:grid;gap:12px}.donut-skeleton{margin:36px auto}
+
+/* Live sales KPI cards */
+.analytics-kpis{gap:14px}
+.analytics-kpis .analytics-kpi{position:relative;overflow:hidden;cursor:default;border-color:#e1e8f2;box-shadow:0 5px 18px rgb(15 23 42 / 6%)}
+.analytics-kpis .analytics-kpi:hover{transform:translateY(-2px);border-color:var(--kpi-color);box-shadow:0 9px 24px rgb(15 23 42 / 10%)}
+.analytics-kpis .analytics-kpi .MuiCardContent-root{position:relative;z-index:1;display:flex;align-items:flex-start;gap:12px;min-height:112px;padding:16px!important}
+.analytics-kpi__icon{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border-radius:10px;color:var(--kpi-color);background:var(--kpi-soft)}
+.analytics-kpi__icon svg{font-size:20px}
+.analytics-kpi__copy{min-width:0;flex:1}
+.analytics-kpis .analytics-kpi__copy span{color:#64748b;font-size:10px;font-weight:650;white-space:nowrap}
+.analytics-kpis .analytics-kpi__copy strong{margin:7px 0 5px;color:#0f172a;font-size:20px;line-height:1.05;letter-spacing:-.02em;white-space:nowrap}
+.analytics-kpis .analytics-kpi__copy small{color:#94a3b8;font-size:8px}
+.analytics-kpi--blue{--kpi-color:#2563eb;--kpi-soft:#eaf1ff}.analytics-kpi--violet{--kpi-color:#7c3aed;--kpi-soft:#f1eafe}.analytics-kpi--teal{--kpi-color:#0f9f8f;--kpi-soft:#e5f8f5}.analytics-kpi--orange{--kpi-color:#ea7c15;--kpi-soft:#fff2e4}.analytics-kpi--rose{--kpi-color:#e54868;--kpi-soft:#ffeaf0}.analytics-kpi--cyan{--kpi-color:#0891b2;--kpi-soft:#e6f8fc}
+.analytics-kpis--updating .analytics-kpi::before{content:"";position:absolute;z-index:2;top:0;left:-45%;width:35%;height:2px;background:linear-gradient(90deg,transparent,var(--kpi-color),transparent);animation:kpi-progress 1s ease-in-out infinite}
+@keyframes kpi-progress{to{left:110%}}
+body.dark-theme .analytics-kpi__icon{background:#1e293b}
+body.dark-theme .analytics-kpis .analytics-kpi__copy strong{color:#f8fafc}
+@media(max-width:1200px){.analytics-kpis .analytics-kpi .MuiCardContent-root{min-height:100px}}

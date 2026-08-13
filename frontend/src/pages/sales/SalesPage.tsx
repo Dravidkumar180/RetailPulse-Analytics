@@ -67,7 +67,7 @@ const SalesPage = () => {
   const formInvalid = !form.customerId || !form.items.length || form.items.some((item) => Boolean(itemError(item)));
 
   // Refresh every screen affected by a saved or deleted sale.
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["sales"] }); qc.invalidateQueries({ queryKey: ["sales-summary"] }); qc.invalidateQueries({ queryKey: ["products"] }); qc.invalidateQueries({ queryKey: ["inventory-notifications"] }); };
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["sales"] }); qc.invalidateQueries({ queryKey: ["sales-summary"] }); qc.invalidateQueries({ queryKey: ["sales-analytics"] }); qc.invalidateQueries({ queryKey: ["products"] }); qc.invalidateQueries({ queryKey: ["inventory-notifications"] }); };
   // Create or update the transaction and open its completed invoice.
   const save = useMutation({
     mutationFn: () => editing ? updateSale(editing.id, form) : createSale(form),
