@@ -31,6 +31,7 @@ import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 // Imports the needed tools from @mui/icons-material/BarChartOutlined.
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import AutoGraphOutlinedIcon from "@mui/icons-material/AutoGraphOutlined";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
 // Imports the needed tools from ../../../hooks/useAuth.
 import { useAuth } from "../../../hooks/useAuth";
@@ -112,6 +113,12 @@ const menuItems: SidebarMenuItem[] = [
     path: "/reports",
     icon: <AssessmentOutlinedIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+  },
+  {
+    label: "Data Imports",
+    path: "/data-import",
+    icon: <CloudUploadOutlinedIcon />,
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
   },
   {
     label: "Companies",

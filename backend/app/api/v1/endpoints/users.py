@@ -112,6 +112,8 @@ def update_user_status(
     request_data: UpdateUserStatusRequest,
     db: DatabaseSession,
     current_user: AnalystOrHigher,
+    client_ip: ClientIp,
+    browser: BrowserInfo,
 ) -> UserResponse:
     # Returns the completed value to the caller.
     return user_service.update_user_status(
@@ -119,6 +121,8 @@ def update_user_status(
         current_user=current_user,
         user_id=user_id,
         request_data=request_data,
+        ip_address=client_ip,
+        browser=browser,
     )
 
 

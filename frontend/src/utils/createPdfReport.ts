@@ -1,3 +1,4 @@
+// The shared values below keep formatting and business rules consistent.
 const ascii = (value: unknown) =>
   String(value ?? "")
     .replaceAll("₹", "INR ")
@@ -5,7 +6,10 @@ const ascii = (value: unknown) =>
     .replace(/[^\x20-\x7E]/g, "");
 
 const escapePdf = (value: string) =>
-  ascii(value).replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)");
+  ascii(value)
+    .replaceAll("\\", "\\\\")
+    .replaceAll("(", "\\(")
+    .replaceAll(")", "\\)");
 
 const byteLength = (value: string) => new TextEncoder().encode(value).length;
 
@@ -34,7 +38,14 @@ export const createPdfReport = (title: string, lines: string[]) => {
   const fontObject = 3 + pageCount * 2;
   const objects: string[] = [];
   objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
-  objects[2] = `<< /Type /Pages /Count ${pageCount} /Kids [${pageLines.map((_, index) => `${3 + index * 2} 0 R`).join(" ")}] >>`;
+  const pageReferences = pageLines
+    .map((_, index) => `${3 + index * 2} 0 R`)
+    .join(" ");
+  objects[2] = [
+    "<< /Type /Pages",
+    `/Count ${pageCount}`,
+    `/Kids [${pageReferences}] >>`,
+  ].join(" ");
 
   pageLines.forEach((page, index) => {
     const pageObject = 3 + index * 2;
@@ -53,9 +64,11 @@ export const createPdfReport = (title: string, lines: string[]) => {
     objects[pageObject] =
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] ` +
       `/Resources << /Font << /F1 ${fontObject} 0 R >> >> /Contents ${contentObject} 0 R >>`;
-    objects[contentObject] = `<< /Length ${byteLength(textCommands)} >>\nstream\n${textCommands}\nendstream`;
+    objects[contentObject] =
+      `<< /Length ${byteLength(textCommands)} >>\nstream\n${textCommands}\nendstream`;
   });
-  objects[fontObject] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+  objects[fontObject] =
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
 
   let pdf = "%PDF-1.4\n";
   const offsets = [0];

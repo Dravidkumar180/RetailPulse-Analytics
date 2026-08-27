@@ -20,6 +20,8 @@ from app.api.v1.endpoints import (
     analytics,
     customers,
     forecasts,
+    data_imports,
+    activity_notifications,
 )
 
 
@@ -74,3 +76,5 @@ api_router.include_router(inventory.router, prefix="/inventory", tags=["Inventor
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 api_router.include_router(customers.router, prefix="/customers", tags=["Customers"])
 api_router.include_router(forecasts.router, prefix="/forecasts", tags=["Demand Forecasting"])
+api_router.include_router(data_imports.router, prefix="/import", tags=["Data Imports"])
+api_router.include_router(activity_notifications.router, prefix="/notifications", tags=["Notifications"])

@@ -9,7 +9,9 @@ import axiosInstance from "./axiosInstance";
 export type StockStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK";
 // Adjustment types map directly to backend movement types.
 export type AdjustmentType =
-  "STOCK_ADDITION" | "STOCK_REMOVAL" | "MANUAL_ADJUSTMENT";
+  | "STOCK_ADDITION"
+  | "STOCK_REMOVAL"
+  | "MANUAL_ADJUSTMENT";
 
 /* =========================================================
  * Inventory overview types

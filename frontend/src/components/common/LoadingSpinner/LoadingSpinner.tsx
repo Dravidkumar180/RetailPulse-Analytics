@@ -35,9 +35,7 @@ const LoadingSpinner = ({
     >
       <CircularProgress size={size} />
 
-      {message && (
-        <p className="loading-spinner__message">{message}</p>
-      )}
+      {message && <p className="loading-spinner__message">{message}</p>}
     </div>
   );
 };

@@ -1,9 +1,6 @@
+// Coordinates user data, filters, permissions, and user-management actions.
 import { useState, type FormEvent } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
   Box,
@@ -35,10 +32,7 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
-import type {
-  AccountStatus,
-  UserRole,
-} from "../../api/authApi";
+import type { AccountStatus, UserRole } from "../../api/authApi";
 import {
   createCompanyUser,
   getCompanyUsers,
@@ -60,11 +54,7 @@ const editableRoles: Array<Exclude<UserRole, "SUPER_ADMIN">> = [
   "ANALYST",
   "COMPANY_ADMIN",
 ];
-const accountStatuses: AccountStatus[] = [
-  "ACTIVE",
-  "INACTIVE",
-  "SUSPENDED",
-];
+const accountStatuses: AccountStatus[] = ["ACTIVE", "INACTIVE", "SUSPENDED"];
 
 const emptyInvite: CreateUserRequest = {
   name: "",
@@ -73,6 +63,7 @@ const emptyInvite: CreateUserRequest = {
   role: "VIEWER",
 };
 
+// This component receives prepared data and renders the feature-specific interface.
 const formatDateTime = (date?: string | null): string => {
   if (!date) return "Never";
   return new Intl.DateTimeFormat("en-IN", {
@@ -91,6 +82,7 @@ const UsersPage = () => {
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const canEdit = currentUser?.role !== "VIEWER";
+  // Store table filters and the values used by invite and edit dialogs.
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<UserRole | "">("");
@@ -104,6 +96,7 @@ const UsersPage = () => {
     status: "ACTIVE",
   });
 
+  // The query key keeps each page and filter combination cached separately.
   const usersQuery = useQuery({
     queryKey: ["company-users", page, search, role, status],
     queryFn: () =>
@@ -116,6 +109,7 @@ const UsersPage = () => {
       }),
   });
 
+  // Create a user, then refresh the table and close the invite dialog.
   const inviteMutation = useMutation({
     mutationFn: createCompanyUser,
     onSuccess: async (_, invitedUser) => {
@@ -125,16 +119,19 @@ const UsersPage = () => {
       setInviteOpen(false);
       setInvite(emptyInvite);
       setShowPassword(false);
-      window.dispatchEvent(new CustomEvent("retailpulse:notification", {
-        detail: {
-          title: "User invited",
-          message: `${invitedUser.name.trim()} was invited as ${formatLabel(invitedUser.role)}.`,
-          path: "/users",
-        },
-      }));
+      window.dispatchEvent(
+        new CustomEvent("retailpulse:notification", {
+          detail: {
+            title: "User invited",
+            message: `${invitedUser.name.trim()} was invited as ${formatLabel(invitedUser.role)}.`,
+            path: "/users",
+          },
+        }),
+      );
     },
   });
 
+  // Save role or status changes made in the edit dialog.
   const editMutation = useMutation({
     mutationFn: ({
       userId,
@@ -370,7 +367,8 @@ const UsersPage = () => {
           <DialogContent>
             {inviteMutation.isError && (
               <Alert severity="error">
-                Unable to invite this user. Check the details or use a different email.
+                Unable to invite this user. Check the details or use a different
+                email.
               </Alert>
             )}
             <TextField
@@ -408,7 +406,9 @@ const UsersPage = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                         onClick={() => setShowPassword((current) => !current)}
                         edge="end"
                       >

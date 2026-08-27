@@ -41,11 +41,18 @@ const AuthLayout = () => {
   }, []);
 
   // Returns the completed result to the caller.
-  return <Box className={`auth-layout ${layoutModifier}`}>
-    <Box className="auth-layout__content-panel">
-      <Box className="auth-layout__mobile-logo"><ShoppingCartOutlinedIcon /><Typography component="span">RetailPulse Analytics</Typography></Box>
-      <Box className="auth-layout__form-wrapper"><Outlet /></Box>
+  return (
+    <Box className={`auth-layout ${layoutModifier}`}>
+      <Box className="auth-layout__content-panel">
+        <Box className="auth-layout__mobile-logo">
+          <ShoppingCartOutlinedIcon />
+          <Typography component="span">RetailPulse Analytics</Typography>
+        </Box>
+        <Box className="auth-layout__form-wrapper">
+          <Outlet />
+        </Box>
+      </Box>
     </Box>
-  </Box>;
+  );
 };
 export default AuthLayout;

@@ -34,16 +34,15 @@ export interface UpdateProfileRequest {
 }
 
 // Gets current user profile.
-export const getCurrentUserProfile =
-  async (): Promise<UserProfile> => {
-    // Stores response for the steps below.
-    const response =
-      // Waits for this asynchronous work to finish.
-      await axiosInstance.get<UserProfile>("/profiles/me");
+export const getCurrentUserProfile = async (): Promise<UserProfile> => {
+  // Stores response for the steps below.
+  const response =
+    // Waits for this asynchronous work to finish.
+    await axiosInstance.get<UserProfile>("/profiles/me");
 
-    // Returns the completed result to the caller.
-    return response.data;
-  };
+  // Returns the completed result to the caller.
+  return response.data;
+};
 
 // Saves current user profile.
 export const updateCurrentUserProfile = async (

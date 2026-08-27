@@ -6,7 +6,6 @@
 // Imports the needed tools from ./axiosInstance.
 import axiosInstance from "./axiosInstance";
 
-
 import {
   clearAuthTokens,
   getStoredRefreshToken,
@@ -31,10 +30,7 @@ import type {
 // Imports the needed tools from ../types/api.types.
 import type { MessageResponse } from "../types/api.types";
 
-import type {
-  AccountStatus,
-  UserRole,
-} from "../types/user.types";
+import type { AccountStatus, UserRole } from "../types/user.types";
 
 /*
  * Re-export these types so existing files can continue importing
@@ -90,10 +86,7 @@ export const login = async (
     credentials,
   );
 
-  storeAuthTokens(
-    response.data.accessToken,
-    response.data.refreshToken,
-  );
+  storeAuthTokens(response.data.accessToken, response.data.refreshToken);
 
   // Returns the completed result to the caller.
   return response.data;
@@ -103,37 +96,30 @@ export const login = async (
  * Generate a new access token using the stored refresh token.
  */
 // Runs refresh access token logic.
-export const refreshAccessToken =
-  async (): Promise<RefreshTokenResponse> => {
-    // Stores refresh token for the steps below.
-    const refreshToken = getStoredRefreshToken();
+export const refreshAccessToken = async (): Promise<RefreshTokenResponse> => {
+  // Stores refresh token for the steps below.
+  const refreshToken = getStoredRefreshToken();
 
-    // Checks whether this condition is true.
-    if (!refreshToken) {
-      clearAuthTokens();
+  // Checks whether this condition is true.
+  if (!refreshToken) {
+    clearAuthTokens();
 
-      // Stops here and reports the problem.
-      throw new Error("Refresh token is not available.");
-    }
+    // Stops here and reports the problem.
+    throw new Error("Refresh token is not available.");
+  }
 
-    // Stores response for the steps below.
-    const response =
-      // Waits for this asynchronous work to finish.
-      await axiosInstance.post<RefreshTokenResponse>(
-        "/auth/refresh",
-        {
-          refreshToken,
-        },
-      );
+  // Stores response for the steps below.
+  const response =
+    // Waits for this asynchronous work to finish.
+    await axiosInstance.post<RefreshTokenResponse>("/auth/refresh", {
+      refreshToken,
+    });
 
-    storeAuthTokens(
-      response.data.accessToken,
-      response.data.refreshToken,
-    );
+  storeAuthTokens(response.data.accessToken, response.data.refreshToken);
 
-    // Returns the completed result to the caller.
-    return response.data;
-  };
+  // Returns the completed result to the caller.
+  return response.data;
+};
 
 /**
  * Logout the user and remove locally stored authentication tokens.
@@ -156,12 +142,9 @@ export const logout = async (): Promise<MessageResponse> => {
     // Stores response for the steps below.
     const response =
       // Waits for this asynchronous work to finish.
-      await axiosInstance.post<MessageResponse>(
-        "/auth/logout",
-        {
-          refreshToken,
-        },
-      );
+      await axiosInstance.post<MessageResponse>("/auth/logout", {
+        refreshToken,
+      });
 
     // Returns the completed result to the caller.
     return response.data;

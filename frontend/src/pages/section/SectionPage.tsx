@@ -24,20 +24,78 @@ import "./SectionPage.css";
 
 // Stores sections for the steps below.
 const sections = {
-  "/products": { title: "Products", text: "Manage products, inventory and pricing.", icon: <Inventory2OutlinedIcon />, cards: ["Product Catalogue", "Inventory Status", "Product Categories"] },
-  "/sales": { title: "Sales", text: "Review orders, transactions and sales performance.", icon: <PointOfSaleOutlinedIcon />, cards: ["Recent Orders", "Sales Transactions", "Revenue Summary"] },
-  "/analytics": { title: "Analytics", text: "Explore trends and company performance insights.", icon: <AnalyticsOutlinedIcon />, cards: ["Sales Trends", "Customer Insights", "Channel Performance"] },
-  "/reports": { title: "Reports", text: "Create, review and export company reports.", icon: <AssessmentOutlinedIcon />, cards: ["Available Reports", "Scheduled Reports", "Report History"] },
-  "/companies": { title: "Companies", text: "Manage registered companies and their accounts.", icon: <BusinessOutlinedIcon />, cards: ["Company Directory", "Active Companies", "Company Activity"] },
-  "/settings": { title: "Settings", text: "Configure your company and application preferences.", icon: <SettingsOutlinedIcon />, cards: ["Company Settings", "Security Settings", "Notification Preferences"] },
+  "/products": {
+    title: "Products",
+    text: "Manage products, inventory and pricing.",
+    icon: <Inventory2OutlinedIcon />,
+    cards: ["Product Catalogue", "Inventory Status", "Product Categories"],
+  },
+  "/sales": {
+    title: "Sales",
+    text: "Review orders, transactions and sales performance.",
+    icon: <PointOfSaleOutlinedIcon />,
+    cards: ["Recent Orders", "Sales Transactions", "Revenue Summary"],
+  },
+  "/analytics": {
+    title: "Analytics",
+    text: "Explore trends and company performance insights.",
+    icon: <AnalyticsOutlinedIcon />,
+    cards: ["Sales Trends", "Customer Insights", "Channel Performance"],
+  },
+  "/reports": {
+    title: "Reports",
+    text: "Create, review and export company reports.",
+    icon: <AssessmentOutlinedIcon />,
+    cards: ["Available Reports", "Scheduled Reports", "Report History"],
+  },
+  "/companies": {
+    title: "Companies",
+    text: "Manage registered companies and their accounts.",
+    icon: <BusinessOutlinedIcon />,
+    cards: ["Company Directory", "Active Companies", "Company Activity"],
+  },
+  "/settings": {
+    title: "Settings",
+    text: "Configure your company and application preferences.",
+    icon: <SettingsOutlinedIcon />,
+    cards: [
+      "Company Settings",
+      "Security Settings",
+      "Notification Preferences",
+    ],
+  },
 } as const;
 
 // Shows the section page.
 const SectionPage = () => {
   const { pathname } = useLocation();
   // Runs section logic.
-  const section = sections[pathname as keyof typeof sections] ?? sections["/products"];
+  const section =
+    sections[pathname as keyof typeof sections] ?? sections["/products"];
   // Returns the completed result to the caller.
-  return <Box className="section-page"><Box className="section-page__heading"><i>{section.icon}</i><Box><Typography component="h1">{section.title}</Typography><Typography component="p">{section.text}</Typography></Box></Box><Box className="section-page__grid">{section.cards.map((card) => <Card key={card}><CardContent><Typography component="h2">{card}</Typography><Typography component="p">This {section.title.toLowerCase()} area is ready for your company data.</Typography></CardContent></Card>)}</Box></Box>;
+  return (
+    <Box className="section-page">
+      <Box className="section-page__heading">
+        <i>{section.icon}</i>
+        <Box>
+          <Typography component="h1">{section.title}</Typography>
+          <Typography component="p">{section.text}</Typography>
+        </Box>
+      </Box>
+      <Box className="section-page__grid">
+        {section.cards.map((card) => (
+          <Card key={card}>
+            <CardContent>
+              <Typography component="h2">{card}</Typography>
+              <Typography component="p">
+                This {section.title.toLowerCase()} area is ready for your
+                company data.
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
+    </Box>
+  );
 };
 export default SectionPage;

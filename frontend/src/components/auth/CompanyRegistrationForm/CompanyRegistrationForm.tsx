@@ -61,11 +61,7 @@ const industries = [
 // Gets error message.
 const getErrorMessage = (error: unknown): string => {
   // Checks whether this condition is true.
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
+  if (typeof error === "object" && error !== null && "response" in error) {
     // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
@@ -100,8 +96,7 @@ const CompanyRegistrationForm = () => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -170,9 +165,7 @@ const CompanyRegistrationForm = () => {
       </Box>
 
       <Box className="company-registration-form__header">
-        <Typography component="h1">
-          Register your company
-        </Typography>
+        <Typography component="h1">Register your company</Typography>
 
         <Typography component="p">
           Create your RetailPulse Analytics company account and first
@@ -191,9 +184,7 @@ const CompanyRegistrationForm = () => {
           <BusinessOutlinedIcon />
 
           <Box>
-            <Typography component="h2">
-              Company information
-            </Typography>
+            <Typography component="h2">Company information</Typography>
 
             <Typography component="p">
               Enter the official details of your organization.
@@ -211,13 +202,11 @@ const CompanyRegistrationForm = () => {
               required: "Company name is required.",
               minLength: {
                 value: 2,
-                message:
-                  "Company name must contain at least 2 characters.",
+                message: "Company name must contain at least 2 characters.",
               },
               maxLength: {
                 value: 150,
-                message:
-                  "Company name must not exceed 150 characters.",
+                message: "Company name must not exceed 150 characters.",
               },
             })}
             error={errors.companyName?.message}
@@ -238,11 +227,7 @@ const CompanyRegistrationForm = () => {
               >
                 <InputLabel id="industry-label">Industry</InputLabel>
 
-                <Select
-                  {...field}
-                  labelId="industry-label"
-                  label="Industry"
-                >
+                <Select {...field} labelId="industry-label" label="Industry">
                   {industries.map((industry) => (
                     <MenuItem key={industry} value={industry}>
                       {industry}
@@ -251,9 +236,7 @@ const CompanyRegistrationForm = () => {
                 </Select>
 
                 {errors.industry?.message && (
-                  <FormHelperText>
-                    {errors.industry.message}
-                  </FormHelperText>
+                  <FormHelperText>{errors.industry.message}</FormHelperText>
                 )}
               </FormControl>
             )}
@@ -305,13 +288,11 @@ const CompanyRegistrationForm = () => {
               required: "Company address is required.",
               minLength: {
                 value: 5,
-                message:
-                  "Company address must contain at least 5 characters.",
+                message: "Company address must contain at least 5 characters.",
               },
               maxLength: {
                 value: 500,
-                message:
-                  "Company address must not exceed 500 characters.",
+                message: "Company address must not exceed 500 characters.",
               },
             })}
             error={errors.companyAddress?.message}
@@ -324,9 +305,7 @@ const CompanyRegistrationForm = () => {
           <PersonOutlinedIcon />
 
           <Box>
-            <Typography component="h2">
-              Company administrator
-            </Typography>
+            <Typography component="h2">Company administrator</Typography>
 
             <Typography component="p">
               This user will become the first Company Admin.
@@ -345,13 +324,11 @@ const CompanyRegistrationForm = () => {
               required: "Owner name is required.",
               minLength: {
                 value: 2,
-                message:
-                  "Owner name must contain at least 2 characters.",
+                message: "Owner name must contain at least 2 characters.",
               },
               maxLength: {
                 value: 100,
-                message:
-                  "Owner name must not exceed 100 characters.",
+                message: "Owner name must not exceed 100 characters.",
               },
             })}
             error={errors.ownerName?.message}
@@ -386,13 +363,11 @@ const CompanyRegistrationForm = () => {
                 required: "Password is required.",
                 minLength: {
                   value: 8,
-                  message:
-                    "Password must contain at least 8 characters.",
+                  message: "Password must contain at least 8 characters.",
                 },
                 maxLength: {
                   value: 128,
-                  message:
-                    "Password must not exceed 128 characters.",
+                  message: "Password must not exceed 128 characters.",
                 },
                 pattern: {
                   value:
@@ -407,9 +382,7 @@ const CompanyRegistrationForm = () => {
             <IconButton
               type="button"
               className="company-registration-form__password-toggle"
-              aria-label={
-                showPassword ? "Hide password" : "Show password"
-              }
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() =>
                 // Updates the page or stored state with this result.
                 setShowPassword((current) => !current)
@@ -465,16 +438,15 @@ const CompanyRegistrationForm = () => {
 
       <label className="company-registration-form__terms">
         <input type="checkbox" required />
-        <span>I agree to the <a href="#terms">Terms &amp; Conditions</a></span>
+        <span>
+          I agree to the <a href="#terms">Terms &amp; Conditions</a>
+        </span>
       </label>
 
       <Box className="company-registration-form__actions">
         <Typography component="p">
           Already registered?
-          <Link
-            to="/login"
-            className="company-registration-form__login-link"
-          >
+          <Link to="/login" className="company-registration-form__login-link">
             Sign in
           </Link>
         </Typography>

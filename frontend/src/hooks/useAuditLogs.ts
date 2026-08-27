@@ -3,10 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import {
-  keepPreviousData,
-  useQuery,
-} from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import {
   getAuditLogs,
@@ -19,19 +16,12 @@ import {
 import { useAuth } from "./useAuth";
 
 // Runs audit logs query key logic.
-export const auditLogsQueryKey = (
-  filters: AuditLogFilters,
-) => ["audit-logs", filters] as const;
+export const auditLogsQueryKey = (filters: AuditLogFilters) =>
+  ["audit-logs", filters] as const;
 
 // Runs use audit logs logic.
-export const useAuditLogs = (
-  filters: AuditLogFilters = {},
-) => {
-  const {
-    isAuthenticated,
-    isLoading: authLoading,
-    user,
-  } = useAuth();
+export const useAuditLogs = (filters: AuditLogFilters = {}) => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
   // Checks view audit logs.
   const canViewAuditLogs = Boolean(user?.role);
@@ -40,10 +30,7 @@ export const useAuditLogs = (
   return useQuery<AuditLogListResponse, Error>({
     queryKey: auditLogsQueryKey(filters),
     queryFn: () => getAuditLogs(filters),
-    enabled:
-      isAuthenticated &&
-      !authLoading &&
-      canViewAuditLogs,
+    enabled: isAuthenticated && !authLoading && canViewAuditLogs,
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
     retry: 1,

@@ -4,12 +4,10 @@
  */
 
 // Stores access token key for the steps below.
-const ACCESS_TOKEN_KEY =
-  "retailpulse_access_token";
+const ACCESS_TOKEN_KEY = "retailpulse_access_token";
 
 // Stores refresh token key for the steps below.
-const REFRESH_TOKEN_KEY =
-  "retailpulse_refresh_token";
+const REFRESH_TOKEN_KEY = "retailpulse_refresh_token";
 
 // Defines the fields allowed in stored tokens.
 export interface StoredTokens {
@@ -34,17 +32,11 @@ export const storeAuthTokens = (
   accessToken: string,
   refreshToken?: string | null,
 ): void => {
-  localStorage.setItem(
-    ACCESS_TOKEN_KEY,
-    accessToken,
-  );
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
 
   // Checks whether this condition is true.
   if (refreshToken) {
-    localStorage.setItem(
-      REFRESH_TOKEN_KEY,
-      refreshToken,
-    );
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   }
 };
 
@@ -87,15 +79,10 @@ export const clearAuthTokens = (): void => {
 // Runs decode base64 url logic.
 const decodeBase64Url = (value: string): string => {
   // Stores base64 for the steps below.
-  const base64 = value
-    .replaceAll("-", "+")
-    .replaceAll("_", "/");
+  const base64 = value.replaceAll("-", "+").replaceAll("_", "/");
 
   // Stores padded base64 for the steps below.
-  const paddedBase64 = base64.padEnd(
-    Math.ceil(base64.length / 4) * 4,
-    "=",
-  );
+  const paddedBase64 = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
 
   // Returns the completed result to the caller.
   return decodeURIComponent(
@@ -104,10 +91,7 @@ const decodeBase64Url = (value: string): string => {
       .split("")
       .map(
         (character) =>
-          `%${character
-            .charCodeAt(0)
-            .toString(16)
-            .padStart(2, "0")}`,
+          `%${character.charCodeAt(0).toString(16).padStart(2, "0")}`,
       )
       .join(""),
   );
@@ -124,9 +108,7 @@ export interface JwtPayload {
 }
 
 // Runs decode jwt token logic.
-export const decodeJwtToken = (
-  token: string,
-): JwtPayload | null => {
+export const decodeJwtToken = (token: string): JwtPayload | null => {
   // Tries the operation and watches for errors.
   try {
     // Stores token parts for the steps below.
@@ -139,9 +121,7 @@ export const decodeJwtToken = (
     }
 
     // Returns the completed result to the caller.
-    return JSON.parse(
-      decodeBase64Url(tokenParts[1]),
-    ) as JwtPayload;
+    return JSON.parse(decodeBase64Url(tokenParts[1])) as JwtPayload;
   } catch {
     // Returns the completed result to the caller.
     return null;
@@ -166,10 +146,7 @@ export const isTokenExpired = (
   const currentTime = Math.floor(Date.now() / 1000);
 
   // Builds the visible interface below.
-  return (
-    payload.exp <=
-    currentTime + expiryBufferSeconds
-  );
+  return payload.exp <= currentTime + expiryBufferSeconds;
 };
 
 // Checks valid access token.

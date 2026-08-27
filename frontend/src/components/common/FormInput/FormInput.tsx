@@ -3,10 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import type {
-  HTMLInputTypeAttribute,
-  InputHTMLAttributes,
-} from "react";
+import type { HTMLInputTypeAttribute, InputHTMLAttributes } from "react";
 
 // Imports the needed tools from @mui/material/TextField.
 import TextField from "@mui/material/TextField";

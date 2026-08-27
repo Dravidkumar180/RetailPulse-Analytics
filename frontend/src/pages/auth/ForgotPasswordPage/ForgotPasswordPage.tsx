@@ -11,12 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 // Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
-import {
-  Alert,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, IconButton, Typography } from "@mui/material";
 
 // Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
@@ -50,11 +45,7 @@ interface DevelopmentResetFormData {
 // Gets error message.
 const getErrorMessage = (error: unknown): string => {
   // Checks whether this condition is true.
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
+  if (typeof error === "object" && error !== null && "response" in error) {
     // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
@@ -160,9 +151,7 @@ const ForgotPasswordPage = () => {
         </Box>
 
         <Box className="forgot-password-page__header">
-          <Typography component="h1">
-            Forgot Password
-          </Typography>
+          <Typography component="h1">Forgot Password</Typography>
 
           <Typography component="p">
             Reset your account password securely
@@ -170,10 +159,7 @@ const ForgotPasswordPage = () => {
         </Box>
 
         {forgotPasswordMutation.isError && (
-          <Alert
-            severity="error"
-            className="forgot-password-page__alert"
-          >
+          <Alert severity="error" className="forgot-password-page__alert">
             {getErrorMessage(forgotPasswordMutation.error)}
           </Alert>
         )}
@@ -219,8 +205,10 @@ const ForgotPasswordPage = () => {
                   message: "Password must contain at least 8 characters.",
                 },
                 pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-                  message: "Use uppercase, lowercase, number and special character.",
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+                  message:
+                    "Use uppercase, lowercase, number and special character.",
                 },
               })}
               error={errors.newPassword?.message}
@@ -231,7 +219,11 @@ const ForgotPasswordPage = () => {
               onClick={() => setShowPassword((current) => !current)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
+              {showPassword ? (
+                <VisibilityOffOutlinedIcon />
+              ) : (
+                <VisibilityOutlinedIcon />
+              )}
             </IconButton>
           </div>
 
@@ -246,7 +238,8 @@ const ForgotPasswordPage = () => {
               registration={register("confirmPassword", {
                 required: "Confirm password is required.",
                 validate: (value) =>
-                  value === passwordValue || "Password and confirm password must match.",
+                  value === passwordValue ||
+                  "Password and confirm password must match.",
               })}
               error={errors.confirmPassword?.message}
             />
@@ -254,9 +247,17 @@ const ForgotPasswordPage = () => {
               type="button"
               className="forgot-password-page__password-toggle"
               onClick={() => setShowConfirmPassword((current) => !current)}
-              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              aria-label={
+                showConfirmPassword
+                  ? "Hide confirm password"
+                  : "Show confirm password"
+              }
             >
-              {showConfirmPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
+              {showConfirmPassword ? (
+                <VisibilityOffOutlinedIcon />
+              ) : (
+                <VisibilityOutlinedIcon />
+              )}
             </IconButton>
           </div>
 

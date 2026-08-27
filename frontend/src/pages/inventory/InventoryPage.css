@@ -8,6 +8,7 @@
   gap: 18px;
   color: #172033;
 }
+.inventory-module-tabs{display:flex;gap:24px;border-bottom:1px solid #e1e7f0}.inventory-module-tabs a{padding:11px 3px;color:#667085;text-decoration:none;font-size:12px;font-weight:700}.inventory-module-tabs a.active{color:#4f46e5;border-bottom:3px solid #4f46e5}
 .inventory-heading {
   display: flex;
   align-items: center;

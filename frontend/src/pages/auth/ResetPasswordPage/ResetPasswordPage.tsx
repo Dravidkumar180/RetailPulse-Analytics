@@ -5,21 +5,12 @@
 
 // Imports the needed tools from react.
 import { useState } from "react";
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 // Imports the needed tools from @tanstack/react-query.
 import { useMutation } from "@tanstack/react-query";
 // Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
-import {
-  Alert,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, IconButton, Typography } from "@mui/material";
 
 // Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
@@ -53,11 +44,7 @@ interface ResetPasswordFormData {
 // Gets error message.
 const getErrorMessage = (error: unknown): string => {
   // Checks whether this condition is true.
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
+  if (typeof error === "object" && error !== null && "response" in error) {
     // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
@@ -97,8 +84,7 @@ const ResetPasswordPage = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -162,20 +148,15 @@ const ResetPasswordPage = () => {
           </Box>
 
           <Box className="reset-password-page__header">
-            <Typography component="h1">
-              Invalid reset link
-            </Typography>
+            <Typography component="h1">Invalid reset link</Typography>
 
             <Typography component="p">
-              This password reset link does not contain a valid token.
-              Request a new password reset link.
+              This password reset link does not contain a valid token. Request a
+              new password reset link.
             </Typography>
           </Box>
 
-          <Alert
-            severity="error"
-            className="reset-password-page__alert"
-          >
+          <Alert severity="error" className="reset-password-page__alert">
             Password reset token is missing.
           </Alert>
 
@@ -199,9 +180,7 @@ const ResetPasswordPage = () => {
         </Box>
 
         <Box className="reset-password-page__header">
-          <Typography component="h1">
-            Forgot Password
-          </Typography>
+          <Typography component="h1">Forgot Password</Typography>
 
           <Typography component="p">
             Reset your account password securely
@@ -209,10 +188,7 @@ const ResetPasswordPage = () => {
         </Box>
 
         {resetPasswordMutation.isError && (
-          <Alert
-            severity="error"
-            className="reset-password-page__alert"
-          >
+          <Alert severity="error" className="reset-password-page__alert">
             {getErrorMessage(resetPasswordMutation.error)}
           </Alert>
         )}
@@ -236,14 +212,12 @@ const ResetPasswordPage = () => {
 
                 minLength: {
                   value: 8,
-                  message:
-                    "Password must contain at least 8 characters.",
+                  message: "Password must contain at least 8 characters.",
                 },
 
                 maxLength: {
                   value: 128,
-                  message:
-                    "Password must not exceed 128 characters.",
+                  message: "Password must not exceed 128 characters.",
                 },
 
                 pattern: {
@@ -260,9 +234,7 @@ const ResetPasswordPage = () => {
               type="button"
               className="reset-password-page__password-toggle"
               aria-label={
-                showPassword
-                  ? "Hide new password"
-                  : "Show new password"
+                showPassword ? "Hide new password" : "Show new password"
               }
               onClick={() =>
                 // Updates the page or stored state with this result.
@@ -281,9 +253,7 @@ const ResetPasswordPage = () => {
             <FormInput
               name="confirmPassword"
               label="Confirm New Password"
-              type={
-                showConfirmPassword ? "text" : "password"
-              }
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Enter your new password again"
               autoComplete="new-password"
               required
@@ -307,9 +277,7 @@ const ResetPasswordPage = () => {
               }
               onClick={() =>
                 // Updates the page or stored state with this result.
-                setShowConfirmPassword(
-                  (current) => !current,
-                )
+                setShowConfirmPassword((current) => !current)
               }
             >
               {showConfirmPassword ? (

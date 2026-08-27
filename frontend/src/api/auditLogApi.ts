@@ -47,7 +47,10 @@ export type AuditAction =
   | "FORECAST_GENERATED"
   | "FORECAST_EXPORTED"
   | "FORECAST_REFRESHED"
-  | "INVENTORY_RECOMMENDATION_GENERATED";
+  | "INVENTORY_RECOMMENDATION_GENERATED"
+  | "IMPORT_UPLOADED"
+  | "IMPORT_COMPLETED"
+  | "IMPORT_FAILED";
 
 // Defines the fields allowed in audit log company.
 export interface AuditLogCompany {
@@ -131,13 +134,14 @@ export interface AuthenticationSummary {
   state: "SIGNED_IN" | "SIGNED_OUT";
 }
 
-export const getAuthenticationSummary =
-  async (): Promise<AuthenticationSummary[]> => {
-    const response = await axiosInstance.get<AuthenticationSummary[]>(
-      "/audit-logs/authentication-summary",
-    );
-    return response.data;
-  };
+export const getAuthenticationSummary = async (): Promise<
+  AuthenticationSummary[]
+> => {
+  const response = await axiosInstance.get<AuthenticationSummary[]>(
+    "/audit-logs/authentication-summary",
+  );
+  return response.data;
+};
 
 // Gets audit log by id.
 export const getAuditLogById = async (

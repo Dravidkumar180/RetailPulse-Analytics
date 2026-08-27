@@ -33,34 +33,19 @@ const RoleProtectedRoute = ({
   // Checks whether this condition is true.
   if (isLoading) {
     // Builds the visible interface below.
-    return (
-      <LoadingSpinner
-        fullScreen
-        message="Checking your permissions..."
-      />
-    );
+    return <LoadingSpinner fullScreen message="Checking your permissions..." />;
   }
 
   // Checks whether this condition is true.
   if (!isAuthenticated) {
     // Builds the visible interface below.
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
+    return <Navigate to="/login" replace />;
   }
 
   // Checks whether this condition is true.
   if (!user?.role || !allowedRoles.includes(user.role)) {
     // Builds the visible interface below.
-    return (
-      <Navigate
-        to={redirectPath}
-        replace
-      />
-    );
+    return <Navigate to={redirectPath} replace />;
   }
 
   // Checks whether this condition is true.

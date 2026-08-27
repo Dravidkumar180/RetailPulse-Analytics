@@ -23,10 +23,7 @@ export type Permission =
   | "MANAGE_SETTINGS";
 
 // Stores role permission map for the steps below.
-const rolePermissionMap: Record<
-  UserRole,
-  Permission[]
-> = {
+const rolePermissionMap: Record<UserRole, Permission[]> = {
   SUPER_ADMIN: [
     "VIEW_DASHBOARD",
     "VIEW_PROFILE",
@@ -105,9 +102,7 @@ export const hasAnyPermission = (
   permissions: Permission[],
 ): boolean => {
   // Returns the completed result to the caller.
-  return permissions.some((permission) =>
-    hasPermission(role, permission),
-  );
+  return permissions.some((permission) => hasPermission(role, permission));
 };
 
 // Checks all permissions.
@@ -116,9 +111,7 @@ export const hasAllPermissions = (
   permissions: Permission[],
 ): boolean => {
   // Returns the completed result to the caller.
-  return permissions.every((permission) =>
-    hasPermission(role, permission),
-  );
+  return permissions.every((permission) => hasPermission(role, permission));
 };
 
 // Checks role allowed.
@@ -137,9 +130,7 @@ export const isRoleAllowed = (
 };
 
 // Runs format role label logic.
-export const formatRoleLabel = (
-  role?: UserRole | null,
-): string => {
+export const formatRoleLabel = (role?: UserRole | null): string => {
   // Checks whether this condition is true.
   if (!role) {
     // Returns the completed result to the caller.
@@ -150,7 +141,5 @@ export const formatRoleLabel = (
   return role
     .toLowerCase()
     .replaceAll("_", " ")
-    .replace(/\b\w/g, (character) =>
-      character.toUpperCase(),
-    );
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 };

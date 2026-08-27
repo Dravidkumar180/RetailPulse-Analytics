@@ -11,12 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 // Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
-import {
-  Alert,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, IconButton, Typography } from "@mui/material";
 // Imports the needed tools from @mui/icons-material/SecurityOutlined.
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 // Imports the needed tools from @mui/icons-material/StorefrontOutlined.
@@ -26,9 +21,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 // Imports the needed tools from @mui/icons-material/VisibilityOffOutlined.
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
-import type {
-  LoginRequest,
-} from "../../../api/authApi";
+import type { LoginRequest } from "../../../api/authApi";
 // Imports the needed tools from ../../../hooks/useAuth.
 import { useAuth } from "../../../hooks/useAuth";
 // Imports the needed tools from ../../common/Button/Button.
@@ -53,19 +46,14 @@ const getErrorMessage = (error: unknown): string => {
     typeof error === "object" &&
     error !== null &&
     "code" in error &&
-    (error.code === "ERR_NETWORK" ||
-      error.code === "ECONNABORTED")
+    (error.code === "ERR_NETWORK" || error.code === "ECONNABORTED")
   ) {
     // Returns the completed result to the caller.
     return "Cannot reach the server. Please make sure the API is running and try again.";
   }
 
   // Checks whether this condition is true.
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
+  if (typeof error === "object" && error !== null && "response" in error) {
     // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
@@ -171,9 +159,7 @@ const LoginForm = () => {
       </Box>
 
       {loginMutation.isError && (
-        <Alert severity="error">
-          {getErrorMessage(loginMutation.error)}
-        </Alert>
+        <Alert severity="error">{getErrorMessage(loginMutation.error)}</Alert>
       )}
 
       <Box className="login-form__fields">
@@ -221,9 +207,7 @@ const LoginForm = () => {
           <IconButton
             className="login-form__password-toggle"
             type="button"
-            aria-label={
-              showPassword ? "Hide password" : "Show password"
-            }
+            aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((current) => !current)}
             edge="end"
           >
@@ -257,9 +241,7 @@ const LoginForm = () => {
       </Button>
 
       <Box className="login-form__register">
-        <Typography component="span">
-          Do not have a company account?
-        </Typography>
+        <Typography component="span">Do not have a company account?</Typography>
 
         <Link
           to="/register-company"

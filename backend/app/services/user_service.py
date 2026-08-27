@@ -119,6 +119,8 @@ class UserService:
         current_user: User,
         user_id: str,
         request_data: UpdateUserStatusRequest,
+        ip_address: str,
+        browser: str,
     ) -> UserResponse:
         # Stores user for the next steps.
         user = user_repository.get_by_id(
@@ -130,7 +132,17 @@ class UserService:
         if user is None:
             # Stops here and reports the problem.
             raise ResourceNotFoundException("User")
+        previous_status = user.status
         user_repository.update_status(db, user, request_data.status)
+        audit_log_service.create_log(
+            db,
+            company_id=current_user.company_id,
+            user_id=current_user.id,
+            action=AuditAction.USER_UPDATED,
+            ip_address=ip_address,
+            browser=browser,
+            details=f"Updated {user.name} ({user.email}) status from {previous_status.value} to {request_data.status.value}.",
+        )
         # Applies this change to the database session.
         db.commit()
         # Applies this change to the database session.

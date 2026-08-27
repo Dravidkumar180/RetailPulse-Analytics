@@ -17,9 +17,7 @@ interface ProtectedRouteProps {
 }
 
 // Shows the protected route.
-const ProtectedRoute = ({
-  redirectPath = "/login",
-}: ProtectedRouteProps) => {
+const ProtectedRoute = ({ redirectPath = "/login" }: ProtectedRouteProps) => {
   // Stores location for the steps below.
   const location = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,10 +26,7 @@ const ProtectedRoute = ({
   if (isLoading) {
     // Builds the visible interface below.
     return (
-      <LoadingSpinner
-        fullScreen
-        message="Checking your authentication..."
-      />
+      <LoadingSpinner fullScreen message="Checking your authentication..." />
     );
   }
 

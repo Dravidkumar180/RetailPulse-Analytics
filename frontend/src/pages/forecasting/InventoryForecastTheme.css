@@ -1,0 +1,136 @@
+/* Dark-mode surfaces for the forecast and replenishment dashboard. */
+body.dark-theme .sr-page,
+body.dark-theme .inventory-forecast-shell {
+  color: #e2e8f0;
+}
+
+body.dark-theme .sr-summary > div,
+body.dark-theme .sr-card,
+body.dark-theme .sr-filters,
+body.dark-theme .sr-state,
+body.dark-theme .fc-card {
+  background: #111827;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-theme .sr-heading h2,
+body.dark-theme .sr-summary strong,
+body.dark-theme .sr-title h3,
+body.dark-theme .sr-card td,
+body.dark-theme .sr-method dt,
+body.dark-theme .fc-card h3,
+body.dark-theme .fc-summary li strong,
+body.dark-theme .fc-donut strong {
+  color: #f8fafc;
+}
+
+body.dark-theme .sr-heading p,
+body.dark-theme .sr-heading small,
+body.dark-theme .sr-summary span,
+body.dark-theme .sr-summary small,
+body.dark-theme .sr-title span,
+body.dark-theme .sr-pages,
+body.dark-theme .sr-empty,
+body.dark-theme .sr-card td small,
+body.dark-theme .sr-method dd,
+body.dark-theme .sr-method > small,
+body.dark-theme .fc-product,
+body.dark-theme .fc-legend,
+body.dark-theme .fc-axis-title,
+body.dark-theme .fc-summary li em,
+body.dark-theme .fc-donut span {
+  color: #94a3b8;
+}
+
+/* Inputs need explicit colors because the browser color-scheme also changes controls. */
+body.dark-theme .sr-filters label {
+  color: #cbd5e1;
+}
+
+body.dark-theme .sr-filters input,
+body.dark-theme .sr-filters .MuiInputBase-root,
+body.dark-theme .fc-product select {
+  background: #172033;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+body.dark-theme .sr-filters input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+body.dark-theme .sr-filters .MuiSvgIcon-root {
+  color: #94a3b8;
+}
+
+/* Keep table headers, rows, selection, and borders readable in dark mode. */
+body.dark-theme .sr-title,
+body.dark-theme .sr-card td,
+body.dark-theme .sr-method dl div,
+body.dark-theme .fc-card header {
+  border-color: #334155;
+}
+
+body.dark-theme .sr-card th {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+body.dark-theme .sr-table tbody tr {
+  background: #111827;
+}
+
+body.dark-theme .sr-table tr.selected,
+body.dark-theme .sr-table tbody tr:hover {
+  background: #172554;
+}
+
+body.dark-theme .sr-view {
+  background: #172033;
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+body.dark-theme .sr-view:hover {
+  background: #1e3a5f;
+  border-color: #60a5fa;
+}
+
+/* Chart grid lines and labels use softer colors on the dark chart surface. */
+body.dark-theme .fc-svg .grid {
+  stroke: #334155;
+}
+
+body.dark-theme .fc-svg text {
+  fill: #94a3b8;
+}
+
+body.dark-theme .fc-donut > div,
+body.dark-theme .sr-donut > div {
+  background: #111827;
+}
+
+body.dark-theme .fc-empty-note {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+/* Inventory module navigation follows the same dark palette. */
+body.dark-theme .inventory-module-tabs {
+  border-color: #334155;
+}
+
+body.dark-theme .inventory-module-tabs a {
+  color: #94a3b8;
+}
+
+body.dark-theme .inventory-module-tabs a:hover {
+  color: #c7d2fe;
+}
+
+body.dark-theme .inventory-module-tabs a.active {
+  color: #a5b4fc;
+  border-bottom-color: #818cf8;
+}

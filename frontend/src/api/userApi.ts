@@ -5,10 +5,7 @@
 
 // Imports the needed tools from ./axiosInstance.
 import axiosInstance from "./axiosInstance";
-import type {
-  AccountStatus,
-  UserRole,
-} from "./authApi";
+import type { AccountStatus, UserRole } from "./authApi";
 
 // Defines the fields allowed in company user.
 export interface CompanyUser {
@@ -63,18 +60,15 @@ export const getCompanyUsers = async (
   filters: UserFilters = {},
 ): Promise<UserListResponse> => {
   // Stores response for the steps below.
-  const response = await axiosInstance.get<UserListResponse>(
-    "/users",
-    {
-      params: {
-        page: filters.page ?? 1,
-        pageSize: filters.pageSize ?? 10,
-        search: filters.search || undefined,
-        role: filters.role || undefined,
-        status: filters.status || undefined,
-      },
+  const response = await axiosInstance.get<UserListResponse>("/users", {
+    params: {
+      page: filters.page ?? 1,
+      pageSize: filters.pageSize ?? 10,
+      search: filters.search || undefined,
+      role: filters.role || undefined,
+      status: filters.status || undefined,
     },
-  );
+  });
 
   // Returns the completed result to the caller.
   return response.data;
@@ -85,10 +79,7 @@ export const createCompanyUser = async (
   userData: CreateUserRequest,
 ): Promise<CompanyUser> => {
   // Stores response for the steps below.
-  const response = await axiosInstance.post<CompanyUser>(
-    "/users",
-    userData,
-  );
+  const response = await axiosInstance.post<CompanyUser>("/users", userData);
 
   // Returns the completed result to the caller.
   return response.data;

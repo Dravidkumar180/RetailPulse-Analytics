@@ -7,17 +7,10 @@
 import type { CompanySummary } from "./company.types";
 
 // Defines the user role type.
-export type UserRole =
-  | "SUPER_ADMIN"
-  | "COMPANY_ADMIN"
-  | "ANALYST"
-  | "VIEWER";
+export type UserRole = "SUPER_ADMIN" | "COMPANY_ADMIN" | "ANALYST" | "VIEWER";
 
 // Defines the account status type.
-export type AccountStatus =
-  | "ACTIVE"
-  | "INACTIVE"
-  | "SUSPENDED";
+export type AccountStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 
 // Defines the fields allowed in user.
 export interface User {

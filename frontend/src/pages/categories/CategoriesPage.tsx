@@ -1,30 +1,7 @@
-/* Teaching guide: This file contains the categories page page.
- * Follow the comments from imports and setup through actions and output.
- * These comments explain the existing code without changing its behavior.
- */
-
-// Imports the needed tools from react.
 import { useEffect, useState } from "react";
-// Imports the needed tools from @tanstack/react-query.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// Imports the needed tools from @mui/material.
-import {
-  Box,
-  Drawer,
-  IconButton,
-  MenuItem,
-  Pagination,
-  TextField,
-  Typography,
-} from "@mui/material";
-// Imports the needed tools from @mui/icons-material/Add.
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/EditOutlined";
-import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import CloseIcon from "@mui/icons-material/Close";
-// Imports the needed tools from react-router-dom.
+import { Box } from "@mui/material";
 import { Link } from "react-router-dom";
-// Imports the needed tools from ../../api/catalogApi.
 import {
   createCategory,
   deleteCategory,
@@ -33,93 +10,85 @@ import {
   type Category,
   type CategoryInput,
 } from "../../api/catalogApi";
-// Imports the needed tools from ../../components/common/Button/Button.
-import Button from "../../components/common/Button/Button";
 import PageHeader from "../../components/common/PageHeader/PageHeader";
 import { useAuth } from "../../hooks/useAuth";
-// Loads ../products/ProductsPage.css styles or setup.
+import CategoriesSummary from "./CategoriesSummary";
+import CategoriesTable from "./CategoriesTable";
+import CategoriesToolbar from "./CategoriesToolbar";
+import CategoryDrawer from "./CategoryDrawer";
+import { EMPTY_CATEGORY_FORM, categoryToInput } from "./categoryForm";
 import "../products/ProductsPage.css";
-// Loads ./CategoriesPage.css styles or setup.
 import "./CategoriesPage.css";
 
-// Stores empty for the steps below.
-const empty: CategoryInput = { name: "", description: "", status: "ACTIVE" };
-// Add and manage categories starts here.
+const PAGE_SIZE = 5;
+
+/** Coordinates category queries and mutations; visual sections live in focused components. */
+// This component receives prepared data and renders the feature-specific interface.
 const CategoriesPage = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const canEdit = user?.role !== "VIEWER";
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Category | null>(null);
-  const [form, setForm] = useState<CategoryInput>(empty);
-  const [error, setError] = useState("");
-  const query = useQuery({
+  const [search, setSearch] = useState(""),
+    [page, setPage] = useState(1),
+    [drawerOpen, setDrawerOpen] = useState(false),
+    [editing, setEditing] = useState<Category | null>(null),
+    [form, setForm] = useState<CategoryInput>(EMPTY_CATEGORY_FORM),
+    [error, setError] = useState("");
+
+  const categoriesQuery = useQuery({
     queryKey: ["categories", search],
     queryFn: () => getCategories(search),
   });
-  const save = useMutation({
+  const saveMutation = useMutation({
     mutationFn: () =>
       editing ? updateCategory(editing.id, form) : createCategory(form),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      qc.invalidateQueries({ queryKey: ["products"] });
-      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      setDrawerOpen(false);
     },
-    onError: (e: any) => setError(e.response?.data?.detail || e.message),
+    onError: (cause: any) =>
+      setError(cause.response?.data?.detail || cause.message),
   });
-  const remove = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: deleteCategory,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
-    onError: (e: any) => alert(e.response?.data?.detail || e.message),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["categories"] }),
+    onError: (cause: any) =>
+      window.alert(cause.response?.data?.detail || cause.message),
   });
-  const show = (c?: Category) => {
-    setEditing(c || null);
-    setForm(
-      c
-        ? { name: c.name, description: c.description || "", status: c.status }
-        : empty,
-    );
-    setError("");
-    setOpen(true);
-  };
-  const pageSize = 5;
-  const categories = query.data?.items ?? [];
-  const pageCount = Math.max(1, Math.ceil(categories.length / pageSize));
+
+  const categories = categoriesQuery.data?.items ?? [];
+  const pageCount = Math.max(1, Math.ceil(categories.length / PAGE_SIZE));
   const visibleCategories = categories.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
   );
   useEffect(() => setPage(1), [search]);
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
   }, [page, pageCount]);
+
+  const openDrawer = (category?: Category) => {
+    setEditing(category ?? null);
+    setForm(category ? categoryToInput(category) : { ...EMPTY_CATEGORY_FORM });
+    setError("");
+    setDrawerOpen(true);
+  };
+  const confirmDelete = (id: string) => {
+    if (window.confirm("Delete this category?")) deleteMutation.mutate(id);
+  };
+
   return (
     <Box className="catalog-page">
       <PageHeader
         title="Categories Management"
         subtitle="Create and organize product categories for your company."
       />
-      <Box className="catalog-summary">
-        <Box className="catalog-stat">
-          <span className="catalog-stat__icon purple">▦</span>
-          <div>
-            <small>Total Categories</small>
-            <strong>{query.data?.total || 0}</strong>
-          </div>
-        </Box>
-        <Box className="catalog-stat">
-          <span className="catalog-stat__icon green">✓</span>
-          <div>
-            <small>Active Categories</small>
-            <strong>
-              {query.data?.items.filter((x) => x.status === "ACTIVE").length ||
-                0}
-            </strong>
-          </div>
-        </Box>
-      </Box>
+      <CategoriesSummary
+        categories={categories}
+        total={categoriesQuery.data?.total ?? 0}
+      />
       <Box className="catalog-tabs">
         <Link to="/products">Products</Link>
         <Link className="active" to="/categories">
@@ -127,131 +96,34 @@ const CategoriesPage = () => {
         </Link>
       </Box>
       <Box className="catalog-panel">
-        <Box className="category-top">
-          <TextField
-            size="small"
-            placeholder="Search categories by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {canEdit && (
-            <Button startIcon={<AddIcon />} onClick={() => show()}>
-              Add Category
-            </Button>
-          )}
-        </Box>
-        <Box className="catalog-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Category Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Products</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleCategories.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <strong>{c.name}</strong>
-                  </td>
-                  <td className="category-description">
-                    {c.description || "—"}
-                  </td>
-                  <td>
-                    <span
-                      className={`catalog-status ${c.status.toLowerCase()}`}
-                    >
-                      {c.status === "ACTIVE" ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td>{c.productCount}</td>
-                  <td>
-                    {canEdit ? <Box className="category-actions">
-                      <IconButton onClick={() => show(c)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() =>
-                          confirm("Delete this category?") &&
-                          remove.mutate(c.id)
-                        }
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box> : <Typography component="span">View only</Typography>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!query.data?.items.length && (
-            <p className="catalog-empty">No categories found.</p>
-          )}
-          {pageCount > 1 && (
-            <Box className="catalog-pagination">
-              <Pagination
-                count={pageCount}
-                page={page}
-                onChange={(_, value) => setPage(value)}
-                color="primary"
-              />
-            </Box>
-          )}
-        </Box>
+        <CategoriesToolbar
+          search={search}
+          canEdit={canEdit}
+          onSearch={setSearch}
+          onAdd={() => openDrawer()}
+        />
+        <CategoriesTable
+          categories={visibleCategories}
+          canEdit={canEdit}
+          page={page}
+          pageCount={pageCount}
+          onPage={setPage}
+          onEdit={openDrawer}
+          onDelete={confirmDelete}
+        />
       </Box>
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <Box className="catalog-drawer">
-          <Box className="catalog-drawer__head">
-            <Typography component="h2">
-              {editing ? "Edit Category" : "Add Category"}
-            </Typography>
-            <IconButton onClick={() => setOpen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          {error && <p className="catalog-error">{error}</p>}
-          <TextField
-            required
-            label="Category Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <TextField
-            multiline
-            rows={4}
-            label="Description"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-          />
-          <TextField
-            select
-            label="Status"
-            value={form.status}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                status: e.target.value as CategoryInput["status"],
-              })
-            }
-          >
-            <MenuItem value="ACTIVE">Active</MenuItem>
-            <MenuItem value="INACTIVE">Inactive</MenuItem>
-          </TextField>
-          <Box className="catalog-drawer__actions">
-            <Button variant="outlined" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button loading={save.isPending} onClick={() => save.mutate()}>
-              Save Category
-            </Button>
-          </Box>
-        </Box>
-      </Drawer>
+      <CategoryDrawer
+        open={drawerOpen}
+        editing={editing}
+        form={form}
+        error={error}
+        saving={saveMutation.isPending}
+        onClose={() => setDrawerOpen(false)}
+        onChange={setForm}
+        onSave={() => saveMutation.mutate()}
+      />
     </Box>
   );
 };
+
 export default CategoriesPage;

@@ -3,16 +3,13 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import type {
-  RegisterOptions,
-} from "react-hook-form";
+import type { RegisterOptions } from "react-hook-form";
 
 // Imports the needed tools from ../api/authApi.
 import type { LoginRequest } from "../api/authApi";
 
 // Stores email pattern for the steps below.
-export const EMAIL_PATTERN =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Stores login validation schema for the steps below.
 export const loginValidationSchema: {
@@ -27,8 +24,7 @@ export const loginValidationSchema: {
     },
     maxLength: {
       value: 255,
-      message:
-        "Email address must not exceed 255 characters.",
+      message: "Email address must not exceed 255 characters.",
     },
   },
 
@@ -36,13 +32,11 @@ export const loginValidationSchema: {
     required: "Password is required.",
     minLength: {
       value: 8,
-      message:
-        "Password must contain at least 8 characters.",
+      message: "Password must contain at least 8 characters.",
     },
     maxLength: {
       value: 128,
-      message:
-        "Password must not exceed 128 characters.",
+      message: "Password must not exceed 128 characters.",
     },
   },
 };

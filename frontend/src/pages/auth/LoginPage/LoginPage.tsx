@@ -33,8 +33,7 @@ const LoginPage = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   // Runs location state logic.
-  const locationState =
-    location.state as LoginLocationState | null;
+  const locationState = location.state as LoginLocationState | null;
 
   useEffect(() => {
     // Checks whether this condition is true.

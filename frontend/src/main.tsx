@@ -9,14 +9,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 // Imports the needed tools from react-router-dom.
 import { BrowserRouter } from "react-router-dom";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-import {
-  CssBaseline,
-  ThemeProvider,
-} from "@mui/material";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 
 // Imports the needed tools from ./App.
 import App from "./App";
@@ -44,15 +38,12 @@ const queryClient = new QueryClient({
 });
 
 // Stores root element for the steps below.
-const rootElement =
-  document.getElementById("root");
+const rootElement = document.getElementById("root");
 
 // Checks whether this condition is true.
 if (!rootElement) {
   // Stops here and reports the problem.
-  throw new Error(
-    'Root element with id "root" was not found.',
-  );
+  throw new Error('Root element with id "root" was not found.');
 }
 
 createRoot(rootElement).render(

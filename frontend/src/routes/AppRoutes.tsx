@@ -43,9 +43,11 @@ import CategoriesPage from "../pages/categories/CategoriesPage";
 import SalesPage from "../pages/sales/SalesPage";
 // Imports the Inventory Management overview and stock movement page.
 import InventoryPage from "../pages/inventory/InventoryPage";
+import InventoryForecastPage from "../pages/inventory/InventoryForecastPage";
 import AnalyticsPage from "../pages/analytics/AnalyticsPage";
 import CustomersPage from "../pages/customers/CustomersPage";
 import DemandForecastingPage from "../pages/forecasting/DemandForecastingPage";
+import DataImportsPage from "../pages/dataImports/DataImportsPage";
 
 // Imports the needed tools from ./routePaths.
 import { ROUTE_PATHS } from "./routePaths";
@@ -88,7 +90,12 @@ const AppRoutes = () => {
           <Route
             element={
               <RoleProtectedRoute
-                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"]}
+                allowedRoles={[
+                  "SUPER_ADMIN",
+                  "COMPANY_ADMIN",
+                  "ANALYST",
+                  "VIEWER",
+                ]}
               />
             }
           >
@@ -96,7 +103,10 @@ const AppRoutes = () => {
             {/* Inventory is shared by Admins and Analysts under this role guard. */}
             <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
             <Route path={ROUTE_PATHS.analytics} element={<AnalyticsPage />} />
-            <Route path="/analytics" element={<Navigate to={ROUTE_PATHS.analytics} replace />} />
+            <Route
+              path="/analytics"
+              element={<Navigate to={ROUTE_PATHS.analytics} replace />}
+            />
             <Route path={ROUTE_PATHS.customers} element={<CustomersPage />} />
           </Route>
 
@@ -111,6 +121,10 @@ const AppRoutes = () => {
               path={ROUTE_PATHS.demandForecasting}
               element={<DemandForecastingPage />}
             />
+            <Route
+              path="/inventory/forecast"
+              element={<InventoryForecastPage />}
+            />
           </Route>
 
           {[ROUTE_PATHS.reports].map((path) => (
@@ -121,7 +135,12 @@ const AppRoutes = () => {
           <Route
             element={
               <RoleProtectedRoute
-                allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"]}
+                allowedRoles={[
+                  "SUPER_ADMIN",
+                  "COMPANY_ADMIN",
+                  "ANALYST",
+                  "VIEWER",
+                ]}
               />
             }
           >
@@ -138,6 +157,9 @@ const AppRoutes = () => {
             element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}
           >
             <Route path={ROUTE_PATHS.companies} element={<SectionPage />} />
+          </Route>
+          <Route element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN"]} />}>
+            <Route path={ROUTE_PATHS.dataImports} element={<DataImportsPage />} />
           </Route>
         </Route>
       </Route>

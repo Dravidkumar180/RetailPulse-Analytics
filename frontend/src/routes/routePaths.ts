@@ -30,6 +30,7 @@ export const ROUTE_PATHS = {
   demandForecasting: "/demand-forecasting",
   companies: "/companies",
   settings: "/settings",
+  dataImports: "/data-import",
 
   unauthorized: "/unauthorized",
   notFound: "*",
@@ -57,4 +58,5 @@ export type RoutePath =
   | typeof ROUTE_PATHS.demandForecasting
   | typeof ROUTE_PATHS.companies
   | typeof ROUTE_PATHS.settings
+  | typeof ROUTE_PATHS.dataImports
   | typeof ROUTE_PATHS.unauthorized;

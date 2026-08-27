@@ -33,20 +33,15 @@ const UnauthorizedPage = () => {
           <LockOutlinedIcon />
         </Box>
 
-        <Typography
-          component="p"
-          className="unauthorized-page__code"
-        >
+        <Typography component="p" className="unauthorized-page__code">
           403
         </Typography>
 
-        <Typography component="h1">
-          Access Denied
-        </Typography>
+        <Typography component="h1">Access Denied</Typography>
 
         <Typography component="p" className="unauthorized-page__message">
-          You are authenticated, but your account role does not have
-          permission to access this page.
+          You are authenticated, but your account role does not have permission
+          to access this page.
         </Typography>
 
         <Box className="unauthorized-page__actions">

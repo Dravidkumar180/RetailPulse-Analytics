@@ -13,9 +13,7 @@ import {
   type ReactNode,
 } from "react";
 
-import {
-  login as loginUser,
-} from "../api/authApi";
+import { login as loginUser } from "../api/authApi";
 import type {
   AccountStatus,
   LoginRequest,
@@ -27,13 +25,8 @@ import {
   // Defines the user profile type.
   type UserProfile,
 } from "../api/profileApi";
-import {
-  logoutUser,
-} from "../services/authService";
-import {
-  clearAuthTokens,
-  hasAccessToken,
-} from "../services/tokenService";
+import { logoutUser } from "../services/authService";
+import { clearAuthTokens, hasAccessToken } from "../services/tokenService";
 
 // Defines the fields allowed in auth company.
 export interface AuthCompany {
@@ -78,9 +71,7 @@ interface AuthProviderProps {
 }
 
 // Runs map profile to auth user logic.
-const mapProfileToAuthUser = (
-  profile: UserProfile,
-): AuthUser => {
+const mapProfileToAuthUser = (profile: UserProfile): AuthUser => {
   // Returns the completed result to the caller.
   return {
     id: profile.id,
@@ -101,9 +92,7 @@ const mapProfileToAuthUser = (
 };
 
 // Runs map login response to auth user logic.
-const mapLoginResponseToAuthUser = (
-  response: LoginResponse,
-): AuthUser => {
+const mapLoginResponseToAuthUser = (response: LoginResponse): AuthUser => {
   // Returns the completed result to the caller.
   return {
     id: response.user.id,
@@ -122,44 +111,41 @@ const mapLoginResponseToAuthUser = (
 };
 
 // Shows the auth provider.
-export const AuthProvider = ({
-  children,
-}: AuthProviderProps) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Runs refresh user logic.
-  const refreshUser =
-    useCallback(async (): Promise<AuthUser | null> => {
-      // Checks whether this condition is true.
-      if (!hasAccessToken()) {
-        // Updates the page or stored state with this result.
-        setUser(null);
-        // Returns the completed result to the caller.
-        return null;
-      }
+  const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
+    // Checks whether this condition is true.
+    if (!hasAccessToken()) {
+      // Updates the page or stored state with this result.
+      setUser(null);
+      // Returns the completed result to the caller.
+      return null;
+    }
 
-      // Tries the operation and watches for errors.
-      try {
-        // Stores profile for the steps below.
-        const profile = await getCurrentUserProfile();
-        // Stores authenticated user for the steps below.
-        const authenticatedUser = mapProfileToAuthUser(profile);
+    // Tries the operation and watches for errors.
+    try {
+      // Stores profile for the steps below.
+      const profile = await getCurrentUserProfile();
+      // Stores authenticated user for the steps below.
+      const authenticatedUser = mapProfileToAuthUser(profile);
 
-        // Updates the page or stored state with this result.
-        setUser(authenticatedUser);
+      // Updates the page or stored state with this result.
+      setUser(authenticatedUser);
 
-        // Returns the completed result to the caller.
-        return authenticatedUser;
-      } catch {
-        clearAuthTokens();
-        // Updates the page or stored state with this result.
-        setUser(null);
+      // Returns the completed result to the caller.
+      return authenticatedUser;
+    } catch {
+      clearAuthTokens();
+      // Updates the page or stored state with this result.
+      setUser(null);
 
-        // Returns the completed result to the caller.
-        return null;
-      }
-    }, []);
+      // Returns the completed result to the caller.
+      return null;
+    }
+  }, []);
 
   // Logs the user in.
   const login = useCallback(
@@ -234,11 +220,7 @@ export const AuthProvider = ({
         // Checks whether this condition is true.
         if (componentMounted) {
           // Updates the page or stored state with this result.
-          setUser(
-            restoredUser
-              ? mapProfileToAuthUser(restoredUser)
-              : null,
-          );
+          setUser(restoredUser ? mapProfileToAuthUser(restoredUser) : null);
         }
       } catch {
         clearAuthTokens();
@@ -276,20 +258,12 @@ export const AuthProvider = ({
       refreshUser,
       setUser,
     }),
-    [
-      user,
-      isLoading,
-      login,
-      logout,
-      refreshUser,
-    ],
+    [user, isLoading, login, logout, refreshUser],
   );
 
   // Builds the visible interface below.
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

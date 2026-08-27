@@ -61,11 +61,7 @@ const Button = ({
     >
       {loading ? (
         <span className="app-button__loading-content">
-          <CircularProgress
-            size={18}
-            color="inherit"
-            aria-label="Loading"
-          />
+          <CircularProgress size={18} color="inherit" aria-label="Loading" />
           <span>Please wait...</span>
         </span>
       ) : (

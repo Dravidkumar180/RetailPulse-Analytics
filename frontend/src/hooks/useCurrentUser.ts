@@ -15,16 +15,11 @@ import {
 import { useAuth } from "./useAuth";
 
 // Runs current user query key logic.
-export const currentUserQueryKey = [
-  "current-user-profile",
-] as const;
+export const currentUserQueryKey = ["current-user-profile"] as const;
 
 // Runs use current user logic.
 export const useCurrentUser = () => {
-  const {
-    isAuthenticated,
-    isLoading: authLoading,
-  } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Returns the completed result to the caller.
   return useQuery<UserProfile, Error>({

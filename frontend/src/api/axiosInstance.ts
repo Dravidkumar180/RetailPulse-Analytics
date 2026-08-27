@@ -22,8 +22,7 @@ interface RetryRequestConfig extends InternalAxiosRequestConfig {
 }
 
 // Stores api base url for the steps below.
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 // Stores access token key for the steps below.
 const ACCESS_TOKEN_KEY = "retailpulse_access_token";
@@ -205,10 +204,7 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers = new AxiosHeaders();
       }
 
-      originalRequest.headers.set(
-        "Authorization",
-        `Bearer ${newAccessToken}`,
-      );
+      originalRequest.headers.set("Authorization", `Bearer ${newAccessToken}`);
 
       // Returns the completed result to the caller.
       return axiosInstance(originalRequest);

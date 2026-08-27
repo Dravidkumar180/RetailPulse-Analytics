@@ -16,7 +16,15 @@ import {
   getInventoryNotifications,
 } from "../../../api/inventoryApi";
 import { useAuth } from "../../../hooks/useAuth";
-import { clearCustomerNotifications, getCustomerNotifications } from "../../../api/customerApi";
+import {
+  clearCustomerNotifications,
+  getCustomerNotifications,
+} from "../../../api/customerApi";
+import {
+  clearActivityNotifications,
+  getActivityNotifications,
+  markActivityNotificationRead,
+} from "../../../api/activityNotificationApi";
 
 // Imports the needed tools from ../Navbar/Navbar.
 import Navbar from "../Navbar/Navbar";
@@ -51,8 +59,9 @@ const DashboardLayout = () => {
    * ======================================================= */
 
   // Editors receive actionable inventory alerts; viewers remain read-only.
-  const canSeeInventoryNotifications =
-    Boolean(user?.role && user.role !== "VIEWER");
+  const canSeeInventoryNotifications = Boolean(
+    user?.role && user.role !== "VIEWER",
+  );
   // Poll the backend so new low-stock and out-of-stock alerts reach the bell.
   const inventoryNotifications = useQuery({
     queryKey: ["inventory-notifications"],
@@ -60,12 +69,19 @@ const DashboardLayout = () => {
     enabled: canSeeInventoryNotifications,
     refetchInterval: 30000,
   });
-  const canSeeCustomerNotifications = user?.role === "COMPANY_ADMIN" || user?.role === "SUPER_ADMIN";
+  const canSeeCustomerNotifications =
+    user?.role === "COMPANY_ADMIN" || user?.role === "SUPER_ADMIN";
   const customerNotifications = useQuery({
-    queryKey:["customer-notifications"],
-    queryFn:getCustomerNotifications,
-    enabled:canSeeCustomerNotifications,
-    refetchInterval:30000,
+    queryKey: ["customer-notifications"],
+    queryFn: getCustomerNotifications,
+    enabled: canSeeCustomerNotifications,
+    refetchInterval: 30000,
+  });
+  const activityNotifications = useQuery({
+    queryKey: ["activity-notifications"],
+    queryFn: getActivityNotifications,
+    enabled: Boolean(user),
+    refetchInterval: 15000,
   });
   // Mark all Inventory notifications as read on the backend.
   const clearNotificationsMutation = useMutation({
@@ -74,14 +90,23 @@ const DashboardLayout = () => {
   });
   // Merge persistent Inventory alerts with local dashboard notifications.
   const visibleNotifications: DashboardNotification[] = [
+    ...(activityNotifications.data ?? []).map((item) => ({
+      id: `activity:${item.id}`,
+      title: item.title,
+      message: item.message,
+      path: item.path,
+    })),
     ...(inventoryNotifications.data ?? []).map((item) => ({
       id: item.id,
       title: item.title,
       message: item.message,
       path: "/inventory",
     })),
-    ...(customerNotifications.data ?? []).map((item)=>({
-      id:item.id,title:item.title,message:item.message,path:`/customers?customer=${item.customerId}`,
+    ...(customerNotifications.data ?? []).map((item) => ({
+      id: item.id,
+      title: item.title,
+      message: item.message,
+      path: `/customers?customer=${item.customerId}`,
     })),
     ...notifications,
   ];
@@ -159,15 +184,30 @@ const DashboardLayout = () => {
             if (canSeeInventoryNotifications)
               clearNotificationsMutation.mutate();
             if (canSeeCustomerNotifications) {
-              clearCustomerNotifications().then(()=>queryClient.setQueryData(["customer-notifications"],[]));
+              clearCustomerNotifications().then(() =>
+                queryClient.setQueryData(["customer-notifications"], []),
+              );
             }
+            clearActivityNotifications().then(() =>
+              queryClient.setQueryData(["activity-notifications"], []),
+            );
           }}
-          onReviewNotification={(id) =>
-            // Updates the page or stored state with this result.
+          onReviewNotification={(id) => {
+            if (id.startsWith("activity:")) {
+              const activityId = id.slice("activity:".length);
+              markActivityNotificationRead(activityId).then(() =>
+                queryClient.setQueryData(
+                  ["activity-notifications"],
+                  (current: { id: string }[] | undefined) =>
+                    current?.filter((item) => item.id !== activityId) ?? [],
+                ),
+              );
+              return;
+            }
             setNotifications((current) =>
               current.filter((notification) => notification.id !== id),
-            )
-          }
+            );
+          }}
         />
 
         <Box component="main" className="dashboard-layout__content">

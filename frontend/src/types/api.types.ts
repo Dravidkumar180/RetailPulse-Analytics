@@ -3,10 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import type {
-  AccountStatus,
-  UserRole,
-} from "./user.types";
+import type { AccountStatus, UserRole } from "./user.types";
 // Imports the needed tools from ./company.types.
 import type { CompanySummary } from "./company.types";
 

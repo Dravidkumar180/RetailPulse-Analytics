@@ -57,10 +57,7 @@ export const loginUser = async (
   // Stores response for the steps below.
   const response = await login(normalizedCredentials);
 
-  storeAuthTokens(
-    response.accessToken,
-    response.refreshToken,
-  );
+  storeAuthTokens(response.accessToken, response.refreshToken);
 
   // Returns the completed result to the caller.
   return response;
@@ -71,32 +68,19 @@ export const registerCompanyAccount = async (
   registrationData: CompanyRegistrationRequest,
 ): Promise<CompanyRegistrationResponse> => {
   // Stores normalized registration data for the steps below.
-  const normalizedRegistrationData: CompanyRegistrationRequest =
-    {
-      ...registrationData,
-      companyName:
-        registrationData.companyName.trim(),
-      industry: registrationData.industry.trim(),
-      companyEmail:
-        registrationData.companyEmail
-          .trim()
-          .toLowerCase(),
-      companyAddress:
-        registrationData.companyAddress.trim(),
-      companyPhoneNumber:
-        registrationData.companyPhoneNumber.trim(),
-      ownerName:
-        registrationData.ownerName.trim(),
-      ownerEmail:
-        registrationData.ownerEmail
-          .trim()
-          .toLowerCase(),
-    };
+  const normalizedRegistrationData: CompanyRegistrationRequest = {
+    ...registrationData,
+    companyName: registrationData.companyName.trim(),
+    industry: registrationData.industry.trim(),
+    companyEmail: registrationData.companyEmail.trim().toLowerCase(),
+    companyAddress: registrationData.companyAddress.trim(),
+    companyPhoneNumber: registrationData.companyPhoneNumber.trim(),
+    ownerName: registrationData.ownerName.trim(),
+    ownerEmail: registrationData.ownerEmail.trim().toLowerCase(),
+  };
 
   // Returns the completed result to the caller.
-  return registerCompany(
-    normalizedRegistrationData,
-  );
+  return registerCompany(normalizedRegistrationData);
 };
 
 // Runs refresh user access token logic.
@@ -107,73 +91,66 @@ export const refreshUserAccessToken =
       clearAuthTokens();
 
       // Stops here and reports the problem.
-      throw new Error(
-        "A refresh token is not available.",
-      );
+      throw new Error("A refresh token is not available.");
     }
 
     // Stores response for the steps below.
     const response = await refreshAccessToken();
 
-    storeAuthTokens(
-      response.accessToken,
-      response.refreshToken,
-    );
+    storeAuthTokens(response.accessToken, response.refreshToken);
 
     // Returns the completed result to the caller.
     return response;
   };
 
 // Runs restore user session logic.
-export const restoreUserSession =
-  async (): Promise<UserProfile | null> => {
+export const restoreUserSession = async (): Promise<UserProfile | null> => {
+  // Checks whether this condition is true.
+  if (!hasAccessToken()) {
+    // Returns the completed result to the caller.
+    return null;
+  }
+
+  // Tries the operation and watches for errors.
+  try {
     // Checks whether this condition is true.
-    if (!hasAccessToken()) {
-      // Returns the completed result to the caller.
-      return null;
-    }
-
-    // Tries the operation and watches for errors.
-    try {
+    if (!hasValidAccessToken()) {
       // Checks whether this condition is true.
-      if (!hasValidAccessToken()) {
-        // Checks whether this condition is true.
-        if (!hasRefreshToken()) {
-          clearAuthTokens();
-          // Returns the completed result to the caller.
-          return null;
-        }
-
-        // Waits for this asynchronous work to finish.
-        await refreshUserAccessToken();
+      if (!hasRefreshToken()) {
+        clearAuthTokens();
+        // Returns the completed result to the caller.
+        return null;
       }
 
-      // Returns the completed result to the caller.
-      return await getCurrentUserProfile();
-    } catch {
-      clearAuthTokens();
-      // Returns the completed result to the caller.
-      return null;
+      // Waits for this asynchronous work to finish.
+      await refreshUserAccessToken();
     }
-  };
+
+    // Returns the completed result to the caller.
+    return await getCurrentUserProfile();
+  } catch {
+    clearAuthTokens();
+    // Returns the completed result to the caller.
+    return null;
+  }
+};
 
 // Logs the user out.
-export const logoutUser =
-  async (): Promise<void> => {
-    // Stores refresh token for the steps below.
-    const refreshToken = getStoredRefreshToken();
+export const logoutUser = async (): Promise<void> => {
+  // Stores refresh token for the steps below.
+  const refreshToken = getStoredRefreshToken();
 
-    // Tries the operation and watches for errors.
-    try {
-      // Checks whether this condition is true.
-      if (refreshToken) {
-        // Waits for this asynchronous work to finish.
-        await logout();
-      }
-    } finally {
-      clearAuthTokens();
+  // Tries the operation and watches for errors.
+  try {
+    // Checks whether this condition is true.
+    if (refreshToken) {
+      // Waits for this asynchronous work to finish.
+      await logout();
     }
-  };
+  } finally {
+    clearAuthTokens();
+  }
+};
 
 // Runs request password reset logic.
 export const requestPasswordReset = async (

@@ -3,10 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 
-import type {
-  AccountStatus,
-  UserRole,
-} from "../types/user.types";
+import type { AccountStatus, UserRole } from "../types/user.types";
 // Imports the needed tools from ../types/auditLog.types.
 import type { AuditAction } from "../types/auditLog.types";
 
@@ -14,17 +11,13 @@ import type { AuditAction } from "../types/auditLog.types";
 export const APP_NAME = "RetailPulse Analytics";
 
 // Stores api base url for the steps below.
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ??
-  "/api/v1";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 // Stores access token key for the steps below.
-export const ACCESS_TOKEN_KEY =
-  "retailpulse_access_token";
+export const ACCESS_TOKEN_KEY = "retailpulse_access_token";
 
 // Stores refresh token key for the steps below.
-export const REFRESH_TOKEN_KEY =
-  "retailpulse_refresh_token";
+export const REFRESH_TOKEN_KEY = "retailpulse_refresh_token";
 
 // Stores default page for the steps below.
 export const DEFAULT_PAGE = 1;

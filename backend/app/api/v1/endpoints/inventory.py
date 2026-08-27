@@ -2,6 +2,10 @@
 # Inventory API endpoints
 # =========================================================
 
+from datetime import UTC, date, datetime, timedelta
+from math import ceil
+from threading import Lock
+from time import monotonic
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -13,6 +17,7 @@ from app.core.constants import AuditAction
 from app.core.permissions import AllAuthenticatedRoles, AnalystOrHigher
 from app.models.catalog import Category, Product
 from app.models.inventory import Inventory, InventoryMovement, InventoryNotification
+from app.models.sales import Sale, SaleItem
 from app.schemas.inventory import (
     InventoryItem,
     InventoryList,
@@ -25,6 +30,99 @@ from app.services.audit_log_service import audit_log_service
 
 # All routes in this module are mounted under /api/v1/inventory.
 router = APIRouter()
+
+FORECAST_LOOKBACK_DAYS = 90
+LEAD_TIME_DAYS = 5
+WMA_WEIGHTS = (0.6, 0.3, 0.1)
+FORECAST_CACHE_SECONDS = 300
+_forecast_cache: dict[tuple[str, int], tuple[float, list[dict]]] = {}
+_forecast_cache_lock = Lock()
+
+
+def calculate_replenishment(db, company_id: UUID, forecast_days: int = 30):
+    """Backend-only weighted moving-average replenishment engine.
+
+    Reorder point = average daily demand * lead time + safety stock.
+    Safety stock = 50% of lead-time demand.
+    Recommended quantity = max(0, forecast demand + safety stock - stock).
+    """
+    cache_key = (str(company_id), forecast_days)
+    with _forecast_cache_lock:
+        cached = _forecast_cache.get(cache_key)
+        if cached and monotonic() - cached[0] < FORECAST_CACHE_SECONDS:
+            return cached[1]
+    sync_inventory(db, company_id)
+    products = list(db.scalars(select(Product).options(joinedload(Product.category)).where(
+        Product.company_id == company_id, Product.status == "ACTIVE"
+    )).unique().all())
+    inventory = {x.product_id: x for x in db.scalars(select(Inventory).where(Inventory.company_id == company_id)).all()}
+    now = datetime.now(UTC)
+    sales = db.execute(select(SaleItem.product_id, func.date(Sale.sale_date), func.sum(SaleItem.quantity)).join(Sale).where(
+        Sale.company_id == company_id,
+        Sale.payment_status != "FAILED",
+        Sale.sale_date >= now - timedelta(days=FORECAST_LOOKBACK_DAYS),
+    ).group_by(SaleItem.product_id, func.date(Sale.sale_date))).all()
+    buckets = {p.id: [0.0, 0.0, 0.0] for p in products}
+    daily_history: dict[UUID, dict[date, int]] = {p.id: {} for p in products}
+    for product_id, sold_day, quantity in sales:
+        sold_date = date.fromisoformat(str(sold_day))
+        bucket = min(max((now.date() - sold_date).days, 0) // 30, 2)
+        buckets.setdefault(product_id, [0.0, 0.0, 0.0])[bucket] += float(quantity)
+        daily_history.setdefault(product_id, {})[sold_date] = int(quantity)
+    rows = []
+    for product in products:
+        inv = inventory.get(product.id); stock = inv.available_stock if inv else product.stock_quantity
+        totals = buckets[product.id]
+        first_sale = min(daily_history[product.id], default=None)
+        observed_days = FORECAST_LOOKBACK_DAYS if first_sale is None else min(FORECAST_LOOKBACK_DAYS, max(1, (now.date() - first_sale).days + 1))
+        bucket_days = [min(30, observed_days), min(30, max(0, observed_days - 30)), min(30, max(0, observed_days - 60))]
+        active_weights = [weight if days else 0 for weight, days in zip(WMA_WEIGHTS, bucket_days)]
+        weight_total = sum(active_weights)
+        daily = sum((amount / days) * weight for amount, days, weight in zip(totals, bucket_days, active_weights) if days) / weight_total if weight_total else 0
+        demand = ceil(daily * forecast_days); safety = ceil(daily * LEAD_TIME_DAYS * 0.5)
+        reorder_point = ceil(daily * LEAD_TIME_DAYS + safety)
+        days_remaining = round(stock / daily, 1) if daily else None
+        reorder_required = daily > 0 and (stock <= reorder_point or stock < demand)
+        recommended = max(0, demand + safety - stock) if reorder_required else 0
+        configured_reorder_level = inv.reorder_level if inv else 5
+        if stock <= 0: risk = "OUT_OF_STOCK"
+        elif not daily and stock <= configured_reorder_level: risk = "LOW_STOCK"
+        elif not daily: risk = "HEALTHY"
+        elif days_remaining <= LEAD_TIME_DAYS: risk = "STOCKOUT_RISK"
+        elif stock <= reorder_point or days_remaining <= 15: risk = "LOW_STOCK"
+        elif days_remaining > 60: risk = "OVERSTOCK"
+        else: risk = "HEALTHY"
+        action = {"OUT_OF_STOCK":"Immediate Reorder","STOCKOUT_RISK":"Reorder Soon","LOW_STOCK":"Plan to Reorder","HEALTHY":"Stock OK","OVERSTOCK":"Reduce Purchase"}[risk]
+        history_points = [{"date": (now.date() - timedelta(days=offset)).isoformat(), "quantity": daily_history[product.id].get(now.date() - timedelta(days=offset), 0)} for offset in range(29, -1, -1)]
+        forecast_points = [{"date": (now.date() + timedelta(days=offset)).isoformat(), "quantity": round(daily, 2)} for offset in range(1, forecast_days + 1)]
+        stock_projection = [{"date": (now.date() + timedelta(days=offset)).isoformat(), "stock": max(0, round(stock - daily * offset, 1))} for offset in range(forecast_days + 1)]
+        rows.append({"productId":str(product.id),"product":product.name,"sku":product.sku,"category":product.category.name,"supplier":product.brand or "Unassigned","currentStock":stock,"averageDailySales":round(daily,2),"forecastedDemand":demand,"daysRemaining":days_remaining,"reorderPoint":reorder_point,"safetyStock":safety,"recommendedStock":stock+recommended,"recommendedQuantity":recommended,"reorderRequired":reorder_required,"risk":risk,"recommendation":action,"hasSalesHistory":sum(totals)>0,"historyDays":observed_days if first_sale else 0,"dataQuality":"SUFFICIENT" if observed_days >= 30 and sum(totals) > 0 else "LIMITED" if sum(totals) > 0 else "NO_HISTORY","historicalDemand":history_points,"forecastDemand":forecast_points,"stockProjection":stock_projection})
+    with _forecast_cache_lock:
+        _forecast_cache[cache_key] = (monotonic(), rows)
+    return rows
+
+
+@router.get("/forecast")
+def forecast(db: DatabaseSession, current_user: AnalystOrHigher, forecast_days: int = Query(30, ge=1, le=365)):
+    rows = calculate_replenishment(db, current_user.company_id, forecast_days)
+    risks = {key: sum(x["risk"] == key for x in rows) for key in ("OUT_OF_STOCK","STOCKOUT_RISK","LOW_STOCK","HEALTHY","OVERSTOCK")}
+    return {"items":rows,"summary":{**risks,"reorderRequired":sum(x["reorderRequired"] for x in rows),"total":len(rows)},"method":{"name":"Weighted moving average","lookbackDays":90,"weights":[60,30,10],"leadTimeDays":LEAD_TIME_DAYS,"safetyStockFormula":"50% of lead-time demand","reorderPointFormula":"average daily demand x lead time + safety stock","recommendedQuantityFormula":"max(0, forecast demand + safety stock - current stock)"},"generatedAt":now_iso(),"cacheSeconds":FORECAST_CACHE_SECONDS}
+
+
+def now_iso():
+    return datetime.now(UTC).isoformat()
+
+
+@router.get("/recommendations")
+def recommendations(db: DatabaseSession, current_user: AnalystOrHigher, forecast_days: int = Query(30, ge=1, le=365)):
+    return [x for x in calculate_replenishment(db,current_user.company_id,forecast_days) if x["reorderRequired"] or x["risk"] == "OVERSTOCK"]
+
+
+@router.get("/recommendations/{product_id}")
+def recommendation(product_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, forecast_days: int = Query(30, ge=1, le=365)):
+    row = next((x for x in calculate_replenishment(db,current_user.company_id,forecast_days) if x["productId"] == str(product_id)), None)
+    if not row: raise HTTPException(status_code=404, detail="Product or inventory information was not found.")
+    return row
 
 
 # =========================================================

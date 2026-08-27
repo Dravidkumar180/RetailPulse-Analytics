@@ -1,31 +1,7 @@
-/* Teaching guide: This file contains the products page page.
- * Follow the comments from imports and setup through actions and output.
- * These comments explain the existing code without changing its behavior.
- */
-
-// Imports the needed tools from react.
 import { useEffect, useMemo, useState } from "react";
-// Imports the needed tools from @tanstack/react-query.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// Imports the needed tools from @mui/material.
-import {
-  Box,
-  Drawer,
-  IconButton,
-  MenuItem,
-  Pagination,
-  TextField,
-  Typography,
-} from "@mui/material";
-// Imports the needed tools from @mui/icons-material/Add.
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/EditOutlined";
-import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
-// Imports the needed tools from react-router-dom.
+import { Box } from "@mui/material";
 import { Link } from "react-router-dom";
-// Imports the needed tools from ../../api/catalogApi.
 import {
   createProduct,
   deleteProduct,
@@ -35,49 +11,39 @@ import {
   type Product,
   type ProductInput,
 } from "../../api/catalogApi";
-// Imports the needed tools from ../../components/common/Button/Button.
-import Button from "../../components/common/Button/Button";
 import PageHeader from "../../components/common/PageHeader/PageHeader";
 import { useAuth } from "../../hooks/useAuth";
-// Loads ./ProductsPage.css styles or setup.
+import ProductDrawer from "./ProductDrawer";
+import ProductsFilters from "./ProductsFilters";
+import ProductsSummary from "./ProductsSummary";
+import ProductsTable from "./ProductsTable";
+import { EMPTY_PRODUCT_FORM, productToInput } from "./productForm";
 import "./ProductsPage.css";
 
-// Stores empty for the steps below.
-const empty: ProductInput = {
-  name: "",
-  sku: "",
-  categoryId: "",
-  brand: "",
-  description: "",
-  unitPrice: 0,
-  costPrice: 0,
-  stockQuantity: 0,
-  unitOfMeasure: "Piece",
-  status: "ACTIVE",
-};
-// Add and manage products starts here.
+const PAGE_SIZE = 5;
+
+/** Coordinates product data, filters and mutations; rendering lives in focused child components. */
+// This component receives prepared data and renders the feature-specific interface.
 const ProductsPage = () => {
-  // Keeps product data up to date.
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const canEdit = user?.role !== "VIEWER";
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState("");
-  const [brand, setBrand] = useState("");
-  const [sort, setSort] = useState("recent");
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<Product | null>(null);
-  const [form, setForm] = useState<ProductInput>(empty);
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState("");
-  // Gets category choices.
-  const categories = useQuery({
+  const [search, setSearch] = useState(""),
+    [category, setCategory] = useState(""),
+    [status, setStatus] = useState(""),
+    [brand, setBrand] = useState(""),
+    [sort, setSort] = useState("recent"),
+    [page, setPage] = useState(1);
+  const [editing, setEditing] = useState<Product | null>(null),
+    [form, setForm] = useState<ProductInput>(EMPTY_PRODUCT_FORM),
+    [drawerOpen, setDrawerOpen] = useState(false),
+    [error, setError] = useState("");
+
+  const categoriesQuery = useQuery({
     queryKey: ["categories"],
     queryFn: () => getCategories(),
   });
-  // Gets filtered products.
-  const products = useQuery({
+  const productsQuery = useQuery({
     queryKey: ["products", search, category, status, brand, sort],
     queryFn: () =>
       getProducts({
@@ -88,99 +54,68 @@ const ProductsPage = () => {
         sort,
       }),
   });
-  // Saves a new or edited product.
-  const save = useMutation({
+  const saveMutation = useMutation({
     mutationFn: () =>
       editing ? updateProduct(editing.id, form) : createProduct(form),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setDrawerOpen(false);
     },
-    onError: (e: any) => setError(e.response?.data?.detail || e.message),
+    onError: (cause: any) =>
+      setError(cause.response?.data?.detail || cause.message),
   });
-  // Deletes a product.
-  const remove = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: deleteProduct,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
   });
-  // Builds the brand filter.
+
+  const allProducts = productsQuery.data?.items ?? [];
   const brands = useMemo(
     () =>
       Array.from(
         new Set(
-          (products.data?.items || []).map((x) => x.brand).filter(Boolean),
+          allProducts
+            .map((product) => product.brand)
+            .filter((value): value is string => Boolean(value)),
         ),
       ),
-    [products.data],
+    [allProducts],
   );
-  // Shows five products per page.
-  const pageSize = 5;
-  const filteredProducts = products.data?.items || [];
-  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
-  const visibleProducts = filteredProducts.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
+  const pageCount = Math.max(1, Math.ceil(allProducts.length / PAGE_SIZE));
+  const visibleProducts = allProducts.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
   );
   useEffect(() => setPage(1), [search, category, status, brand, sort]);
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
   }, [page, pageCount]);
-  // Opens the product form.
-  const show = (p?: Product) => {
-    setEditing(p || null);
-    setForm(
-      p
-        ? {
-            name: p.name,
-            sku: p.sku,
-            categoryId: p.categoryId,
-            brand: p.brand || "",
-            description: p.description || "",
-            unitPrice: p.unitPrice,
-            costPrice: p.costPrice,
-            stockQuantity: p.stockQuantity,
-            unitOfMeasure: p.unitOfMeasure,
-            status: p.status,
-          }
-        : empty,
-    );
+
+  const openDrawer = (product?: Product) => {
+    setEditing(product ?? null);
+    setForm(product ? productToInput(product) : { ...EMPTY_PRODUCT_FORM });
     setError("");
-    setOpen(true);
+    setDrawerOpen(true);
   };
-  // Updates one form field.
-  const field = (key: keyof ProductInput, value: string) =>
-    setForm((v) => ({
-      ...v,
+  const updateField = (key: keyof ProductInput, value: string) =>
+    setForm((current) => ({
+      ...current,
       [key]: ["unitPrice", "costPrice", "stockQuantity"].includes(key)
         ? Number(value)
         : value,
     }));
-  // Uses totals returned with the products.
-  const summary = products.data;
-  // Returns the completed result to the caller.
+  const confirmDelete = (id: string) => {
+    if (window.confirm("Delete this product?")) deleteMutation.mutate(id);
+  };
+
   return (
     <Box className="catalog-page">
       <PageHeader
         title="Products Management"
         subtitle="Add, organize and manage your company products."
       />
-      <Box className="catalog-summary">
-        {[
-          ["Total Products", summary?.totalProducts || 0, "blue"],
-          ["Active Products", summary?.activeProducts || 0, "green"],
-          ["Inactive Products", summary?.inactiveProducts || 0, "orange"],
-          ["Total Categories", summary?.totalCategories || 0, "purple"],
-        ].map(([l, v, c]) => (
-          <Box className="catalog-stat" key={String(l)}>
-            <span className={`catalog-stat__icon ${c}`}>▦</span>
-            <div>
-              <small>{l}</small>
-              <strong>{v}</strong>
-            </div>
-          </Box>
-        ))}
-      </Box>
+      <ProductsSummary summary={productsQuery.data} />
       <Box className="catalog-tabs">
         <Link className="active" to="/products">
           Products
@@ -188,236 +123,47 @@ const ProductsPage = () => {
         <Link to="/categories">Categories</Link>
       </Box>
       <Box className="catalog-panel">
-        <Box className="catalog-filters">
-          <TextField
-            size="small"
-            placeholder="Search by product name, SKU or brand..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <TextField
-            select
-            size="small"
-            label="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <MenuItem value="">All Categories</MenuItem>
-            {categories.data?.items.map((c) => (
-              <MenuItem key={c.id} value={c.id}>
-                {c.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            size="small"
-            label="Status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <MenuItem value="">All Status</MenuItem>
-            <MenuItem value="ACTIVE">Active</MenuItem>
-            <MenuItem value="INACTIVE">Inactive</MenuItem>
-          </TextField>
-          <TextField
-            select
-            size="small"
-            label="Brand"
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-          >
-            <MenuItem value="">All Brands</MenuItem>
-            {brands.map((b) => (
-              <MenuItem key={b} value={b}>
-                {b}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            size="small"
-            label="Sort"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-          >
-            <MenuItem value="recent">Recently Added</MenuItem>
-            <MenuItem value="name">Name</MenuItem>
-            <MenuItem value="price">Price</MenuItem>
-          </TextField>
-          {canEdit && (
-            <Button startIcon={<AddIcon />} onClick={() => show()}>
-              Add Product
-            </Button>
-          )}
-        </Box>
-        <Box className="catalog-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Category</th>
-                <th>Brand</th>
-                <th>Unit Price</th>
-                <th>Status</th>
-                <th>Stock</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleProducts.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <strong>{p.name}</strong>
-                    <small>{p.description}</small>
-                  </td>
-                  <td>{p.sku}</td>
-                  <td>{p.categoryName}</td>
-                  <td>{p.brand || "—"}</td>
-                  <td>₹{Number(p.unitPrice).toFixed(2)}</td>
-                  <td>
-                    <span
-                      className={`catalog-status ${p.status.toLowerCase()}`}
-                    >
-                      {p.status === "ACTIVE" ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td>{p.stockQuantity}</td>
-                  <td>
-                    <IconButton title="View" onClick={() => show(p)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                    {canEdit && (
-                      <>
-                        <IconButton title="Edit" onClick={() => show(p)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          title="Delete"
-                          color="error"
-                          onClick={() =>
-                            confirm("Delete this product?") && remove.mutate(p.id)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!filteredProducts.length && (
-            <p className="catalog-empty">No products found.</p>
-          )}
-          {pageCount > 1 && (
-            <Box className="catalog-pagination">
-              <Pagination
-                count={pageCount}
-                page={page}
-                onChange={(_, value) => setPage(value)}
-                color="primary"
-              />
-            </Box>
-          )}
-        </Box>
+        <ProductsFilters
+          search={search}
+          category={category}
+          status={status}
+          brand={brand}
+          sort={sort}
+          categories={categoriesQuery.data?.items ?? []}
+          brands={brands}
+          canEdit={canEdit}
+          onSearch={setSearch}
+          onCategory={setCategory}
+          onStatus={setStatus}
+          onBrand={setBrand}
+          onSort={setSort}
+          onAdd={() => openDrawer()}
+        />
+        <ProductsTable
+          products={visibleProducts}
+          canEdit={canEdit}
+          page={page}
+          pageCount={pageCount}
+          onPage={setPage}
+          onView={openDrawer}
+          onEdit={openDrawer}
+          onDelete={confirmDelete}
+        />
       </Box>
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <Box className="catalog-drawer">
-          <Box className="catalog-drawer__head">
-            <Typography component="h2">
-              {editing ? "Edit Product" : "Add Product"}
-            </Typography>
-            <IconButton onClick={() => setOpen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          {error && <p className="catalog-error">{error}</p>}
-          {(["name", "sku", "brand"] as const).map((k) => (
-            <TextField
-              key={k}
-              required={k !== "brand"}
-              label={k === "name" ? "Product Name" : k.toUpperCase()}
-              value={form[k]}
-              onChange={(e) => field(k, e.target.value)}
-            />
-          ))}
-          <TextField
-            select
-            required
-            label="Category"
-            value={form.categoryId}
-            onChange={(e) => field("categoryId", e.target.value)}
-          >
-            {categories.data?.items
-              .filter((c) => c.status === "ACTIVE")
-              .map((c) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.name}
-                </MenuItem>
-              ))}
-          </TextField>
-          <TextField
-            multiline
-            rows={3}
-            label="Description"
-            value={form.description}
-            onChange={(e) => field("description", e.target.value)}
-          />
-          {(["unitPrice", "costPrice", "stockQuantity"] as const).map((k) => (
-            <TextField
-              key={k}
-              required
-              type="number"
-              label={
-                k === "unitPrice"
-                  ? "Unit Price"
-                  : k === "costPrice"
-                    ? "Cost Price"
-                    : "Initial Stock Quantity"
-              }
-              value={form[k]}
-              onChange={(e) => field(k, e.target.value)}
-            />
-          ))}
-          <TextField
-            select
-            required
-            label="Unit of Measure"
-            value={form.unitOfMeasure}
-            onChange={(e) => field("unitOfMeasure", e.target.value)}
-          >
-            {["Piece", "Kilogram", "Liter", "Box", "Pack", "Meter"].map((x) => (
-              <MenuItem key={x} value={x}>
-                {x}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            required
-            label="Status"
-            value={form.status}
-            onChange={(e) => field("status", e.target.value)}
-          >
-            <MenuItem value="ACTIVE">Active</MenuItem>
-            <MenuItem value="INACTIVE">Inactive</MenuItem>
-          </TextField>
-          <Box className="catalog-drawer__actions">
-            <Button variant="outlined" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            {canEdit && (
-              <Button loading={save.isPending} onClick={() => save.mutate()}>
-                Save Product
-              </Button>
-            )}
-          </Box>
-        </Box>
-      </Drawer>
+      <ProductDrawer
+        open={drawerOpen}
+        editing={editing}
+        form={form}
+        categories={categoriesQuery.data?.items ?? []}
+        error={error}
+        canEdit={canEdit}
+        saving={saveMutation.isPending}
+        onClose={() => setDrawerOpen(false)}
+        onField={updateField}
+        onSave={() => saveMutation.mutate()}
+      />
     </Box>
   );
 };
+
 export default ProductsPage;

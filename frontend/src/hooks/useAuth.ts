@@ -20,9 +20,7 @@ export const useAuth = (): AuthContextValue => {
   // Checks whether this condition is true.
   if (!context) {
     // Stops here and reports the problem.
-    throw new Error(
-      "useAuth must be used inside an AuthProvider.",
-    );
+    throw new Error("useAuth must be used inside an AuthProvider.");
   }
 
   // Returns the completed result to the caller.

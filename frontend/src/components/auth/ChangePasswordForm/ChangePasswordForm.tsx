@@ -9,12 +9,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 // Imports the needed tools from react-hook-form.
 import { useForm } from "react-hook-form";
-import {
-  Alert,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, IconButton, Typography } from "@mui/material";
 // Imports the needed tools from @mui/icons-material/LockResetOutlined.
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 // Imports the needed tools from @mui/icons-material/VisibilityOutlined.
@@ -43,11 +38,7 @@ interface ChangePasswordFormProps {
 // Gets error message.
 const getErrorMessage = (error: unknown): string => {
   // Checks whether this condition is true.
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
+  if (typeof error === "object" && error !== null && "response" in error) {
     // Stores axios error for the steps below.
     const axiosError = error as {
       response?: {
@@ -77,14 +68,10 @@ const getErrorMessage = (error: unknown): string => {
 };
 
 // Shows the change password form.
-const ChangePasswordForm = ({
-  onPasswordChanged,
-}: ChangePasswordFormProps) => {
-  const [showCurrentPassword, setShowCurrentPassword] =
-    useState(false);
+const ChangePasswordForm = ({ onPasswordChanged }: ChangePasswordFormProps) => {
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -132,9 +119,7 @@ const ChangePasswordForm = ({
         </Box>
 
         <Box>
-          <Typography component="h2">
-            Change Password
-          </Typography>
+          <Typography component="h2">Change Password</Typography>
 
           <Typography component="p">
             Update your password to keep your account secure.
@@ -143,9 +128,7 @@ const ChangePasswordForm = ({
       </Box>
 
       {passwordMutation.isSuccess && (
-        <Alert severity="success">
-          Password changed successfully.
-        </Alert>
+        <Alert severity="success">Password changed successfully.</Alert>
       )}
 
       {passwordMutation.isError && (
@@ -203,13 +186,11 @@ const ChangePasswordForm = ({
               required: "New password is required.",
               minLength: {
                 value: 8,
-                message:
-                  "New password must contain at least 8 characters.",
+                message: "New password must contain at least 8 characters.",
               },
               maxLength: {
                 value: 72,
-                message:
-                  "New password must not exceed 72 characters.",
+                message: "New password must not exceed 72 characters.",
               },
               pattern: {
                 value:
@@ -228,9 +209,7 @@ const ChangePasswordForm = ({
             type="button"
             className="change-password-form__password-toggle"
             aria-label={
-              showNewPassword
-                ? "Hide new password"
-                : "Show new password"
+              showNewPassword ? "Hide new password" : "Show new password"
             }
             onClick={() =>
               // Updates the page or stored state with this result.

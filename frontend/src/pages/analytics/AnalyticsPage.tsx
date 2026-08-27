@@ -1,57 +1,261 @@
-import {useMemo,useState} from "react";
-import axios from "axios";
-import {useQuery,useQueryClient} from "@tanstack/react-query";
-import {Box,Button,Card,CardContent,MenuItem,Skeleton,TextField,Typography} from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download"; import RefreshIcon from "@mui/icons-material/Refresh"; import WarningIcon from "@mui/icons-material/WarningAmber"; import InventoryIcon from "@mui/icons-material/Inventory2";
-import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee"; import ReceiptLongIcon from "@mui/icons-material/ReceiptLong"; import TrendingUpIcon from "@mui/icons-material/TrendingUp"; import DiscountIcon from "@mui/icons-material/Discount"; import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined"; import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"; import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import {getAnalyticsDashboard,logAnalyticsAction,type AnalyticsFilters} from "../../api/analyticsApi";
-import {createPdfReport} from "../../utils/createPdfReport";
-import "./AnalyticsPage.css"; import "./DonutCharts.css"; import "./TrendChart.css"; import "./FilterControls.css";
+// Coordinates data, state, and child components for the Analytics Page screen.
+import { useMemo, useState } from "react";
+import { Box, Button } from "@mui/material";
+import WarningIcon from "@mui/icons-material/WarningAmber";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getAnalyticsDashboard,
+  logAnalyticsAction,
+  type AnalyticsFilters,
+} from "../../api/analyticsApi";
+import { createPdfReport } from "../../utils/createPdfReport";
+import AnalyticsDashboardPanels from "./AnalyticsDashboardPanels";
+import AnalyticsFiltersPanel from "./AnalyticsFiltersPanel";
+import AnalyticsHeader from "./AnalyticsHeader";
+import AnalyticsKpis from "./AnalyticsKpis";
+import {
+  analyticsErrorMessage,
+  csvCell,
+  dateRange,
+  localDate,
+  notify,
+  title,
+  today,
+} from "./analyticsUtils";
+import "./AnalyticsPage.css";
+import "./DonutCharts.css";
+import "./TrendChart.css";
+import "./FilterControls.css";
 
-const finite=(value:unknown)=>{const parsed=Number(value);return Number.isFinite(parsed)?parsed:0};
-const money=(n:unknown=0)=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(finite(n));
-const title=(s:string)=>s.replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase());
-type EmptyKind="sales"|"products"|"customers"|"payments";
-const Empty=({kind="sales",text}:{kind?:EmptyKind;text:string})=>{const content={sales:{title:"No Sales Data",icon:<ShoppingBagOutlinedIcon/>},products:{title:"No Products Found",icon:<InventoryIcon/>},customers:{title:"No Customers Found",icon:<PersonOutlinedIcon/>},payments:{title:"No Payment Data",icon:<PaymentsOutlinedIcon/>}}[kind];return <Box className={`analytics-empty analytics-empty--${kind}`} role="status"><Box className="analytics-empty__icon">{content.icon}</Box><strong>{content.title}</strong><span>{text}</span></Box>};
-const TableSkeleton=({columns=3}:{columns?:number})=><Box className="analytics-table-skeleton" aria-label="Loading table"><Skeleton variant="rounded" height={28}/>{Array.from({length:5},(_,index)=><Box key={index} style={{gridTemplateColumns:`repeat(${columns},1fr)`}}>{Array.from({length:columns},(_,cell)=><Skeleton key={cell} height={24}/>)}</Box>)}</Box>;
-const notify=(heading:string,message:string,path="/analytics/sales")=>window.dispatchEvent(new CustomEvent("retailpulse:notification",{detail:{title:heading,message,path}}));
-const localDate=(value:Date)=>`${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,"0")}-${String(value.getDate()).padStart(2,"0")}`;
-const today=()=>localDate(new Date());
-const range=(days:number)=>{const end=new Date(),start=new Date();start.setDate(end.getDate()-days+1);return {startDate:localDate(start),endDate:localDate(end)};};
-const csvCell=(value:unknown)=>`"${String(value??"").replaceAll('"','""')}"`;
-const trendLabel=(value:string,interval:AnalyticsFilters["interval"])=>{if(interval==="monthly"){const [year,month]=value.split("-");return new Intl.DateTimeFormat("en-IN",{month:"short",year:"numeric"}).format(new Date(Number(year),Number(month)-1,1))}if(interval==="weekly")return value.replace("-W"," · Week ");return new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"short"}).format(new Date(`${value}T00:00:00`))};
-const errorMessage=(reason:unknown)=>{if(axios.isAxiosError(reason)){const detail=reason.response?.data?.detail;if(typeof detail==="string")return detail;if(Array.isArray(detail)){const messages=detail.map(item=>item?.msg).filter(Boolean);if(messages.length)return messages.join(" ")}if(reason.code==="ECONNABORTED")return "The analytics request timed out. Please try again.";if(!reason.response)return "Unable to connect to the analytics service.";return `Analytics request failed (${reason.response.status}).`}return reason instanceof Error?reason.message:"Analytics data could not be loaded."};
+// This component receives prepared data and renders the feature-specific interface.
+const defaultFilters = (): AnalyticsFilters => ({
+  interval: "daily",
+  ...dateRange(30),
+});
 
-export default function AnalyticsPage(){
- const qc=useQueryClient(); const [draft,setDraft]=useState<AnalyticsFilters>({interval:"daily",...range(30)}); const [filters,setFilters]=useState(draft); const [sort,setSort]=useState<"revenue"|"units">("revenue"); const [error,setError]=useState(""); const [exporting,setExporting]=useState<"CSV"|"PDF"|null>(null);
- const query=useQuery({queryKey:["sales-analytics",filters],queryFn:()=>getAnalyticsDashboard(filters),staleTime:30000,retry:1}); const data=query.data;
- const update=(key:keyof AnalyticsFilters,value:string)=>setDraft(v=>({...v,[key]:value||undefined}));
- const preset=(kind:string)=>{let dates:Partial<AnalyticsFilters>;const now=new Date();if(kind==="today")dates={startDate:today(),endDate:today()};else if(kind==="7")dates=range(7);else if(kind==="30")dates=range(30);else if(kind==="month")dates={startDate:localDate(new Date(now.getFullYear(),now.getMonth(),1)),endDate:today()};else {dates={startDate:localDate(new Date(now.getFullYear(),now.getMonth()-1,1)),endDate:localDate(new Date(now.getFullYear(),now.getMonth(),0))}}setDraft(v=>({...v,...dates}));};
- const apply=async()=>{if(draft.startDate&&draft.endDate&&draft.startDate>draft.endDate){setError("Start date must be on or before end date.");return}setError("");setFilters({...draft});try{await logAnalyticsAction("filters",`Sales analytics filters applied: ${JSON.stringify(draft)}`);qc.invalidateQueries({queryKey:["audit-logs"]});notify("Sales filters applied","Dashboard results now reflect the selected filters.")}catch{notify("Filters applied","Results updated, but the audit entry could not be recorded.")}};
- const products=useMemo(()=>[...(data?.topProducts||[])].sort((a,b)=>b[sort]-a[sort]),[data,sort]);
- const refresh=async()=>{const result=await query.refetch();if(result.isError)notify("Refresh failed","Sales analytics could not be refreshed. Please try again.");else notify("Analytics refreshed","The dashboard is showing the latest available sales data.")};
- const download=(blob:Blob,fileName:string)=>{const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download=fileName;anchor.style.display="none";document.body.appendChild(anchor);anchor.click();anchor.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000)};
- const exportReport=async(format:"CSV"|"PDF")=>{if(!data||exporting)return;setExporting(format);try{const rows:unknown[][]=[["Sales Analytics Report"],["Filters",JSON.stringify(filters)],[],["KPI","Value"],...Object.entries(data.kpis),[],["Product","SKU","Units","Revenue"],...products.map(x=>[x.name,x.sku,x.units,x.revenue]),[],["Customer","Orders","Spend","Average Order Value"],...data.topCustomers.map(x=>[x.name,x.orders,x.totalSpend,x.averageOrderValue]),[],["Payment Method","Transactions","Revenue"],...data.paymentMethods.map(x=>[title(x.name),x.transactions,x.revenue])];if(format==="PDF")download(createPdfReport("Sales Analytics Report",rows.map(r=>r.join(" | "))),`sales-analytics-${today()}.pdf`);else download(new Blob([rows.map(r=>r.map(csvCell).join(",")).join("\n")],{type:"text/csv;charset=utf-8"}),`sales-analytics-${today()}.csv`);try{await logAnalyticsAction("export",`Sales analytics ${format} exported; Filters: ${JSON.stringify(filters)}`);await qc.invalidateQueries({queryKey:["audit-logs"]});notify("Report exported",`${format} report downloaded and recorded in Audit Logs.`,"/audit-logs")}catch{notify("Report downloaded",`${format} was downloaded, but its audit entry could not be recorded.`)}}catch{notify("Export failed",`The ${format} report could not be generated. Please try again.`)}finally{setExporting(null)}};
- const maxRevenue=Math.max(...(data?.trend.map(x=>x.revenue)||[1]),1),maxOrders=Math.max(...(data?.trend.map(x=>x.orders)||[1]),1); const totalPayment=data?.paymentMethods.reduce((s,x)=>s+x.revenue,0)||0;let cursor=0;const colors=["#2563eb","#14b8a6","#8b5cf6","#f59e0b","#ef4444"];const gradient=data?.paymentMethods.map((x,i)=>{const start=cursor;cursor+=totalPayment?x.revenue/totalPayment*100:0;return `${colors[i%colors.length]} ${start}% ${cursor}%`}).join(",");
- const loading=query.isLoading; const kpiCards=[
-  {name:"Total Revenue",value:data?.kpis.totalRevenue,money:true,icon:<CurrencyRupeeIcon/>,tone:"blue"},
-  {name:"Total Orders",value:data?.kpis.totalOrders,money:false,icon:<ReceiptLongIcon/>,tone:"violet"},
-  {name:"Average Order Value",value:data?.kpis.averageOrderValue,money:true,icon:<TrendingUpIcon/>,tone:"teal"},
-  {name:"Total Items Sold",value:data?.kpis.totalItemsSold,money:false,icon:<InventoryIcon/>,tone:"orange"},
-  {name:"Total Discount",value:data?.kpis.totalDiscount,money:true,icon:<DiscountIcon/>,tone:"rose"},
-  {name:"Total Tax",value:data?.kpis.totalTax,money:true,icon:<AccountBalanceIcon/>,tone:"cyan"},
- ];
- return <Box className="analytics-page"><Box className="analytics-header"><Box><Typography component="h1">Sales Analytics</Typography><Typography>Revenue, orders, customers and payment performance</Typography></Box><Box className="analytics-actions"><Button startIcon={<RefreshIcon className={query.isFetching?"analytics-spin":""}/>} disabled={query.isFetching||Boolean(exporting)} onClick={refresh}>{query.isFetching?"Refreshing…":"Refresh"}</Button><Button startIcon={<DownloadIcon/>} disabled={!data||Boolean(exporting)} onClick={()=>exportReport("CSV")}>{exporting==="CSV"?"Exporting…":"Export CSV"}</Button><Button variant="contained" startIcon={<DownloadIcon/>} disabled={!data||Boolean(exporting)} onClick={()=>exportReport("PDF")}>{exporting==="PDF"?"Exporting…":"Export PDF"}</Button></Box></Box>
- <Card className="analytics-filter-card"><CardContent className="filter-date-row"><Box className="filter-group filter-group--presets"><Typography component="span" className="filter-group-label">Date Range</Typography><Box className="date-presets">{[["Today","today"],["Last 7 Days","7"],["Last 30 Days","30"],["This Month","month"],["Last Month","last"]].map(([l,v])=><Button key={v} onClick={()=>preset(v)}>{l}</Button>)}</Box></Box><Box className="filter-group filter-group--custom"><Typography component="span" className="filter-group-label">Custom Range</Typography><Box className="custom-date-fields"><TextField type="date" label="From" slotProps={{inputLabel:{shrink:true}}} value={draft.startDate||""} onChange={e=>update("startDate",e.target.value)}/><TextField type="date" label="To" slotProps={{inputLabel:{shrink:true}}} value={draft.endDate||""} onChange={e=>update("endDate",e.target.value)}/></Box></Box></CardContent><CardContent className="filter-selects">
- {[{key:"productId",label:"Product",items:data?.options.products},{key:"categoryId",label:"Category",items:data?.options.categories},{key:"customerId",label:"Customer",items:data?.options.customers}].map(f=><TextField select key={f.key} label={f.label} value={draft[f.key as keyof AnalyticsFilters]||""} onChange={e=>update(f.key as keyof AnalyticsFilters,e.target.value)}><MenuItem value="">All {f.label}s</MenuItem>{f.items?.map(x=><MenuItem key={x.id} value={x.id}>{x.name}</MenuItem>)}</TextField>)}
- <TextField select label="Payment Method" value={draft.paymentMethod||""} onChange={e=>update("paymentMethod",e.target.value)}><MenuItem value="">All Methods</MenuItem>{data?.options.paymentMethods.map(x=><MenuItem key={x} value={x}>{title(x)}</MenuItem>)}</TextField><TextField select label="Payment Status" value={draft.paymentStatus||""} onChange={e=>update("paymentStatus",e.target.value)}><MenuItem value="">All Statuses</MenuItem>{data?.options.paymentStatuses.map(x=><MenuItem key={x} value={x}>{title(x)}</MenuItem>)}</TextField><Box className="filter-buttons"><Button onClick={()=>{setDraft({interval:"daily",...range(30)});setFilters({interval:"daily",...range(30)});setError("")}}>Clear</Button><Button variant="contained" onClick={apply}>Apply Filters</Button></Box></CardContent>{error&&<Box className="filter-error">{error}</Box>}</Card>
- {query.isError&&<Box className="analytics-alert" role="alert"><WarningIcon/> {errorMessage(query.error)}<Button onClick={()=>query.refetch()}>Retry</Button></Box>}
- <Box className={`analytics-kpis ${query.isFetching&&!loading?"analytics-kpis--updating":""}`} aria-live="polite">{kpiCards.map(card=><Card key={card.name} className={`analytics-kpi analytics-kpi--${card.tone}`}><CardContent><Box className="analytics-kpi__icon">{card.icon}</Box><Box className="analytics-kpi__copy"><span>{card.name}</span>{loading?<Skeleton width={105} height={34}/>:<strong>{card.money?money(card.value):finite(card.value).toLocaleString("en-IN")}</strong>}<small>{query.isFetching&&!loading?"Updating…":"Selected period"}</small></Box></CardContent></Card>)}</Box>
- <Box className="analytics-grid sales-bi-grid"><Card className="analytics-panel analytics-panel--wide"><CardContent><Box className="panel-title"><Box><h3>Sales Overview</h3><small className="chart-subtitle">Revenue grouped by {filters.interval}</small></Box><Box className="trend-periods" role="group" aria-label="Sales overview interval">{(["daily","weekly","monthly"] as const).map(interval=><button type="button" className={filters.interval===interval?"active":""} aria-pressed={filters.interval===interval} disabled={query.isFetching} key={interval} onClick={()=>{setDraft(v=>({...v,interval}));setFilters(v=>({...v,interval}))}}>{title(interval)}</button>)}</Box></Box>{loading?<Skeleton variant="rounded" height={210}/>:data?.trend.length?<Box className="trend-chart">{data.trend.map(x=><Box key={x.label} title={`${trendLabel(x.label,filters.interval)}: ${money(x.revenue)} · ${x.orders} orders`}><i style={{height:`${Math.max(x.revenue/maxRevenue*100,4)}%`}}/><span>{trendLabel(x.label,filters.interval)}</span></Box>)}</Box>:<Empty text="No sales data available for the selected period."/>}</CardContent></Card>
- <Card className="analytics-panel"><CardContent><h3>Sales vs Orders</h3>{loading?<Skeleton variant="rounded" height={210}/>:data?.trend.length?<Box className="dual-chart">{data.trend.map(x=><Box key={x.label} title={`${trendLabel(x.label,filters.interval)}: ${money(x.revenue)} · ${x.orders} orders`}><i style={{height:`${Math.max(x.revenue/maxRevenue*100,3)}%`}}/><b style={{height:`${Math.max(x.orders/maxOrders*100,3)}%`}}/><span>{trendLabel(x.label,filters.interval)}</span></Box>)}</Box>:<Empty text="Revenue and order volume will appear here."/>}</CardContent></Card>
- <Card className="analytics-panel"><CardContent><Box className="panel-title"><h3>Top Performing Products</h3><TextField select size="small" value={sort} onChange={e=>setSort(e.target.value as typeof sort)}><MenuItem value="revenue">Revenue</MenuItem><MenuItem value="units">Quantity</MenuItem></TextField></Box>{loading?<TableSkeleton/>:products.length?<Box className="analytics-table"><div><b>Product</b><b>Units</b><b>Revenue</b></div>{products.slice(0,10).map(x=><div key={x.id}><span>{x.name}<small>{x.sku}</small></span><span>{x.units}</span><span>{money(x.revenue)}</span></div>)}</Box>:<Empty kind="products" text="No products found with the selected filters."/>}</CardContent></Card>
- <Card className="analytics-panel analytics-panel--wide"><CardContent><h3>Top Customers</h3>{loading?<TableSkeleton columns={4}/>:data?.topCustomers.length?<Box className="analytics-table customer-table"><div><b>Customer</b><b>Orders</b><b>Total Spend</b><b>Avg Order</b></div>{data.topCustomers.slice(0,10).map((x,i)=><div key={`${x.id}-${i}`}><span>{x.name}</span><span>{x.orders}</span><span>{money(x.totalSpend)}</span><span>{money(x.averageOrderValue)}</span></div>)}</Box>:<Empty kind="customers" text="No customers found with the selected filters."/>}</CardContent></Card>
- <Card className="analytics-panel"><CardContent><h3>Payment Method Analysis</h3>{loading?<Skeleton variant="circular" width={150} height={150} className="donut-skeleton"/>:data?.paymentMethods.length?<Box className="donut-layout"><Box className="donut-chart" style={{background:`conic-gradient(${gradient})`}}><Box><span>Total Revenue</span><strong>{money(totalPayment)}</strong></Box></Box><Box className="payment-legend">{data.paymentMethods.map((x,i)=><div key={x.name}><i style={{background:colors[i%colors.length]}}/><span>{title(x.name)}<small>{x.transactions} transactions</small></span><strong>{money(x.revenue)}</strong></div>)}</Box></Box>:<Empty kind="payments" text="No payment transactions in this period."/>}</CardContent></Card></Box>
- {data&&<Box className="analytics-updated">Cached for 30 seconds · Last updated {new Date(data.lastUpdated).toLocaleString("en-IN")}</Box>}</Box>;
+export default function AnalyticsPage() {
+  const queryClient = useQueryClient();
+  // Draft filters can be edited without immediately changing dashboard results.
+  const [draft, setDraft] = useState<AnalyticsFilters>(defaultFilters);
+  const [filters, setFilters] = useState<AnalyticsFilters>(draft);
+  const [sort, setSort] = useState<"revenue" | "units">("revenue");
+  const [error, setError] = useState("");
+  const [exporting, setExporting] = useState<"CSV" | "PDF" | null>(null);
+  // Only applied filters are included in the query key and backend request.
+  const query = useQuery({
+    queryKey: ["sales-analytics", filters],
+    queryFn: () => getAnalyticsDashboard(filters),
+    staleTime: 30000,
+    retry: 1,
+  });
+  const data = query.data;
+  // Sort a copied product array so cached API data stays immutable.
+  const products = useMemo(
+    () =>
+      [...(data?.topProducts || [])].sort(
+        (left, right) => right[sort] - left[sort],
+      ),
+    [data, sort],
+  );
+
+  const update = (key: keyof AnalyticsFilters, value: string) =>
+    setDraft((current) => ({ ...current, [key]: value || undefined }));
+  const preset = (kind: string) => {
+    const now = new Date();
+    let dates: Partial<AnalyticsFilters>;
+    if (kind === "today") dates = { startDate: today(), endDate: today() };
+    else if (kind === "7") dates = dateRange(7);
+    else if (kind === "30") dates = dateRange(30);
+    else if (kind === "month")
+      dates = {
+        startDate: localDate(new Date(now.getFullYear(), now.getMonth(), 1)),
+        endDate: today(),
+      };
+    else
+      dates = {
+        startDate: localDate(
+          new Date(now.getFullYear(), now.getMonth() - 1, 1),
+        ),
+        endDate: localDate(new Date(now.getFullYear(), now.getMonth(), 0)),
+      };
+    setDraft((current) => ({ ...current, ...dates }));
+  };
+  const clear = () => {
+    const defaults = defaultFilters();
+    setDraft(defaults);
+    setFilters(defaults);
+    setError("");
+  };
+  const apply = async () => {
+    if (draft.startDate && draft.endDate && draft.startDate > draft.endDate) {
+      setError("Start date must be on or before end date.");
+      return;
+    }
+    setError("");
+    setFilters({ ...draft });
+    try {
+      await logAnalyticsAction(
+        "filters",
+        `Sales analytics filters applied: ${JSON.stringify(draft)}`,
+      );
+      queryClient.invalidateQueries({ queryKey: ["audit-logs"] });
+      notify(
+        "Sales filters applied",
+        "Dashboard results now reflect the selected filters.",
+      );
+    } catch {
+      notify(
+        "Filters applied",
+        "Results updated, but the audit entry could not be recorded.",
+      );
+    }
+  };
+  const refresh = async () => {
+    const result = await query.refetch();
+    notify(
+      result.isError ? "Refresh failed" : "Analytics refreshed",
+      result.isError
+        ? "Sales analytics could not be refreshed. Please try again."
+        : "The dashboard is showing the latest available sales data.",
+    );
+  };
+  const download = (blob: Blob, fileName: string) => {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  // Assemble the visible analytics data into a downloadable report.
+  const exportReport = async (format: "CSV" | "PDF") => {
+    if (!data || exporting) return;
+    setExporting(format);
+    try {
+      const rows: unknown[][] = [
+        ["Sales Analytics Report"],
+        ["Filters", JSON.stringify(filters)],
+        [],
+        ["KPI", "Value"],
+        ...Object.entries(data.kpis),
+        [],
+        ["Product", "SKU", "Units", "Revenue"],
+        ...products.map((item) => [
+          item.name,
+          item.sku,
+          item.units,
+          item.revenue,
+        ]),
+        [],
+        ["Customer", "Orders", "Spend", "Average Order Value"],
+        ...data.topCustomers.map((item) => [
+          item.name,
+          item.orders,
+          item.totalSpend,
+          item.averageOrderValue,
+        ]),
+        [],
+        ["Payment Method", "Transactions", "Revenue"],
+        ...data.paymentMethods.map((item) => [
+          title(item.name),
+          item.transactions,
+          item.revenue,
+        ]),
+      ];
+      if (format === "PDF")
+        download(
+          createPdfReport(
+            "Sales Analytics Report",
+            rows.map((row) => row.join(" | ")),
+          ),
+          `sales-analytics-${today()}.pdf`,
+        );
+      else
+        download(
+          new Blob([rows.map((row) => row.map(csvCell).join(",")).join("\n")], {
+            type: "text/csv;charset=utf-8",
+          }),
+          `sales-analytics-${today()}.csv`,
+        );
+      try {
+        await logAnalyticsAction(
+          "export",
+          `Sales analytics ${format} exported; Filters: ${JSON.stringify(filters)}`,
+        );
+        await queryClient.invalidateQueries({ queryKey: ["audit-logs"] });
+        notify(
+          "Report exported",
+          `${format} report downloaded and recorded in Audit Logs.`,
+          "/audit-logs",
+        );
+      } catch {
+        notify(
+          "Report downloaded",
+          `${format} was downloaded, but its audit entry could not be recorded.`,
+        );
+      }
+    } catch {
+      notify(
+        "Export failed",
+        `The ${format} report could not be generated. Please try again.`,
+      );
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const loading = query.isLoading;
+  return (
+    <Box className="analytics-page">
+      <AnalyticsHeader
+        refreshing={query.isFetching}
+        hasData={Boolean(data)}
+        exporting={exporting}
+        onRefresh={refresh}
+        onExport={exportReport}
+      />
+      <AnalyticsFiltersPanel
+        draft={draft}
+        options={data?.options}
+        error={error}
+        onUpdate={update}
+        onPreset={preset}
+        onClear={clear}
+        onApply={apply}
+      />
+      {query.isError && (
+        <Box className="analytics-alert" role="alert">
+          <WarningIcon /> {analyticsErrorMessage(query.error)}
+          <Button onClick={() => query.refetch()}>Retry</Button>
+        </Box>
+      )}
+      <AnalyticsKpis
+        data={data}
+        loading={loading}
+        updating={query.isFetching && !loading}
+      />
+      <AnalyticsDashboardPanels
+        data={data}
+        products={products}
+        sort={sort}
+        interval={filters.interval}
+        loading={loading}
+        fetching={query.isFetching}
+        onSort={setSort}
+        onInterval={(interval) => {
+          setDraft((current) => ({ ...current, interval }));
+          setFilters((current) => ({ ...current, interval }));
+        }}
+      />
+      {data && (
+        <Box className="analytics-updated">
+          Cached for 30 seconds · Last updated{" "}
+          {new Date(data.lastUpdated).toLocaleString("en-IN")}
+        </Box>
+      )}
+    </Box>
+  );
 }

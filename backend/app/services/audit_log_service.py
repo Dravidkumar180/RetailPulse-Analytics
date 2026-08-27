@@ -17,6 +17,7 @@ from app.core.constants import AuditAction, UserRole
 from app.core.exceptions import ResourceNotFoundException
 # Imports the needed names from app.models.user.
 from app.models.user import User
+from app.models.activity_notification import ActivityNotification
 # Imports the needed names from app.repositories.
 from app.repositories import audit_log_repository
 # Imports the needed names from app.schemas.audit_log.
@@ -46,6 +47,49 @@ class AuditLogService:
             browser=browser,
             details=details,
         )
+        notification = self._notification_for(action, details)
+        if notification:
+            title, path = notification
+            db.add(ActivityNotification(
+                company_id=company_id,
+                actor_id=user_id,
+                action=action.value,
+                title=title,
+                message=(details or title)[:1000],
+                path=path,
+            ))
+
+    @staticmethod
+    def _notification_for(action: AuditAction, details: str | None) -> tuple[str, str] | None:
+        """Map successful state-changing audit events to a useful UI destination."""
+        mappings: dict[AuditAction, tuple[str, str]] = {
+            AuditAction.CATEGORY_CREATED: ("Category created", "/categories"),
+            AuditAction.CATEGORY_UPDATED: ("Category updated", "/categories"),
+            AuditAction.CATEGORY_DELETED: ("Category deleted", "/categories"),
+            AuditAction.PRODUCT_CREATED: ("Product created", "/products"),
+            AuditAction.PRODUCT_UPDATED: ("Product updated", "/products"),
+            AuditAction.PRODUCT_DELETED: ("Product deleted", "/products"),
+            AuditAction.PRODUCT_ACTIVATED: ("Product activated", "/products"),
+            AuditAction.PRODUCT_DEACTIVATED: ("Product deactivated", "/products"),
+            AuditAction.SALE_CREATED: ("Sale created", "/sales"),
+            AuditAction.SALE_UPDATED: ("Sale updated", "/sales"),
+            AuditAction.SALE_DELETED: ("Sale deleted", "/sales"),
+            AuditAction.CUSTOMER_UPDATED: ("Customer updated", "/customers"),
+            AuditAction.CUSTOMER_DELETED: ("Customer deleted", "/customers"),
+            AuditAction.CUSTOMER_ACTIVATED: ("Customer activated", "/customers"),
+            AuditAction.CUSTOMER_DEACTIVATED: ("Customer deactivated", "/customers"),
+            AuditAction.FORECAST_GENERATED: ("Forecast generated", "/demand-forecasting"),
+            AuditAction.FORECAST_REFRESHED: ("Forecast refreshed", "/demand-forecasting"),
+            AuditAction.INVENTORY_RECOMMENDATION_GENERATED: ("Inventory recommendations updated", "/demand-forecasting"),
+            AuditAction.USER_INVITED: ("User invited", "/users"),
+            AuditAction.USER_UPDATED: ("User updated", "/users"),
+            AuditAction.PROFILE_UPDATED: ("Profile updated", "/profile"),
+            AuditAction.SETTINGS_UPDATED: ("Settings updated", "/settings"),
+            AuditAction.IMPORT_UPLOADED: ("Import validated", "/data-import"),
+            AuditAction.IMPORT_COMPLETED: ("Import completed", "/data-import"),
+            AuditAction.IMPORT_FAILED: ("Import failed", "/data-import"),
+        }
+        return mappings.get(action)
 
     # Gets audit logs.
     def list_audit_logs(
