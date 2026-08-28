@@ -45,6 +45,7 @@ import SalesPage from "../pages/sales/SalesPage";
 import InventoryPage from "../pages/inventory/InventoryPage";
 import InventoryForecastPage from "../pages/inventory/InventoryForecastPage";
 import AnalyticsPage from "../pages/analytics/AnalyticsPage";
+import RetailAnalyticsPage from "../pages/analytics/RetailAnalyticsPage";
 import CustomersPage from "../pages/customers/CustomersPage";
 import DemandForecastingPage from "../pages/forecasting/DemandForecastingPage";
 import DataImportsPage from "../pages/dataImports/DataImportsPage";
@@ -103,10 +104,6 @@ const AppRoutes = () => {
             {/* Inventory is shared by Admins and Analysts under this role guard. */}
             <Route path={ROUTE_PATHS.inventory} element={<InventoryPage />} />
             <Route path={ROUTE_PATHS.analytics} element={<AnalyticsPage />} />
-            <Route
-              path="/analytics"
-              element={<Navigate to={ROUTE_PATHS.analytics} replace />}
-            />
             <Route path={ROUTE_PATHS.customers} element={<CustomersPage />} />
           </Route>
 
@@ -117,6 +114,7 @@ const AppRoutes = () => {
               />
             }
           >
+            <Route path={ROUTE_PATHS.retailAnalytics} element={<RetailAnalyticsPage />} />
             <Route
               path={ROUTE_PATHS.demandForecasting}
               element={<DemandForecastingPage />}

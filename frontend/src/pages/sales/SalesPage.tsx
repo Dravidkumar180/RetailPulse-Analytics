@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box, Tab, Tabs } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 import { getCategories, getProducts } from "../../api/catalogApi";
 import { getCustomers } from "../../api/customerApi";
@@ -21,6 +22,7 @@ import Button from "../../components/common/Button/Button";
 import PageHeader from "../../components/common/PageHeader/PageHeader";
 import { useAuth } from "../../hooks/useAuth";
 import { createPdfReport } from "../../utils/createPdfReport";
+import AnalyticsPage from "../analytics/AnalyticsPage";
 import SaleDetailsPanel from "./SaleDetailsPanel";
 import SaleFormPanel from "./SaleFormPanel";
 import SalesListPanel, { type SalesFiltersState } from "./SalesListPanel";
@@ -308,14 +310,25 @@ const SalesPage = () => {
     <Box className="sales-page">
       <PageHeader
         title="Sales Management"
-        subtitle="Create sales, update inventory and generate professional invoices."
+        subtitle="Record and manage multi-item invoices."
         icon={<PointOfSaleOutlinedIcon />}
         actions={
-          canEdit ? (
-            <Button startIcon={<AddIcon />} onClick={() => begin()}>
-              Create Sale
-            </Button>
-          ) : undefined
+          <>
+            {canEdit && (
+              <Button
+                variant="outlined"
+                startIcon={<AnalyticsOutlinedIcon />}
+                onClick={() => setTab(3)}
+              >
+                View Sales Analytics
+              </Button>
+            )}
+            {canEdit && (
+              <Button startIcon={<AddIcon />} onClick={() => begin()}>
+                Create Sale
+              </Button>
+            )}
+          </>
         }
       />
       <Tabs
@@ -329,6 +342,7 @@ const SalesPage = () => {
           disabled={!canEdit}
         />
         <Tab label="Sales Details" disabled={!view} />
+        <Tab label="Sales Analytics" disabled={!canEdit} />
       </Tabs>
       {tab === 0 && (
         <SalesListPanel
@@ -389,6 +403,7 @@ const SalesPage = () => {
           onCsv={() => exportCsv(view)}
         />
       )}
+      {tab === 3 && canEdit && <AnalyticsPage />}
     </Box>
   );
 };

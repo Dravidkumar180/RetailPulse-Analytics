@@ -36,7 +36,6 @@ export default function AnalyticsFiltersPanel({
   const selects = [
     { key: "productId", label: "Product", items: options?.products },
     { key: "categoryId", label: "Category", items: options?.categories },
-    { key: "customerId", label: "Customer", items: options?.customers },
   ] as const;
   return (
     <Card className="analytics-filter-card">
@@ -98,6 +97,14 @@ export default function AnalyticsFiltersPanel({
             ))}
           </TextField>
         ))}
+        <TextField select label="Brand" value={draft.brand || ""} onChange={(event) => onUpdate("brand", event.target.value)}>
+          <MenuItem value="">All Brands</MenuItem>
+          {options?.brands.map((brand) => <MenuItem key={brand} value={brand}>{brand}</MenuItem>)}
+        </TextField>
+        <TextField select label="Sales Channel" value={draft.salesChannel || ""} onChange={(event) => onUpdate("salesChannel", event.target.value)}>
+          <MenuItem value="">All Channels</MenuItem>
+          {options?.salesChannels.map((channel) => <MenuItem key={channel} value={channel}>{title(channel)}</MenuItem>)}
+        </TextField>
         <TextField
           select
           label="Payment Method"

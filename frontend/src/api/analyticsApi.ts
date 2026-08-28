@@ -7,6 +7,8 @@ export interface AnalyticsFilters {
   productId?: string;
   categoryId?: string;
   customerId?: string;
+  brand?: string;
+  salesChannel?: string;
   paymentMethod?: string;
   paymentStatus?: string;
   interval?: "daily" | "weekly" | "monthly";
@@ -19,6 +21,10 @@ export interface AnalyticsDashboard {
     totalItemsSold: number;
     totalDiscount: number;
     totalTax: number;
+    totalInventoryValue: number;
+    lowStockProducts: number;
+    outOfStockProducts: number;
+    totalCategories: number;
   };
   trend: { label: string; revenue: number; orders: number }[];
   topProducts: {
@@ -36,10 +42,20 @@ export interface AnalyticsDashboard {
     averageOrderValue: number;
   }[];
   paymentMethods: { name: string; transactions: number; revenue: number }[];
+  salesChannels: { name: string; transactions: number; revenue: number }[];
+  categories: { id: string; name: string; units: number; revenue: number }[];
+  inventory: {
+    byCategory: { id: string; name: string; products: number; units: number; value: number }[];
+    stockStatus: { name: string; value: number }[];
+    lowStockProducts: { id: string; name: string; sku: string; stock: number; reorderLevel: number; category: string; value: number }[];
+    outOfStockProducts: { id: string; name: string; sku: string; stock: number; reorderLevel: number; category: string; value: number }[];
+  };
   options: {
     products: { id: string; name: string }[];
     categories: { id: string; name: string }[];
     customers: { id: string; name: string }[];
+    brands: string[];
+    salesChannels: string[];
     paymentMethods: string[];
     paymentStatuses: string[];
   };
@@ -99,6 +115,10 @@ export const getAnalyticsDashboard = async (
         Number(kpis.totalItemsSold ?? kpis.totalProductsSold) || 0,
       totalDiscount: Number(kpis.totalDiscount) || 0,
       totalTax: Number(kpis.totalTax) || 0,
+      totalInventoryValue: Number(kpis.totalInventoryValue) || 0,
+      lowStockProducts: Number(kpis.lowStockProducts) || 0,
+      outOfStockProducts: Number(kpis.outOfStockProducts) || 0,
+      totalCategories: Number(kpis.totalCategories) || 0,
     },
     trend: Array.isArray(raw.trend)
       ? raw.trend.map((x: any) => ({
@@ -124,10 +144,20 @@ export const getAnalyticsDashboard = async (
           revenue: Number(x.revenue ?? x.value) || 0,
         }))
       : [],
+    salesChannels: Array.isArray(raw.salesChannels) ? raw.salesChannels : [],
+    categories: Array.isArray(raw.categories) ? raw.categories : [],
+    inventory: {
+      byCategory: raw.inventory?.byCategory || [],
+      stockStatus: raw.inventory?.stockStatus || [],
+      lowStockProducts: raw.inventory?.lowStockProducts || [],
+      outOfStockProducts: raw.inventory?.outOfStockProducts || [],
+    },
     options: {
       products: options.products || [],
       categories: options.categories || [],
       customers: options.customers || [],
+      brands: options.brands || [],
+      salesChannels: options.salesChannels || [],
       paymentMethods: options.paymentMethods || [
         "CASH",
         "CARD",

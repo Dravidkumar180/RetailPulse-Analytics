@@ -16,7 +16,6 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 // Imports the needed tools from @mui/icons-material/AssessmentOutlined.
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
-// Imports the needed tools from @mui/icons-material/AnalyticsOutlined.
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 // Imports the needed tools from @mui/icons-material/PeopleOutlined.
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutlined";
@@ -91,15 +90,15 @@ const menuItems: SidebarMenuItem[] = [
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
+    label: "Analytics",
+    path: "/analytics",
+    icon: <AnalyticsOutlinedIcon />,
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"],
+  },
+  {
     label: "Customers",
     path: "/customers",
     icon: <PeopleOutlineIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
-  },
-  {
-    label: "Analytics",
-    path: "/analytics/sales",
-    icon: <AnalyticsOutlinedIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
   {
