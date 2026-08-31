@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains products table page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the products table data and related row actions.
 import { Box, IconButton, Pagination } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";

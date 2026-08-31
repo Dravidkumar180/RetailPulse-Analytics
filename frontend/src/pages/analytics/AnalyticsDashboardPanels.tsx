@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics dashboard panels page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the charts and ranking panels shown on the analytics dashboard.
 import {
   Box,

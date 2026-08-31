@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains replenishment table page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the replenishment table data and related row actions.
 import { Box, Pagination } from "@mui/material";
 import type { InventoryForecastItem } from "../../api/inventoryForecastApi";

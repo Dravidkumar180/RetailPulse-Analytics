@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains profile account card page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import { Avatar, Box, Chip, Typography } from "@mui/material";
 import type { UserProfile } from "../../api/profileApi";
 import StatusBadge from "../../components/common/StatusBadge/StatusBadge";

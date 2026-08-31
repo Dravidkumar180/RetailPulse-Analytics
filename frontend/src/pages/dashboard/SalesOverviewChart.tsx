@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains sales overview chart page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the sales overview chart section for the dashboard feature.
 import { Box, Card, CardContent, Typography } from "@mui/material";
 

@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains authentication monitor page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Summarizes each user's login and logout activity.
 import { Alert, Box, Typography } from "@mui/material";
 import type { AuthenticationSummary } from "../../api/auditLogApi";

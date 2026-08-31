@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics api API requests, response types, and data mapping.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import axiosInstance from "./axiosInstance";
 import { getCustomerAnalytics, getCustomers } from "./customerApi";
 

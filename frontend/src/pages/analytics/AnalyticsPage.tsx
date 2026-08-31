@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics page page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Coordinates data, state, and child components for the Analytics Page screen.
 import { useMemo, useState } from "react";
 import { Box, Button } from "@mui/material";

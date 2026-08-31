@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics header page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the analytics header section for the analytics feature.
 import { Box, Button, Typography } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";

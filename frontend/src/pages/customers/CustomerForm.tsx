@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains customer form page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Handles the customer form user interface and its interactions.
 import { useEffect, useState } from "react";
 import {

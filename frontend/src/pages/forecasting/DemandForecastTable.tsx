@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains demand forecast table page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the demand forecast table data and related row actions.
 import { Box, Typography } from "@mui/material";
 import type { ForecastProduct, Recommendation } from "../../api/forecastApi";

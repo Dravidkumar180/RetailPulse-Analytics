@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains dashboard breakdown page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the dashboard breakdown section for the dashboard feature.
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { SALES_CHANNELS, TOP_CATEGORIES } from "./dashboardData";

@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains profile page page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import { useState } from "react";
 import { Alert, Box, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";

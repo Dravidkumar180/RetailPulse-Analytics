@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains customer analytics page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the customer analytics section for the customers feature.
 import { useState } from "react";
 import { Box } from "@mui/material";

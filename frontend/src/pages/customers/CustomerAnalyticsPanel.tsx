@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains customer analytics panel page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the customer analytics panel section for the customers feature.
 import { Box, Typography } from "@mui/material";
 import type {

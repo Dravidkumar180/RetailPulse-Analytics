@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains product drawer page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Handles the product drawer user interface and its interactions.
 import {
   Box,

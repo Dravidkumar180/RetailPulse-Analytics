@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains data import api API requests, response types, and data mapping.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import axiosInstance from "./axiosInstance";
 
 export type ImportType = "products" | "customers" | "sales";

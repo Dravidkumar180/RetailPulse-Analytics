@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains smart replenishment shared page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Stores shared risk labels, sort priority, and pagination settings for replenishment.
 import type { StockRisk } from "../../api/inventoryForecastApi";
 // The shared values below keep formatting and business rules consistent.

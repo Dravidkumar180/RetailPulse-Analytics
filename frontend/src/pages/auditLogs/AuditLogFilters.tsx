@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains audit log filters page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders search, action, and date filters for the audit-log request.
 import {
   Box,

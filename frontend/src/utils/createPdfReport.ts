@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains create pdf report shared utility logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // The shared values below keep formatting and business rules consistent.
 const ascii = (value: unknown) =>
   String(value ?? "")

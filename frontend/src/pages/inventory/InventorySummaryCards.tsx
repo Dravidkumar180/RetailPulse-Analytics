@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains inventory summary cards page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the inventory summary cards section for the inventory feature.
 import { Box } from "@mui/material";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";

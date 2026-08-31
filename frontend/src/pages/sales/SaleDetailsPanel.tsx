@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains sale details panel page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Provides the Sale Details Panel UI for the sales feature.
 import { Box, Typography } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/DownloadOutlined";

@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains retail analytics page page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import { useMemo, useState } from "react";
 import { Box, Button, Card, CardContent, Skeleton, Typography } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";

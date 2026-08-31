@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains demand forecast history page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Provides the Demand Forecast History UI for the forecasting feature.
 import { useState } from "react";
 import { Box } from "@mui/material";

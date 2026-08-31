@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains categories toolbar page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the categories toolbar controls for the categories feature.
 import { Box, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";

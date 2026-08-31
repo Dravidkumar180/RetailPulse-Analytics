@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains categories summary page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the categories summary section for the categories feature.
 import { Box } from "@mui/material";
 import type { Category } from "../../api/catalogApi";

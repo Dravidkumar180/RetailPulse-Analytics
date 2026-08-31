@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains customer api API requests, response types, and data mapping.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Defines customer types and the API requests for customer management and analytics.
 import axiosInstance from "./axiosInstance";
 

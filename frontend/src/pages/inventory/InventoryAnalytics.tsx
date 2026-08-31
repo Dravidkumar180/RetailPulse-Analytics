@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains inventory analytics page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the inventory analytics section for the inventory feature.
 import { Box, Typography } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlined";

@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains replenishment summary page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the replenishment summary section for the forecasting feature.
 import { Box } from "@mui/material";
 import type { InventoryForecastResponse } from "../../api/inventoryForecastApi";

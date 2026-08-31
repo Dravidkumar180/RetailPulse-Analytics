@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains category form page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Handles the category form user interface and its interactions.
 import type { Category, CategoryInput } from "../../api/catalogApi";
 

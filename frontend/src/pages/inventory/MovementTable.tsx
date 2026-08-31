@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains movement table page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the movement table data and related row actions.
 import { Box } from "@mui/material";
 import type { InventoryMovement } from "../../api/inventoryApi";

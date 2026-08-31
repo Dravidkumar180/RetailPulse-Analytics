@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains categories table page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the categories table data and related row actions.
 import { Box, IconButton, Pagination, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/EditOutlined";

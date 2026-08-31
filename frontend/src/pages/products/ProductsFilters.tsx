@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains products filters page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the products filters controls for the products feature.
 import { Box, MenuItem, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";

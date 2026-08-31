@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains inventory forecast api API requests, response types, and data mapping.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Defines inventory forecast types and the API request used by the replenishment dashboard.
 import axiosInstance from "./axiosInstance";
 // The exported types describe the data exchanged with the backend.

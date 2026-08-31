@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics kpis page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the analytics kpis section for the analytics feature.
 import { Box, Card, CardContent, Skeleton } from "@mui/material";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";

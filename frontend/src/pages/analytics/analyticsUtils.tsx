@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains analytics utils page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Provides shared formatting, date, error, empty-state, and loading helpers for analytics.
 import axios from "axios";
 import { Box, Skeleton } from "@mui/material";

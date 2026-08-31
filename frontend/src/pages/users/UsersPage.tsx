@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains users page page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Coordinates user data, filters, permissions, and user-management actions.
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

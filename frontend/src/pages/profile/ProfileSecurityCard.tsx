@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains profile security card page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import { Box, Typography } from "@mui/material";
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 import Button from "../../components/common/Button/Button";

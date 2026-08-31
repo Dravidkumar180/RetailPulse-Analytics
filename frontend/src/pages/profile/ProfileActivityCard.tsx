@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains profile activity card page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 import { Alert, Box, Chip, Typography } from "@mui/material";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";

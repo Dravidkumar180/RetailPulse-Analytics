@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains sales utils page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Provides shared formatting and calculation helpers for the sales screens.
 import type { Product } from "../../api/catalogApi";
 import type { Sale, SaleInput } from "../../api/salesApi";

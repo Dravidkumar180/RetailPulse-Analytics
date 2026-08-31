@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains dashboard data page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Converts dashboard API data into the values used by dashboard cards and charts.
 // The shared values below keep formatting and business rules consistent.
 export const SALES_CHANNELS = [

@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains inventory api API requests, response types, and data mapping.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 /* =========================================================
  * Inventory API client
  * ========================================================= */

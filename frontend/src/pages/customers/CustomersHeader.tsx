@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains customers header page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Renders the customers header controls for the customers feature.
 import { Box, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";

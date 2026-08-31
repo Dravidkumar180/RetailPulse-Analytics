@@ -1,3 +1,7 @@
+/* Teaching guide: This file contains inventory overview panel page-level user-interface behavior and supporting logic.
+ * Follow the comments from imports and setup through actions and output.
+ * These comments explain the existing code without changing its behavior.
+ */
 // Provides the Inventory Overview Panel UI for the inventory feature.
 import { Box, Button, Pagination, Typography } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
