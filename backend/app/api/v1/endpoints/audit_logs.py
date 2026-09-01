@@ -2,16 +2,16 @@
 # Read the short comments beside each step to follow the complete flow.
 # The comments explain the code only; they do not change how it runs.
 
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 # Imports the needed names from typing.
 from typing import Annotated
 
 # Imports the needed names from fastapi.
 from fastapi import APIRouter, Query
-from sqlalchemy import case, func, select
+from sqlalchemy import case, delete, func, select
 
 # Imports the needed names from app.api.dependencies.
-from app.api.dependencies import DatabaseSession
+from app.api.dependencies import BrowserInfo, ClientIp, DatabaseSession
 # Imports the needed names from app.core.constants.
 from app.core.constants import (
     AuditAction,
@@ -21,7 +21,7 @@ from app.core.constants import (
 )
 from app.core.constants import UserRole
 # Imports the needed names from app.core.permissions.
-from app.core.permissions import AllAuthenticatedRoles
+from app.core.permissions import CompanyAdminOrSuperAdmin
 from app.models.audit_log import AuditLog
 from app.models.user import User
 # Imports the needed names from app.schemas.audit_log.
@@ -38,6 +38,33 @@ from app.services.audit_log_service import audit_log_service
 router = APIRouter()
 
 
+@router.get("/summary", summary="Summarize audit activity")
+def audit_summary(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin) -> dict[str, int]:
+    filters = [] if current_user.role == UserRole.SUPER_ADMIN else [AuditLog.company_id == current_user.company_id]
+    failed = [item for item in AuditAction if item.value.endswith("_FAILED")]
+    today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    row = db.execute(select(
+        func.count(AuditLog.id),
+        func.sum(case((AuditLog.action.in_(failed), 1), else_=0)),
+        func.sum(case((AuditLog.timestamp >= today, 1), else_=0)),
+    ).where(*filters)).one()
+    total = int(row[0] or 0)
+    failed_count = int(row[1] or 0)
+    return {"total": total, "successful": total - failed_count, "failed": failed_count, "today": int(row[2] or 0)}
+
+
+@router.delete("/old", summary="Clear audit logs older than 90 days")
+def clear_old_audit_logs(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, client_ip: ClientIp, browser: BrowserInfo) -> dict[str, int]:
+    cutoff = datetime.now(UTC) - timedelta(days=90)
+    conditions = [AuditLog.timestamp < cutoff]
+    if current_user.role != UserRole.SUPER_ADMIN:
+        conditions.append(AuditLog.company_id == current_user.company_id)
+    result = db.execute(delete(AuditLog).where(*conditions))
+    audit_log_service.create_log(db, company_id=current_user.company_id, user_id=current_user.id, action=AuditAction.SETTINGS_UPDATED, ip_address=client_ip, browser=browser, details=f"Cleared {int(result.rowcount or 0)} audit logs older than 90 days.")
+    db.commit()
+    return {"deleted": int(result.rowcount or 0)}
+
+
 @router.get(
     "",
     response_model=AuditLogListResponse,
@@ -46,7 +73,7 @@ router = APIRouter()
 # Gets audit logs.
 def list_audit_logs(
     db: DatabaseSession,
-    current_user: AllAuthenticatedRoles,
+    current_user: CompanyAdminOrSuperAdmin,
     page: Annotated[
         int,
         Query(ge=1),
@@ -73,6 +100,9 @@ def list_audit_logs(
         bool,
         Query(alias="excludeAuthentication"),
     ] = False,
+    resource_type: Annotated[str | None, Query(alias="resourceType", max_length=50)] = None,
+    status: Annotated[str | None, Query(max_length=20)] = None,
+    sort_order: Annotated[str, Query(alias="sortOrder", pattern="^(newest|oldest)$")] = "newest",
 ) -> AuditLogListResponse:
     """
     Company Admin receives audit entries from only their company.
@@ -92,6 +122,9 @@ def list_audit_logs(
         start_date=start_date,
         end_date=end_date,
         exclude_authentication=exclude_authentication,
+        resource_type=resource_type,
+        status=status,
+        sort_order=sort_order,
     )
 
 
@@ -101,7 +134,7 @@ def list_audit_logs(
 )
 def authentication_summary(
     db: DatabaseSession,
-    current_user: AllAuthenticatedRoles,
+    current_user: CompanyAdminOrSuperAdmin,
 ) -> list[dict[str, object]]:
     filters = [
         AuditLog.action.in_(
@@ -174,7 +207,7 @@ def authentication_summary(
 def get_audit_log(
     audit_log_id: str,
     db: DatabaseSession,
-    current_user: AllAuthenticatedRoles,
+    current_user: CompanyAdminOrSuperAdmin,
 ) -> AuditLogResponse:
     # Returns the completed value to the caller.
     return audit_log_service.get_audit_log(

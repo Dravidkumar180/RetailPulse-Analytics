@@ -37,6 +37,8 @@ class AuditLogService:
         ip_address: str,
         browser: str,
         details: str | None = None,
+        before_values: dict | None = None,
+        after_values: dict | None = None,
     ) -> None:
         audit_log_repository.create(
             db,
@@ -46,6 +48,8 @@ class AuditLogService:
             ip_address=ip_address,
             browser=browser,
             details=details,
+            before_values=before_values,
+            after_values=after_values,
         )
         notification = self._notification_for(action, details)
         if notification:
@@ -105,6 +109,9 @@ class AuditLogService:
         start_date: date | None = None,
         end_date: date | None = None,
         exclude_authentication: bool = False,
+        resource_type: str | None = None,
+        status: str | None = None,
+        sort_order: str = "newest",
     ) -> AuditLogListResponse:
         # Stores company id for the next steps.
         company_id = None if current_user.role == UserRole.SUPER_ADMIN else current_user.company_id
@@ -121,6 +128,9 @@ class AuditLogService:
             start_date=start_date,
             end_date=end_date,
             exclude_authentication=exclude_authentication,
+            resource_type=resource_type,
+            status=status,
+            sort_order=sort_order,
         )
         # Returns the completed value to the caller.
         return AuditLogListResponse(

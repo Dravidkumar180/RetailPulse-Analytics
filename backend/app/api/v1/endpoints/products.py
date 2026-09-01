@@ -5,6 +5,7 @@
 from uuid import UUID
 # Imports the needed names from fastapi.
 from fastapi import APIRouter, HTTPException, Query, status
+from fastapi.encoders import jsonable_encoder
 # Imports the needed names from sqlalchemy.
 from sqlalchemy import asc, desc, func, or_, select
 
@@ -110,12 +111,16 @@ def create_product(data: ProductWrite, db: DatabaseSession, current_user: Analys
 def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     # Stores item for the next steps.
     item=get_item(db,current_user.company_id,product_id); old=item.status; validate(db,current_user.company_id,data,product_id)
+    before = jsonable_encoder({key: getattr(item, key) for key in data.model_dump()})
     # Repeats this work for the matching values.
     for key,value in data.model_dump().items(): setattr(item,key,value)
     item.name=item.name.strip(); item.sku=item.sku.strip().upper()
+    after = jsonable_encoder({key: getattr(item, key) for key in data.model_dump()})
+    changed_before = {key: value for key, value in before.items() if value != after[key]}
+    changed_after = {key: value for key, value in after.items() if before[key] != value}
     # Stores action for the next steps.
     action = AuditAction.PRODUCT_ACTIVATED if old != item.status and item.status == "ACTIVE" else AuditAction.PRODUCT_DEACTIVATED if old != item.status else AuditAction.PRODUCT_UPDATED
-    audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=action,ip_address=client_ip,browser=browser,details=f"Updated product: {item.name} ({item.sku})."); db.commit(); db.refresh(item); return response(item)
+    audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=action,ip_address=client_ip,browser=browser,details=f"Updated product: {item.name} ({item.sku}).",before_values=changed_before,after_values=changed_after); db.commit(); db.refresh(item); return response(item)
 
 # Removes product.
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -94,6 +94,11 @@ def initialize_development_database() -> None:
                 connection.execute(
                     text("ALTER TABLE audit_logs ADD COLUMN details TEXT")
                 )
+        with engine.begin() as connection:
+            if "beforeValues" not in existing_columns:
+                connection.execute(text('ALTER TABLE audit_logs ADD COLUMN "beforeValues" JSON'))
+            if "afterValues" not in existing_columns:
+                connection.execute(text('ALTER TABLE audit_logs ADD COLUMN "afterValues" JSON'))
         # Keep existing local customer databases compatible with soft deletion.
         customer_columns = {
             column["name"]

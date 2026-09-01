@@ -135,7 +135,7 @@ const menuItems: SidebarMenuItem[] = [
     label: "Audit Logs",
     path: "/audit-logs",
     icon: <HistoryOutlinedIcon />,
-    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+    allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
   },
   {
     label: "Profile",

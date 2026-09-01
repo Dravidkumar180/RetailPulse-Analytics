@@ -74,6 +74,8 @@ export interface AuditLog {
   ipAddress: string;
   browser: string;
   details?: string | null;
+  beforeValues?: Record<string, unknown> | null;
+  afterValues?: Record<string, unknown> | null;
   timestamp: string;
 }
 
@@ -87,6 +89,9 @@ export interface AuditLogFilters {
   startDate?: string;
   endDate?: string;
   excludeAuthentication?: boolean;
+  resourceType?: string;
+  status?: "SUCCESS" | "FAILED";
+  sortOrder?: "newest" | "oldest";
 }
 
 // Defines the fields allowed in audit log list response.
@@ -115,6 +120,9 @@ export const getAuditLogs = async (
         startDate: filters.startDate,
         endDate: filters.endDate,
         excludeAuthentication: filters.excludeAuthentication,
+        resourceType: filters.resourceType,
+        status: filters.status,
+        sortOrder: filters.sortOrder,
       },
     },
   );
@@ -155,3 +163,7 @@ export const getAuditLogById = async (
   // Returns the completed result to the caller.
   return response.data;
 };
+
+export interface AuditLogSummary { total:number; successful:number; failed:number; today:number }
+export const getAuditLogSummary=async():Promise<AuditLogSummary> => (await axiosInstance.get<AuditLogSummary>("/audit-logs/summary")).data;
+export const clearOldAuditLogs=async():Promise<{deleted:number}> => (await axiosInstance.delete<{deleted:number}>("/audit-logs/old")).data;

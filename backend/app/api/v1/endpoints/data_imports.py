@@ -186,7 +186,7 @@ def process(import_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSu
                 db.add(product); db.flush(); db.add(Inventory(company_id=current_user.company_id, product_id=product.id, current_stock=stock, reserved_stock=0, available_stock=stock, reorder_level=5, stock_status="OUT_OF_STOCK" if stock == 0 else "LOW_STOCK" if stock <= 5 else "IN_STOCK"))
         elif job.import_type == "customers":
             for offset, (_, row) in enumerate(valid, 1):
-                customer = Customer(company_id=current_user.company_id, customer_id=row.get("Customer ID") or f"IMP-{str(job.id)[:8].upper()}-{offset:05d}", full_name=row["Name"], email=row["Email"].lower(), phone=row["Phone"], customer_type="REGULAR", status="ACTIVE", is_deleted=False)
+                customer = Customer(company_id=current_user.company_id, customer_id=row.get("Customer ID") or f"IMP-{str(job.id)[:8].upper()}-{offset:05d}", full_name=row["Name"], email=row["Email"].lower(), phone=row["Phone"], customer_type="RETAIL", status="ACTIVE", is_deleted=False)
                 db.add(customer); db.flush(); db.add(CustomerPurchaseSummary(customer_id=customer.id)); db.add(CustomerTimeline(customer_id=customer.id, event="Customer Imported", details=f"Imported from {job.filename}."))
         else:
             customers = {c.full_name.lower(): c for c in db.scalars(select(Customer).where(Customer.company_id == current_user.company_id, Customer.is_deleted.is_(False))).all()}

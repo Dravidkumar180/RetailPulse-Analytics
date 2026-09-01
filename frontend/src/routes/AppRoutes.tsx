@@ -146,8 +146,6 @@ const AppRoutes = () => {
             <Route path={ROUTE_PATHS.categories} element={<CategoriesPage />} />
             <Route path={ROUTE_PATHS.users} element={<UsersPage />} />
 
-            <Route path={ROUTE_PATHS.auditLogs} element={<AuditLogsPage />} />
-
             <Route path={ROUTE_PATHS.settings} element={<SectionPage />} />
           </Route>
 
@@ -158,6 +156,7 @@ const AppRoutes = () => {
           </Route>
           <Route element={<RoleProtectedRoute allowedRoles={["SUPER_ADMIN", "COMPANY_ADMIN"]} />}>
             <Route path={ROUTE_PATHS.dataImports} element={<DataImportsPage />} />
+            <Route path={ROUTE_PATHS.auditLogs} element={<AuditLogsPage />} />
           </Route>
         </Route>
       </Route>

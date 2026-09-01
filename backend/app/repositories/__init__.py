@@ -7,7 +7,7 @@ from datetime import UTC, date, datetime, time
 from uuid import UUID
 
 # Imports the needed names from sqlalchemy.
-from sqlalchemy import func, or_, select
+from sqlalchemy import String, cast, func, or_, select
 # Imports the needed names from sqlalchemy.orm.
 from sqlalchemy.orm import (
     Session,
@@ -37,6 +37,8 @@ class AuditLogRepository:
         ip_address: str,
         browser: str,
         details: str | None = None,
+        before_values: dict | None = None,
+        after_values: dict | None = None,
     ) -> AuditLog:
         # Stores audit log for the next steps.
         audit_log = AuditLog(
@@ -46,6 +48,8 @@ class AuditLogRepository:
             ip_address=ip_address[:64],
             browser=browser[:500],
             details=details,
+            before_values=before_values,
+            after_values=after_values,
             timestamp=datetime.now(UTC),
         )
 
@@ -99,6 +103,9 @@ class AuditLogRepository:
         start_date: date | None = None,
         end_date: date | None = None,
         exclude_authentication: bool = False,
+        resource_type: str | None = None,
+        status: str | None = None,
+        sort_order: str = "newest",
     ) -> tuple[list[AuditLog], int]:
         # Stores filters for the next steps.
         filters = []
@@ -123,6 +130,21 @@ class AuditLogRepository:
         # Checks whether this condition is true.
         if user_id:
             filters.append(AuditLog.user_id == user_id)
+
+        if resource_type:
+            resource_prefix = resource_type.strip().upper()
+            resource_actions = [item for item in AuditAction if item.value.startswith(resource_prefix + "_")]
+            if resource_prefix == "AUTHENTICATION":
+                resource_actions = [AuditAction.USER_LOGIN, AuditAction.USER_LOGOUT]
+            filters.append(AuditLog.action.in_(resource_actions or ["__NO_MATCH__"]))
+
+        if status:
+            failed_actions = [item for item in AuditAction if item.value.endswith("_FAILED")]
+            filters.append(
+                AuditLog.action.in_(failed_actions)
+                if status.upper() == "FAILED"
+                else AuditLog.action.notin_(failed_actions)
+            )
 
         # Checks whether this condition is true.
         if start_date:
@@ -163,6 +185,8 @@ class AuditLogRepository:
                         search_value
                     ),
                     func.lower(AuditLog.details).like(search_value),
+                    func.lower(cast(AuditLog.action, String)).like(search_value),
+                    cast(AuditLog.id, String).like(search_value),
                 )
             )
 
@@ -208,7 +232,7 @@ class AuditLogRepository:
                 joinedload(AuditLog.user),
             )
             .where(*filters)
-            .order_by(AuditLog.timestamp.desc())
+            .order_by(AuditLog.timestamp.asc() if sort_order == "oldest" else AuditLog.timestamp.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
         )

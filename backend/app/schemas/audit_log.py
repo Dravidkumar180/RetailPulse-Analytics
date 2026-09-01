@@ -47,6 +47,8 @@ class AuditLogResponse(CamelCaseModel):
     browser: str
     # Stores details for the next steps.
     details: str | None = None
+    before_values: dict[str, object] | None = None
+    after_values: dict[str, object] | None = None
     timestamp: datetime
 
 

@@ -97,6 +97,10 @@ def sync_summary(db, customer: Customer) -> CustomerPurchaseSummary:
 
 
 def serialize(db, customer: Customer) -> CustomerResponse:
+    # Older imports stored REGULAR, which is not a supported customer type.
+    # Normalize legacy values so one old row cannot break the entire list API.
+    if customer.customer_type not in {"RETAIL", "WHOLESALE", "CORPORATE"}:
+        customer.customer_type = "RETAIL"
     summary = sync_summary(db, customer)
     product_name = db.scalar(select(Product.name).where(Product.id == summary.favorite_product_id)) if summary.favorite_product_id else None
     category_name = db.scalar(select(Category.name).where(Category.id == summary.favorite_category_id)) if summary.favorite_category_id else None

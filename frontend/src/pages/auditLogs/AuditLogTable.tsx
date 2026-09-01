@@ -1,12 +1,8 @@
-/* Teaching guide: This file contains audit log table page-level user-interface behavior and supporting logic.
- * Follow the comments from imports and setup through actions and output.
- * These comments explain the existing code without changing its behavior.
- */
-// Renders audit rows, request states, the empty state, and pagination.
 import {
   Alert,
   Box,
   Pagination,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -16,71 +12,88 @@ import {
   Typography,
 } from "@mui/material";
 import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
-import type { AuditLogListResponse } from "../../api/auditLogApi";
-import LoadingSpinner from "../../components/common/LoadingSpinner/LoadingSpinner";
-import { formatAuditAction, formatAuditDateTime } from "./auditLogUtils";
-
+import type { AuditLog, AuditLogListResponse } from "../../api/auditLogApi";
+import {
+  auditResource,
+  auditResourceId,
+  auditStatus,
+  formatAuditAction,
+  formatAuditDateTime,
+} from "./auditLogUtils";
 type Props = {
   data?: AuditLogListResponse;
   loading: boolean;
   failed: boolean;
   page: number;
-  onPage: (page: number) => void;
+  pageSize: number;
+  onPage: (p: number) => void;
+  onSelect: (l: AuditLog) => void;
+  onRetry: () => void;
 };
-
-// This component receives prepared data and renders the feature-specific interface.
 export default function AuditLogTable({
   data,
   loading,
   failed,
   page,
+  pageSize,
   onPage,
+  onSelect,
+  onRetry,
 }: Props) {
-  if (loading) return <LoadingSpinner message="Loading audit logs..." />;
-  if (failed) return <Alert severity="error">Unable to load audit logs.</Alert>;
-
+  if (failed)
+    return (
+      <Alert severity="error" action={<button onClick={onRetry}>Retry</button>}>
+        Failed to load audit logs. Please try again.
+      </Alert>
+    );
   return (
-    <>
-      <TableContainer className="audit-logs-page__table-container">
+    <Box className="audit-logs-page__table-card">
+      <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Company</TableCell>
-              <TableCell>User</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>IP Address</TableCell>
-              <TableCell>Browser</TableCell>
-              <TableCell>Details</TableCell>
-              <TableCell>Timestamp</TableCell>
+              {[
+                "User",
+                "Action",
+                "Resource",
+                "Resource ID",
+                "Description",
+                "IP Address",
+                "Timestamp",
+                "Status",
+              ].map((h) => (
+                <TableCell key={h}>{h}</TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.items.length ? (
+            {loading ? (
+              Array.from({ length: 7 }).map((_, i) => (
+                <TableRow key={i}>
+                  {Array.from({ length: 8 }).map((__, j) => (
+                    <TableCell key={j}>
+                      <Skeleton />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : data?.items.length ? (
               data.items.map((log) => (
-                <TableRow key={log.id} hover>
+                <TableRow
+                  hover
+                  tabIndex={0}
+                  className="audit-logs-page__row"
+                  key={log.id}
+                  onClick={() => onSelect(log)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") onSelect(log);
+                  }}
+                >
                   <TableCell>
-                    <Typography
-                      component="strong"
-                      className="audit-logs-page__company"
-                    >
-                      {log.company.name}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {log.user ? (
-                      <Box className="audit-logs-page__user">
-                        <Typography component="strong">
-                          {log.user.name}
-                        </Typography>
-                        <Typography component="span">
-                          {log.user.email}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Typography className="audit-logs-page__system-user">
-                        System
-                      </Typography>
-                    )}
+                    <Box className="audit-logs-page__user">
+                      <strong>{log.user?.name ?? "System"}</strong>
+                      <span>{log.user?.email ?? "Automated event"}</span>
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <span
@@ -89,56 +102,51 @@ export default function AuditLogTable({
                       {formatAuditAction(log.action)}
                     </span>
                   </TableCell>
-                  <TableCell>{log.ipAddress}</TableCell>
-                  <TableCell>
-                    <Typography
-                      component="span"
-                      className="audit-logs-page__browser"
-                      title={log.browser}
-                    >
-                      {log.browser}
-                    </Typography>
-                  </TableCell>
+                  <TableCell>{auditResource(log.action)}</TableCell>
+                  <TableCell>{auditResourceId(log) ?? "—"}</TableCell>
                   <TableCell className="audit-logs-page__details">
                     {log.details || "—"}
                   </TableCell>
+                  <TableCell>{log.ipAddress}</TableCell>
                   <TableCell>{formatAuditDateTime(log.timestamp)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`audit-logs-page__status audit-logs-page__status--${auditStatus(log).toLowerCase()}`}
+                    >
+                      {auditStatus(log)}
+                    </span>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
-              <AuditLogEmptyRow />
+              <TableRow>
+                <TableCell colSpan={8}>
+                  <Box className="audit-logs-page__empty">
+                    <SearchOffOutlinedIcon />
+                    <Typography component="h3">No activity found</Typography>
+                    <Typography>
+                      No activity matches the selected filters.
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </TableContainer>
-
-      {(data?.totalPages ?? 0) > 1 && (
-        <Box className="audit-logs-page__pagination">
-          <Pagination
-            page={page}
-            count={data?.totalPages ?? 1}
-            onChange={(_, selectedPage) => onPage(selectedPage)}
-            color="primary"
-          />
-        </Box>
-      )}
-    </>
-  );
-}
-
-function AuditLogEmptyRow() {
-  return (
-    <TableRow>
-      <TableCell colSpan={7}>
-        <Box className="audit-logs-page__empty">
-          <SearchOffOutlinedIcon />
-          <Typography component="h3">No audit logs found</Typography>
-          <Typography component="p">
-            New login, create, edit, delete and download activity will appear
-            here.
-          </Typography>
-        </Box>
-      </TableCell>
-    </TableRow>
+      <Box className="audit-logs-page__pagination">
+        <span>
+          Showing {data?.totalItems ? (page - 1) * pageSize + 1 : 0}–
+          {Math.min(page * pageSize, data?.totalItems ?? 0)} of{" "}
+          {data?.totalItems ?? 0} logs
+        </span>
+        <Pagination
+          page={page}
+          count={data?.totalPages || 1}
+          onChange={(_, p) => onPage(p)}
+          color="primary"
+        />
+      </Box>
+    </Box>
   );
 }

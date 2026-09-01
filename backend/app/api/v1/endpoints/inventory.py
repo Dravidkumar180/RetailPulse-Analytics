@@ -460,6 +460,8 @@ def adjust_stock(
         ip_address=client_ip,
         browser=browser,
         details=details,
+        before_values={"stock_quantity": previous, "stock_status": old_status, "reorder_level": old_reorder},
+        after_values={"stock_quantity": updated, "stock_status": row.stock_status, "reorder_level": row.reorder_level},
     )
     if data.reorder_level is not None and data.reorder_level != old_reorder:
         audit_log_service.create_log(
@@ -470,6 +472,8 @@ def adjust_stock(
             ip_address=client_ip,
             browser=browser,
             details=f"Product: {row.product.name}; Reorder level: {old_reorder} to {row.reorder_level}",
+            before_values={"reorder_level": old_reorder},
+            after_values={"reorder_level": row.reorder_level},
         )
 
     # Manual adjustments always notify admins; status transitions add alerts.

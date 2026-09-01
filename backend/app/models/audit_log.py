@@ -16,6 +16,7 @@ from sqlalchemy import (
     Index,
     String,
     Text,
+    JSON,
 )
 # Imports the needed names from sqlalchemy.dialects.postgresql.
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
@@ -106,6 +107,8 @@ class AuditLog(
     )
     # Stores details for the next steps.
     details: Mapped[str | None] = mapped_column(Text, nullable=True)
+    before_values: Mapped[dict | None] = mapped_column("beforeValues", JSON, nullable=True)
+    after_values: Mapped[dict | None] = mapped_column("afterValues", JSON, nullable=True)
 
     # Stores timestamp for the next steps.
     timestamp: Mapped[datetime] = mapped_column(

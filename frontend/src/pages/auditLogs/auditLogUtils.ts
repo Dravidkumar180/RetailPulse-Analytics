@@ -3,7 +3,7 @@
  * These comments explain the existing code without changing its behavior.
  */
 // Provides labels and formatting shared by the audit-log components.
-import type { AuditAction } from "../../api/auditLogApi";
+import type { AuditAction, AuditLog } from "../../api/auditLogApi";
 
 // The shared values below keep formatting and business rules consistent.
 export const auditActions: AuditAction[] = [
@@ -63,3 +63,7 @@ export const formatAuditAction = (action: string): string =>
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+
+export const auditResource=(action:string):string=>{if(["USER_LOGIN","USER_LOGOUT","PASSWORD_CHANGED"].includes(action))return "Authentication";const first=action.split("_")[0];return ({STOCK:"Inventory",REORDER:"Inventory",DASHBOARD:"Dashboard",INVENTORY:"Inventory",COMPANY:"Company"} as Record<string,string>)[first]??first.charAt(0)+first.slice(1).toLowerCase()};
+export const auditStatus=(log:AuditLog):"Success"|"Failed"=>log.action.endsWith("_FAILED")?"Failed":"Success";
+export const auditResourceId=(log:AuditLog):string|null=>log.details?.match(/(?:ID|#|product|customer|invoice)\s*[:#-]?\s*([A-Z0-9-]{3,})/i)?.[1]??null;
