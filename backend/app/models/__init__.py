@@ -47,3 +47,5 @@ __all__ = [
     "DataImportError",
     "ActivityNotification",
 ]
+
+from app.models.notification import Notification

@@ -264,16 +264,14 @@ def analytics(db: DatabaseSession, current_user: AllAuthenticatedRoles):
     }
 
 
-@router.get("/notifications")
+@router.get("/notifications", deprecated=True)
 def notifications(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin):
-    return [{"id": n.id, "title": n.title, "message": n.message, "customerId": n.customer_id, "createdAt": n.created_at} for n in db.scalars(select(CustomerNotification).where(CustomerNotification.company_id == current_user.company_id, CustomerNotification.is_read.is_(False)).order_by(desc(CustomerNotification.created_at))).all()]
+    raise HTTPException(410, "Use /api/v1/notifications for your personal notification inbox")
 
 
-@router.delete("/notifications", status_code=204)
+@router.delete("/notifications", deprecated=True)
 def clear_notifications(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin):
-    for item in db.scalars(select(CustomerNotification).where(CustomerNotification.company_id == current_user.company_id, CustomerNotification.is_read.is_(False))).all():
-        item.is_read = True
-    db.commit()
+    raise HTTPException(410, "Use PATCH /api/v1/notifications/read-all")
 
 
 @router.post("/export", status_code=204)

@@ -7,6 +7,7 @@ import type { AuditAction, AuditLog } from "../../api/auditLogApi";
 
 // The shared values below keep formatting and business rules consistent.
 export const auditActions: AuditAction[] = [
+  "NOTIFICATION_CREATED", "NOTIFICATION_READ", "NOTIFICATIONS_READ_ALL", "NOTIFICATION_RESOLVED",
   "COMPANY_REGISTERED",
   "USER_LOGIN",
   "USER_LOGOUT",

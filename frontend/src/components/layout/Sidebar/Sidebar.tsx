@@ -1,3 +1,4 @@
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 /* Teaching guide: This file contains the sidebar user interface.
  * Follow the comments from imports and setup through actions and output.
  * These comments explain the existing code without changing its behavior.
@@ -130,6 +131,11 @@ const menuItems: SidebarMenuItem[] = [
     path: "/users",
     icon: <PeopleOutlineIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
+  },
+  {
+    label: "Notifications",
+    path: "/notifications",
+    icon: <NotificationsNoneOutlinedIcon />,
   },
   {
     label: "Audit Logs",

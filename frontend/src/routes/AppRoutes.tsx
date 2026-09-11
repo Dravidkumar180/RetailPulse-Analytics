@@ -1,3 +1,4 @@
+import NotificationsPage from "../pages/notifications/NotificationsPage";
 /* Teaching guide: This file contains app routes application logic.
  * Follow the comments from imports and setup through actions and output.
  * These comments explain the existing code without changing its behavior.
@@ -84,6 +85,7 @@ const AppRoutes = () => {
       {/* All routes inside this section require authentication */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path={ROUTE_PATHS.dashboard} element={<DashboardPage />} />
 
           <Route path={ROUTE_PATHS.profile} element={<ProfilePage />} />

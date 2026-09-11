@@ -9,22 +9,7 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 // Imports the needed tools from @mui/material.
 import { Box } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// Imports Inventory notification requests for the shared navbar bell.
-import {
-  clearInventoryNotifications,
-  getInventoryNotifications,
-} from "../../../api/inventoryApi";
-import { useAuth } from "../../../hooks/useAuth";
-import {
-  clearCustomerNotifications,
-  getCustomerNotifications,
-} from "../../../api/customerApi";
-import {
-  clearActivityNotifications,
-  getActivityNotifications,
-  markActivityNotificationRead,
-} from "../../../api/activityNotificationApi";
+import { useNotifications } from "../../../hooks/useNotifications";
 
 // Imports the needed tools from ../Navbar/Navbar.
 import Navbar from "../Navbar/Navbar";
@@ -44,72 +29,18 @@ export interface DashboardNotification {
 
 // Shows the dashboard layout.
 const DashboardLayout = () => {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const inbox = useNotifications({ status: "unread", page_size: 5 });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("retailpulse-theme") === "dark",
   );
-  const [notifications, setNotifications] = useState<DashboardNotification[]>(
-    [],
-  );
-  /* =======================================================
-   * Inventory Management notifications
-   * ======================================================= */
-
-  // Editors receive actionable inventory alerts; viewers remain read-only.
-  const canSeeInventoryNotifications = Boolean(
-    user?.role && user.role !== "VIEWER",
-  );
-  // Poll the backend so new low-stock and out-of-stock alerts reach the bell.
-  const inventoryNotifications = useQuery({
-    queryKey: ["inventory-notifications"],
-    queryFn: getInventoryNotifications,
-    enabled: canSeeInventoryNotifications,
-    refetchInterval: 30000,
-  });
-  const canSeeCustomerNotifications =
-    user?.role === "COMPANY_ADMIN" || user?.role === "SUPER_ADMIN";
-  const customerNotifications = useQuery({
-    queryKey: ["customer-notifications"],
-    queryFn: getCustomerNotifications,
-    enabled: canSeeCustomerNotifications,
-    refetchInterval: 30000,
-  });
-  const activityNotifications = useQuery({
-    queryKey: ["activity-notifications"],
-    queryFn: getActivityNotifications,
-    enabled: Boolean(user),
-    refetchInterval: 15000,
-  });
-  // Mark all Inventory notifications as read on the backend.
-  const clearNotificationsMutation = useMutation({
-    mutationFn: clearInventoryNotifications,
-    onSuccess: () => queryClient.setQueryData(["inventory-notifications"], []),
-  });
-  // Merge persistent Inventory alerts with local dashboard notifications.
-  const visibleNotifications: DashboardNotification[] = [
-    ...(activityNotifications.data ?? []).map((item) => ({
-      id: `activity:${item.id}`,
-      title: item.title,
-      message: item.message,
-      path: item.path,
-    })),
-    ...(inventoryNotifications.data ?? []).map((item) => ({
-      id: item.id,
-      title: item.title,
-      message: item.message,
-      path: "/inventory",
-    })),
-    ...(customerNotifications.data ?? []).map((item) => ({
-      id: item.id,
-      title: item.title,
-      message: item.message,
-      path: `/customers?customer=${item.customerId}`,
-    })),
-    ...notifications,
-  ];
+  const visibleNotifications = (inbox.list.data?.items ?? []).map((item) => ({
+    id: item.id,
+    title: item.title,
+    message: item.message,
+    path: `/notifications?notification=${item.id}`,
+  }));
 
   useEffect(() => {
     document.body.classList.toggle("dark-theme", isDarkMode);
@@ -118,26 +49,6 @@ const DashboardLayout = () => {
     // Builds the visible interface below.
     return () => document.body.classList.remove("dark-theme");
   }, [isDarkMode]);
-
-  useEffect(() => {
-    // Handles page change.
-    const handlePageChange = (event: Event) => {
-      // Runs detail logic.
-      const detail = (event as CustomEvent<Omit<DashboardNotification, "id">>)
-        .detail;
-
-      // Updates the page or stored state with this result.
-      setNotifications((current) => [
-        { ...detail, id: `${Date.now()}-${detail.path}` },
-        ...current,
-      ]);
-    };
-
-    window.addEventListener("retailpulse:notification", handlePageChange);
-    // Builds the visible interface below.
-    return () =>
-      window.removeEventListener("retailpulse:notification", handlePageChange);
-  }, []);
 
   // Handles open mobile sidebar.
   const handleOpenMobileSidebar = () => {
@@ -179,35 +90,11 @@ const DashboardLayout = () => {
           isDarkMode={isDarkMode}
           onToggleTheme={() => setIsDarkMode((current) => !current)}
           notifications={visibleNotifications}
-          onClearNotifications={() => {
-            setNotifications([]);
-            if (canSeeInventoryNotifications)
-              clearNotificationsMutation.mutate();
-            if (canSeeCustomerNotifications) {
-              clearCustomerNotifications().then(() =>
-                queryClient.setQueryData(["customer-notifications"], []),
-              );
-            }
-            clearActivityNotifications().then(() =>
-              queryClient.setQueryData(["activity-notifications"], []),
-            );
-          }}
-          onReviewNotification={(id) => {
-            if (id.startsWith("activity:")) {
-              const activityId = id.slice("activity:".length);
-              markActivityNotificationRead(activityId).then(() =>
-                queryClient.setQueryData(
-                  ["activity-notifications"],
-                  (current: { id: string }[] | undefined) =>
-                    current?.filter((item) => item.id !== activityId) ?? [],
-                ),
-              );
-              return;
-            }
-            setNotifications((current) =>
-              current.filter((notification) => notification.id !== id),
-            );
-          }}
+          unreadCount={inbox.count.data ?? 0}
+          notificationError={inbox.list.isError || inbox.count.isError}
+          notificationLoading={inbox.list.isPending}
+          onClearNotifications={() => inbox.readAll.mutate()}
+          onReviewNotification={(id) => inbox.read.mutate(id)}
         />
 
         <Box component="main" className="dashboard-layout__content">

@@ -45,7 +45,36 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     initialize_development_database()
     check_database_connection()
 
-    yield
+    import asyncio
+    import logging
+    from app.core.database import SessionLocal
+    from app.models.company import Company
+    from app.services.notification_service import evaluate_inventory
+    from sqlalchemy import select
+
+    def reconcile():
+        with SessionLocal() as db:
+            for company_id in db.scalars(select(Company.id)).all():
+                evaluate_inventory(db, company_id)
+            db.commit()
+
+    async def monitor():
+        while True:
+            try:
+                await asyncio.to_thread(reconcile)
+            except Exception:
+                logging.getLogger(__name__).exception("Notification reconciliation failed; retrying in 30 seconds")
+            await asyncio.sleep(30)
+
+    task = asyncio.create_task(monitor())
+    try:
+        yield
+    finally:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 
 # Stores app for the next steps.

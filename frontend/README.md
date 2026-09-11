@@ -12,6 +12,17 @@ npm run dev
 This starts both the FastAPI backend on `http://127.0.0.1:8000` and the Vite
 frontend. Do not start Vite directly unless the API is already running.
 
+Virtual environment activation is not required: the launcher uses
+`venv\Scripts\python.exe` directly. It allows up to 120 seconds for backend
+startup and prints backend logs if startup fails. Logs are saved in
+`backend-dev.stdout.log` and `backend-dev.stderr.log` at the repository root.
+
+To check backend startup without leaving a server running, from the repository root:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev.ps1 -CheckOnly
+```
+
 To intentionally start only Vite, use:
 
 ```powershell

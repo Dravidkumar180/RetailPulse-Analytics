@@ -58,6 +58,9 @@ interface NavbarProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
   notifications: DashboardNotification[];
+  unreadCount: number;
+  notificationError: boolean;
+  notificationLoading: boolean;
   onClearNotifications: () => void;
   onReviewNotification: (id: string) => void;
 }
@@ -102,6 +105,9 @@ const Navbar = ({
   isDarkMode,
   onToggleTheme,
   notifications,
+  unreadCount,
+  notificationError,
+  notificationLoading,
   onClearNotifications,
   onReviewNotification,
 }: NavbarProps) => {
@@ -264,7 +270,7 @@ const Navbar = ({
               setNotificationAnchorElement(event.currentTarget)
             }
           >
-            <Badge badgeContent={notifications.length} color="error">
+            <Badge badgeContent={unreadCount} color="error">
               <NotificationsNoneOutlinedIcon />
             </Badge>
           </IconButton>
@@ -289,7 +295,18 @@ const Navbar = ({
             </Box>
           </Box>
           <Divider />
-          {notifications.length === 0 ? (
+          {notificationError ? (
+            <MenuItem
+              onClick={() => {
+                setNotificationAnchorElement(null);
+                navigate("/notifications");
+              }}
+            >
+              Could not load notifications. Open center to retry.
+            </MenuItem>
+          ) : notificationLoading ? (
+            <MenuItem>Loading notifications?</MenuItem>
+          ) : notifications.length === 0 ? (
             <Typography component="p" className="navbar__notification-empty">
               No new notifications
             </Typography>
@@ -317,6 +334,15 @@ const Navbar = ({
               </MenuItem>
             ))
           )}
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              setNotificationAnchorElement(null);
+              navigate("/notifications");
+            }}
+          >
+            View all notifications
+          </MenuItem>
         </Menu>
 
         <Divider orientation="vertical" flexItem className="navbar__divider" />

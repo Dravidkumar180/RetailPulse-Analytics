@@ -542,30 +542,11 @@ def adjust_stock(
 # =========================================================
 
 
-@router.get("/notifications", response_model=list[NotificationResponse])
-def list_notifications(
-    db: DatabaseSession, current_user: AllAuthenticatedRoles
-) -> list[NotificationResponse]:
-    """Return recent stock alerts for the current company's bell icon."""
-
-    rows = db.scalars(
-        select(InventoryNotification)
-        .where(InventoryNotification.company_id == current_user.company_id)
-        .order_by(desc(InventoryNotification.created_at))
-        .limit(50)
-    ).all()
-    return [NotificationResponse.model_validate(row) for row in rows]
+@router.get("/notifications", deprecated=True)
+def list_notifications(db: DatabaseSession, current_user: AllAuthenticatedRoles):
+    raise HTTPException(410, "Use /api/v1/notifications for your personal notification inbox")
 
 
-@router.delete("/notifications", status_code=status.HTTP_204_NO_CONTENT)
-def clear_notifications(
-    db: DatabaseSession, current_user: AnalystOrHigher
-) -> None:
-    """Mark all company inventory notifications as read by removing them."""
-
-    db.execute(
-        delete(InventoryNotification).where(
-            InventoryNotification.company_id == current_user.company_id
-        )
-    )
-    db.commit()
+@router.delete("/notifications", deprecated=True)
+def clear_notifications(db: DatabaseSession, current_user: AnalystOrHigher):
+    raise HTTPException(410, "Use PATCH /api/v1/notifications/read-all")

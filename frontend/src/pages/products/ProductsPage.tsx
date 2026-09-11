@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   createProduct,
   deleteProduct,
@@ -32,7 +32,8 @@ const ProductsPage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const canEdit = user?.role !== "VIEWER";
-  const [search, setSearch] = useState(""),
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") ?? ""),
     [category, setCategory] = useState(""),
     [status, setStatus] = useState(""),
     [brand, setBrand] = useState(""),

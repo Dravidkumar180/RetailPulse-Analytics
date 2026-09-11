@@ -52,16 +52,15 @@ class AuditLogService:
             after_values=after_values,
         )
         notification = self._notification_for(action, details)
-        if notification:
+        if notification and not action.value.startswith("IMPORT_"):
+            from app.services.notification_service import emit
+            from uuid import uuid4
             title, path = notification
-            db.add(ActivityNotification(
-                company_id=company_id,
-                actor_id=user_id,
-                action=action.value,
-                title=title,
-                message=(details or title)[:1000],
-                path=path,
-            ))
+            emit(db, company_id=company_id,
+                 type="SALES_ALERT" if action.value.startswith("SALE_") else "SYSTEM_ALERT",
+                 title=title, message=(details or title)[:1000],
+                 priority="MEDIUM" if action.value.startswith("SALE_") else "LOW",
+                 path=path, details={"Activity": action.value}, event_key=f"activity:{uuid4()}")
 
     @staticmethod
     def _notification_for(action: AuditAction, details: str | None) -> tuple[str, str] | None:

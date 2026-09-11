@@ -8,6 +8,10 @@ import axiosInstance from "./axiosInstance";
 
 // Defines the audit action type.
 export type AuditAction =
+  | "NOTIFICATION_CREATED"
+  | "NOTIFICATION_READ"
+  | "NOTIFICATIONS_READ_ALL"
+  | "NOTIFICATION_RESOLVED"
   | "COMPANY_REGISTERED"
   | "USER_LOGIN"
   | "USER_LOGOUT"

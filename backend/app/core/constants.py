@@ -52,6 +52,10 @@ class UserStatus(StrEnum):
 
 # Groups audit action behavior.
 class AuditAction(StrEnum):
+    NOTIFICATION_CREATED = "NOTIFICATION_CREATED"
+    NOTIFICATION_READ = "NOTIFICATION_READ"
+    NOTIFICATIONS_READ_ALL = "NOTIFICATIONS_READ_ALL"
+    NOTIFICATION_RESOLVED = "NOTIFICATION_RESOLVED"
     # Stores company registered for the next steps.
     COMPANY_REGISTERED = "COMPANY_REGISTERED"
     # Stores user login for the next steps.
