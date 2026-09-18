@@ -49,3 +49,5 @@ __all__ = [
 ]
 
 from app.models.notification import Notification
+
+from app.models.report import ReportRun, ReportSchedule

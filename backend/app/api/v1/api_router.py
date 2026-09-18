@@ -78,3 +78,6 @@ api_router.include_router(customers.router, prefix="/customers", tags=["Customer
 api_router.include_router(forecasts.router, prefix="/forecasts", tags=["Demand Forecasting"])
 api_router.include_router(data_imports.router, prefix="/import", tags=["Data Imports"])
 api_router.include_router(activity_notifications.router, prefix="/notifications", tags=["Notifications"])
+
+from app.api.v1.endpoints import reports
+api_router.include_router(reports.router, prefix='/reports', tags=['Reports'])
