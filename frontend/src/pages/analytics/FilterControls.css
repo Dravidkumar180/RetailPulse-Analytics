@@ -1,7 +1,9 @@
+/* Adjusts analytics dropdown spacing so text and arrows remain readable. */
 .analytics-filter-card .MuiSelect-select {
   padding-right: 34px !important;
 }
 
+/* Leave room for the dropdown arrow without blocking clicks. */
 .analytics-filter-card .MuiSelect-icon {
   right: 8px;
   width: 20px;

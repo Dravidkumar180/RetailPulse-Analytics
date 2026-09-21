@@ -1,1 +1,2 @@
+/* Hides Material UI alert boxes inside the replenishment comparison section. */
 .sr-compare .MuiAlert-root{display:none}

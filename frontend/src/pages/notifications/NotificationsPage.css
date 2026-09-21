@@ -1,3 +1,4 @@
+/* Styles inbox filters, read/unread rows, priorities, details, and pagination. */
 .notification-center {
   max-width: 1200px;
   margin: auto;
@@ -115,6 +116,7 @@
   color: inherit;
   font: inherit;
 }
+/* Each row keeps the icon, message, and date aligned. */
 .notification-row {
   width: 100%;
   display: flex;
@@ -244,6 +246,7 @@
 .notification-detail-title h2 {
   font-size: 20px;
 }
+/* Format the extra fields shown in the notification dialog. */
 .notification-details {
   background: #f4f7fb;
   padding: 18px;

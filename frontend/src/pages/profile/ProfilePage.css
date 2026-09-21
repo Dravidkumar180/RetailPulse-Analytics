@@ -1,3 +1,4 @@
+/* Styles profile information, edit forms, and their responsive layout. */
 .profile-page {
   width: 100%;
   max-width: 1380px;
@@ -16,6 +17,7 @@
   border-radius: 9px;
 }
 
+/* Use two columns for profile details and editing controls on wider screens. */
 .profile-page__layout {
   display: grid;
   grid-template-columns: minmax(350px, 0.95fr) minmax(480px, 1.25fr);

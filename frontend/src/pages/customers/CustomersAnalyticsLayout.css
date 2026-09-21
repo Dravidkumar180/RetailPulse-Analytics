@@ -1,3 +1,4 @@
+/* Arranges customer charts and their controls across different screen sizes. */
 .customer-charts.customer-charts--reference {
   grid-template-columns: repeat(3, minmax(280px, 1fr));
 }

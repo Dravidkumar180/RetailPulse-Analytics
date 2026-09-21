@@ -1,3 +1,4 @@
+/* Displays audit records, loading and error messages, and page navigation. */
 import {
   Alert,
   Box,

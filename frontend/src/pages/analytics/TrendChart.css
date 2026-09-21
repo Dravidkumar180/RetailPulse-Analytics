@@ -1,3 +1,4 @@
+/* Styles trend chart controls, labels, and chart layout. */
 .trend-periods {
   display: flex;
   gap: 3px;

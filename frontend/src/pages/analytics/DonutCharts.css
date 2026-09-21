@@ -1,3 +1,4 @@
+/* Styles donut charts, their center labels, and legends. */
 .donut-layout {
   min-height: 215px;
   display: grid;
@@ -13,6 +14,7 @@
   place-items: center;
   box-shadow: inset 0 0 0 1px #fff;
 }
+/* The inner circle creates the empty center of the donut. */
 .donut-chart::after {
   content: "";
   position: absolute;
