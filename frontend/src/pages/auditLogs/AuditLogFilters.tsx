@@ -100,6 +100,7 @@ export default function AuditLogFilters({
               "Customer",
               "Sale",
               "Inventory",
+              "Data Quality",
               "User",
               "Category",
               "Report",

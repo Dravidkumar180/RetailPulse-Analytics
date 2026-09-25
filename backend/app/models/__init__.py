@@ -51,3 +51,4 @@ __all__ = [
 from app.models.notification import Notification
 
 from app.models.report import ReportRun, ReportSchedule
+from app.models.data_quality import QualityRun, QualityIssue, QualityChange

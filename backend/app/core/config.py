@@ -3,6 +3,7 @@
 # The comments explain the code only; they do not change how it runs.
 
 from functools import lru_cache
+from pathlib import Path
 # Imports the needed names from typing.
 from typing import Any
 
@@ -71,6 +72,14 @@ class Settings(BaseSettings):
     # Stores frontend url for the next steps.
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Scheduled report email delivery (loaded from .env or the environment).
+    REPORT_SMTP_HOST: str | None = None
+    REPORT_SMTP_FROM: str | None = None
+    REPORT_SMTP_PORT: int = Field(default=587, ge=1, le=65535)
+    REPORT_SMTP_STARTTLS: bool = True
+    REPORT_SMTP_USER: str | None = None
+    REPORT_SMTP_PASSWORD: SecretStr | None = None
+
     # Stores default super admin email for the next steps.
     DEFAULT_SUPER_ADMIN_EMAIL: str | None = None
     # Stores default super admin password for the next steps.
@@ -78,7 +87,7 @@ class Settings(BaseSettings):
 
     # Stores model config for the next steps.
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=Path(__file__).resolve().parents[2] / ".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",

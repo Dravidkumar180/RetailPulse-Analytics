@@ -91,7 +91,7 @@ def record_inventory_movement(db, company_id: UUID, product: Product, user_id: U
     inventory.available_stock = max(0, product.stock_quantity - inventory.reserved_stock)
     inventory.stock_status = "OUT_OF_STOCK" if inventory.available_stock == 0 else "LOW_STOCK" if inventory.available_stock <= inventory.reorder_level else "IN_STOCK"
     # Stores the immutable movement history entry with user attribution.
-    db.add(InventoryMovement(inventory_id=inventory.id, movement_type=movement_type, quantity_changed=inventory.current_stock - previous, previous_quantity=previous, updated_quantity=inventory.current_stock, reason=reason, performed_by_id=user_id))
+    db.add(InventoryMovement(inventory_id=inventory.id, movement_type=movement_type, quantity_changed=inventory.current_stock - previous, previous_quantity=previous, available_before=max(0, previous - inventory.reserved_stock), updated_quantity=inventory.current_stock, reason=reason, performed_by_id=user_id))
     return inventory
 
 

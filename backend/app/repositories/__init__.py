@@ -134,6 +134,8 @@ class AuditLogRepository:
         if resource_type:
             resource_prefix = resource_type.strip().upper()
             resource_actions = [item for item in AuditAction if item.value.startswith(resource_prefix + "_")]
+            if resource_prefix == "DATA QUALITY":
+                resource_actions = [AuditAction.RECONCILIATION_STARTED, AuditAction.RECONCILIATION_COMPLETED, AuditAction.QUALITY_ISSUE_UPDATED]
             if resource_prefix == "AUTHENTICATION":
                 resource_actions = [AuditAction.USER_LOGIN, AuditAction.USER_LOGOUT]
             filters.append(AuditLog.action.in_(resource_actions or ["__NO_MATCH__"]))

@@ -80,14 +80,33 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
                 logging.getLogger(__name__).exception("Notification reconciliation failed; retrying in 30 seconds")
             await asyncio.sleep(30)
 
+    async def quality_monitor():
+        from app.services.data_quality_service import drain_changes, worker
+        from app.models.data_quality import QualityRun
+        def process():
+            with SessionLocal() as db:
+                pending = db.scalars(select(QualityRun.id).where(QualityRun.status == 'Running', QualityRun.claimed_at.is_(None))).all()
+            for run_id in pending:
+                worker(run_id)
+            with SessionLocal() as db:
+                drain_changes(db)
+        while True:
+            try:
+                await asyncio.to_thread(process)
+            except Exception:
+                logging.getLogger(__name__).exception("Automatic data quality checks failed; retrying")
+            await asyncio.sleep(10)
+
+    quality_task = asyncio.create_task(quality_monitor())
     report_task = asyncio.create_task(report_monitor())
     task = asyncio.create_task(monitor())
     try:
         yield
     finally:
+        quality_task.cancel()
         task.cancel()
         report_task.cancel()
-        await asyncio.gather(task, report_task, return_exceptions=True)
+        await asyncio.gather(task, report_task, quality_task, return_exceptions=True)
 
 
 # Stores app for the next steps.

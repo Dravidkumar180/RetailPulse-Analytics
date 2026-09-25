@@ -1,3 +1,4 @@
+import DataQualityPage from "../pages/dataQuality/DataQualityPage";
 import ReportsPage from "../pages/reports/ReportsPage";
 import NotificationsPage from "../pages/notifications/NotificationsPage";
 /* Teaching guide: This file contains app routes application logic.
@@ -117,6 +118,7 @@ const AppRoutes = () => {
               />
             }
           >
+            <Route path="/data-quality" element={<DataQualityPage />} />
             <Route path={ROUTE_PATHS.retailAnalytics} element={<RetailAnalyticsPage />} />
             <Route
               path={ROUTE_PATHS.demandForecasting}

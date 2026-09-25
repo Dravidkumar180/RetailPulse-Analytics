@@ -1,0 +1,194 @@
+/* Keep retail dashboard alignment independent of other analytics pages. */
+.retail-analytics-page .analytics-header {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.retail-analytics-page .analytics-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.retail-analytics-page .analytics-filter-card .filter-date-row {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) !important;
+}
+
+.retail-analytics-page .analytics-filter-card .filter-selects {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: start;
+}
+
+.retail-analytics-page .filter-buttons {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.retail-analytics-page .retail-section-heading {
+  margin: 28px 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.retail-analytics-page .retail-kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.retail-analytics-page .retail-kpi .MuiCardContent-root {
+  min-height: 104px;
+  box-sizing: border-box;
+  align-content: space-between;
+}
+
+.retail-analytics-page .retail-kpi small {
+  font-size: 12px;
+}
+
+.retail-analytics-page .retail-kpi strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.retail-analytics-page .retail-chart-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.retail-analytics-page .analytics-panel,
+.retail-analytics-page .critical-stock-card {
+  min-width: 0;
+  border-radius: 12px;
+}
+
+.retail-analytics-page .analytics-panel h3,
+.retail-analytics-page .critical-stock-card h3 {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Reserve a separate label area so bars share the same baseline. */
+.retail-analytics-page .retail-line-bars {
+  height: 260px;
+  padding-bottom: 48px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.retail-analytics-page .retail-line-bars > div {
+  position: relative;
+  min-width: 52px;
+}
+
+.retail-analytics-page .retail-line-bars span {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  height: auto;
+  margin-top: 8px;
+  font-size: 10px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Labels and values share one line, with a full-width comparison bar below. */
+.retail-analytics-page .retail-horizontal-bars {
+  gap: 16px;
+}
+
+.retail-analytics-page .retail-horizontal-bars > div {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  font-size: 12px;
+}
+
+.retail-analytics-page .retail-horizontal-bars span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.retail-analytics-page .retail-horizontal-bars strong {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.retail-analytics-page .retail-horizontal-bars i {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.retail-analytics-page .critical-stock-card {
+  margin-top: 24px;
+}
+
+.retail-analytics-page .critical-stock-table {
+  overflow-x: auto;
+}
+
+.retail-analytics-page .critical-stock-table > div {
+  min-width: 560px;
+  grid-template-columns: minmax(180px, 2fr) 1fr 1fr 110px;
+  gap: 16px;
+  padding: 14px 12px;
+  font-size: 12px;
+}
+
+.retail-analytics-page .critical-stock-table > div > :nth-child(2),
+.retail-analytics-page .critical-stock-table > div > :nth-child(3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.retail-analytics-page .analytics-updated {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+body.dark-theme .retail-analytics-page .critical-stock-card,
+body.dark-theme .retail-analytics-page .retail-kpi:nth-child(n + 5) {
+  background: #111827;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-theme .retail-analytics-page .critical-stock-table > div:first-child {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+@media (max-width: 1100px) {
+  .retail-analytics-page .analytics-filter-card .filter-date-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .retail-analytics-page .retail-kpis,
+  .retail-analytics-page .retail-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .retail-analytics-page .analytics-filter-card .filter-selects {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .retail-analytics-page .retail-kpis,
+  .retail-analytics-page .retail-chart-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .retail-analytics-page .retail-wide {
+    grid-column: auto;
+  }
+
+  .retail-analytics-page .analytics-updated {
+    text-align: left;
+  }
+}

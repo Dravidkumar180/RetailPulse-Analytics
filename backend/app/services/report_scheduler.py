@@ -1,12 +1,12 @@
 """Persistent schedule worker. Atomic due-time advancement prevents duplicate claims."""
 
 import logging
-import os
 import smtplib
 from email.message import EmailMessage
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 from sqlalchemy import select, update
+from app.core.config import settings
 from app.models.report import ReportSchedule, ReportRun
 from app.models.user import User
 from app.schemas.report import ScheduleInput, GenerateReport
@@ -49,10 +49,14 @@ def effective_request(config, now):
 
 
 def deliver(run, config):
-    host, sender = os.getenv("REPORT_SMTP_HOST"), os.getenv("REPORT_SMTP_FROM")
+    host, sender = settings.REPORT_SMTP_HOST, settings.REPORT_SMTP_FROM
     if not host or not sender:
         raise RuntimeError(
             "Email delivery is not configured. Set REPORT_SMTP_HOST and REPORT_SMTP_FROM; the generated report remains available in History."
+        )
+    if settings.REPORT_SMTP_USER and not settings.REPORT_SMTP_PASSWORD:
+        raise RuntimeError(
+            "Email authentication is not configured. Set REPORT_SMTP_PASSWORD when REPORT_SMTP_USER is set; the generated report remains available in History."
         )
     content, mime = export(run, config.format)
     message = EmailMessage()
@@ -70,13 +74,14 @@ def deliver(run, config):
         filename=f"{run.report_type}.{config.format.lower()}",
     )
     with smtplib.SMTP(
-        host, int(os.getenv("REPORT_SMTP_PORT", "587")), timeout=30
+        host, settings.REPORT_SMTP_PORT, timeout=30
     ) as smtp:
-        if os.getenv("REPORT_SMTP_STARTTLS", "true").lower() == "true":
+        if settings.REPORT_SMTP_STARTTLS:
             smtp.starttls()
-        if os.getenv("REPORT_SMTP_USER"):
+        if settings.REPORT_SMTP_USER:
             smtp.login(
-                os.environ["REPORT_SMTP_USER"], os.environ["REPORT_SMTP_PASSWORD"]
+                settings.REPORT_SMTP_USER,
+                settings.REPORT_SMTP_PASSWORD.get_secret_value(),
             )
         refused = smtp.send_message(message)
         if refused:

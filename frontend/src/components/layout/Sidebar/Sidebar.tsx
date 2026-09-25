@@ -114,6 +114,7 @@ const menuItems: SidebarMenuItem[] = [
     icon: <AssessmentOutlinedIcon />,
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST", "VIEWER"],
   },
+  { label: "Data Quality", path: "/data-quality", icon: <AssessmentOutlinedIcon />, allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN", "ANALYST"] },
   {
     label: "Data Imports",
     path: "/data-import",

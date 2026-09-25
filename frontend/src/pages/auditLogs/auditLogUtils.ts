@@ -7,6 +7,9 @@ import type { AuditAction, AuditLog } from "../../api/auditLogApi";
 
 // The shared values below keep formatting and business rules consistent.
 export const auditActions: AuditAction[] = [
+  "RECONCILIATION_STARTED",
+  "RECONCILIATION_COMPLETED",
+  "QUALITY_ISSUE_UPDATED",
   "NOTIFICATION_CREATED",
   "NOTIFICATION_READ",
   "NOTIFICATIONS_READ_ALL",
@@ -75,6 +78,8 @@ export const auditResource = (action: string): string => {
   return (
     (
       {
+        RECONCILIATION: "Data Quality",
+        QUALITY: "Data Quality",
         STOCK: "Inventory",
         REORDER: "Inventory",
         DASHBOARD: "Dashboard",

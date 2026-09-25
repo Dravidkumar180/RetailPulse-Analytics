@@ -122,6 +122,7 @@ class InventoryMovement(UUIDPrimaryKeyMixin, Base):
         "movementType", String(30), nullable=False
     )
     # Signed change is positive for stock in and negative for stock out.
+    available_before: Mapped[int | None] = mapped_column("availableBefore", nullable=True)
     quantity_changed: Mapped[int] = mapped_column("quantityChanged", nullable=False)
     previous_quantity: Mapped[int] = mapped_column("previousQuantity", nullable=False)
     updated_quantity: Mapped[int] = mapped_column("updatedQuantity", nullable=False)
