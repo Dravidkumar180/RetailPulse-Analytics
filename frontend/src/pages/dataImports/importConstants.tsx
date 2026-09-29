@@ -13,9 +13,17 @@ export const TYPES = [
       "Product Name",
       "SKU",
       "Category",
+      "Brand",
       "Unit Price",
       "Stock Quantity",
     ],
+  },
+  {
+    value: "inventory" as const,
+    title: "Inventory",
+    detail: "Current stock and reorder level",
+    icon: <Inventory2OutlinedIcon />,
+    columns: ["SKU", "Current Stock", "Reorder Level"],
   },
   {
     value: "customers" as const,

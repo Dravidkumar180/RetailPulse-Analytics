@@ -1,22 +1,17 @@
-# Data imports page
+# Data Imports — Task 17, Day 1 (30%)
 
-Start with `DataImportsPage.tsx`. It assembles the import workflow using the components below.
+The `/data-import` route renders `DayOneImports.tsx` through `DataImportsPage.tsx`.
 
-| File | Purpose |
-| --- | --- |
-| `ImportWorkflow.tsx` | Step navigation, available steps, and completion indicators. |
-| `ImportTypeSelector.tsx` | Product, customer, and sales import choices. |
-| `ImportUpload.tsx` | CSV selection, drag and drop, upload errors, and required columns. |
-| `ImportProgress.tsx` | Progress display while uploading or processing. |
-| `ImportPreview.tsx` | Preview of the uploaded file's columns and rows. |
-| `ImportValidation.tsx` | Record counts and invalid/duplicate row details. |
-| `ImportResult.tsx` | Start the import, show its result, and download failed records. |
-| `ImportHistory.tsx` | Previous imports, URL-based selection, and error downloads. |
-| `useDataImportsPage.ts` | State, file validation, API queries/mutations, cache refresh, and scrolling between steps. |
-| `importConstants.tsx` | Import choices with icons and required columns, file size limit, and workflow labels. |
-| `importUtils.ts` | API error message extraction. |
-| `DataImportsPage.css` | Shared page and component styles. |
+Delivered: Products, Inventory, Customers and Sales selection; authenticated CSV template downloads; drag/drop and file picker; 10 MB limit; UTF-8 CSV parsing; required and recognized column checks; five-row preview; total row count; loading, empty and error states; responsive layout.
 
-`DataImportsPage` calls `useDataImportsPage` once. Components declare the state and handlers they need using `Pick<DataImportsPageState, ...>`. Preview, validation, and result components receive a completed upload's `ImportRecord`.
+The page calls `GET /import/templates/{type}` and `POST /import/preview` (multipart `importType` and `file`). Both require Company Admin or Super Admin. Preview runs in the server threadpool, retains only five sample rows and makes no database writes. CSV headers are case-sensitive after trimming whitespace. Brand is required in the Day 1 Products template. Blank records are ignored; malformed records are rejected with a line number. Template sample records must be replaced before real imports.
 
-API requests and server types remain in `../../api/dataImportApi.ts`. Uploading validates the CSV; processing imports its valid rows. The hook refreshes the relevant cached data after each action.
+Valid, invalid and duplicate row counts deliberately say **Not checked**: Day 1 validates structure, not record values. The disabled Validate Data action marks the Day 2 boundary. No fake totals, successful imports or error examples are displayed.
+
+Existing advanced components and legacy upload/process/history APIs are retained for future work but are not called by the Day 1 page. They are not claimed as production-ready Task 17 delivery. Inventory processing, full validation, background jobs, history, error exports, notifications, audit lifecycle and data-quality integration remain for later days.
+
+Verification:
+- `npm.cmd --prefix frontend run build`
+- From backend: `python -m unittest tests.test_import_preview -v`
+
+Tests cover every template, preview limits, missing/unknown/duplicate headers, malformed CSV, file limits, UTF-8, quoted/multiline fields and API role restrictions without a database dependency.

@@ -19,6 +19,7 @@ from app.models.data_import import DataImport, DataImportError
 from app.models.inventory import Inventory
 from app.models.sales import Sale, SaleItem
 from app.services.audit_log_service import audit_log_service
+from app.services.import_preview_service import SCHEMAS, preview_csv
 
 router = APIRouter()
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -122,6 +123,33 @@ def validate_rows(db, company_id: UUID, kind: str, rows: list[dict]) -> list[tup
         if duplicate: errors.append((index, "Duplicate", "Duplicate record; it will be skipped.", row))
         elif messages: errors.append((index, "Validation", " ".join(messages), row))
     return errors
+
+
+@router.get("/templates/{kind}")
+def template(kind: str, current_user: CompanyAdminOrSuperAdmin):
+    if kind not in SCHEMAS:
+        raise HTTPException(400, "Select Products, Inventory, Customers, or Sales.")
+    output = io.StringIO(newline="")
+    writer = csv.writer(output)
+    writer.writerows(SCHEMAS[kind])
+    return StreamingResponse(iter([output.getvalue()]), media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{kind}_import_template.csv"'})
+
+
+@router.post("/preview")
+def basic_preview(current_user: CompanyAdminOrSuperAdmin,
+                  import_type: str = Form(..., alias="importType"), file: UploadFile = File(...)):
+    # A sync endpoint runs parsing in FastAPI's threadpool, outside the event loop.
+    # Retain only five sample rows; this phase never stages or inserts records.
+    try:
+        content = file.file.read(MAX_FILE_SIZE + 1)
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(413, "File size exceeds the 10 MB limit.")
+        return preview_csv(import_type, file.filename or "", content)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    finally:
+        file.file.close()
 
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)

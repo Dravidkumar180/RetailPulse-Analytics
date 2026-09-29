@@ -4,7 +4,25 @@
  */
 import axiosInstance from "./axiosInstance";
 
-export type ImportType = "products" | "customers" | "sales";
+export type ImportType = "products" | "inventory" | "customers" | "sales";
+export interface ImportPreviewResult {
+  columns: string[]; requiredColumns: string[]; missingColumns: string[];
+  unexpectedColumns: string[]; totalRows: number; rows: Record<string, string>[];
+  errors: string[]; structureValid: boolean; validationLevel: "structure";
+}
+export async function previewImport(type: ImportType, file: File, signal: AbortSignal): Promise<ImportPreviewResult> {
+  const body = new FormData(); body.append("importType", type); body.append("file", file);
+  return (await axiosInstance.post("/import/preview", body, {
+    signal, headers: { "Content-Type": "multipart/form-data" },
+  })).data;
+}
+export async function downloadImportTemplate(type: ImportType) {
+  const response = await axiosInstance.get(`/import/templates/${type}`, { responseType: "blob" });
+  const url = URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+  link.href = url; link.download = `${type}_import_template.csv`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 export interface ImportRecord {
   id: string; importType: ImportType; filename: string; uploadedBy: string; uploadDate: string;
   columns: string[]; rows?: Record<string, string>[]; totalRecords: number; validRecords: number;
