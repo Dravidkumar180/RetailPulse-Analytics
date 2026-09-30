@@ -9,6 +9,23 @@ export interface ImportPreviewResult {
   columns: string[]; requiredColumns: string[]; missingColumns: string[];
   unexpectedColumns: string[]; totalRows: number; rows: Record<string, string>[];
   errors: string[]; structureValid: boolean; validationLevel: "structure";
+  rowNumbers: number[];
+}
+export interface ValidatedImportRow {
+  rowNumber: number; data: Record<string, string>; status: "Valid" | "Invalid" | "Duplicate";
+  action: "Create" | "Update" | "Skip" | "Reject";
+  issues: { type: string; field: string; message: string }[];
+}
+export interface ImportValidationResult {
+  columns: string[]; totalRows: number; validRows: number; invalidRows: number; duplicateRows: number;
+  rows: ValidatedImportRow[]; errorSummary: { type: string; count: number; example: string }[];
+  duplicatePolicy: string; validationLevel: "records"; columnTypes: Record<string, string>;
+}
+export async function validateImportFile(type: ImportType, file: File, signal: AbortSignal): Promise<ImportValidationResult> {
+  const body = new FormData(); body.append("importType", type); body.append("file", file);
+  return (await axiosInstance.post("/import/validate-file", body, {
+    signal, timeout: 120000, headers: { "Content-Type": "multipart/form-data" },
+  })).data;
 }
 export async function previewImport(type: ImportType, file: File, signal: AbortSignal): Promise<ImportPreviewResult> {
   const body = new FormData(); body.append("importType", type); body.append("file", file);

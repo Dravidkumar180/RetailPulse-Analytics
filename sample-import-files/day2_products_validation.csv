@@ -1,0 +1,13 @@
+Product Name,SKU,Category,Brand,Unit Price,Stock Quantity
+Demo Laptop,DAY2-LAPTOP,Electronics,Demo,85000,20
+Demo Mouse,DAY2-MOUSE,Accessories,Demo,1200,50
+Demo Keyboard,DAY2-KEYBOARD,Accessories,,3500,30
+Demo Monitor,DAY2-MONITOR,Electronics,Demo,abc,15
+Demo Cable,DAY2-CABLE,Accessories,Demo,250,-1
+Duplicate Laptop,DAY2-LAPTOP,Electronics,Demo,85000,20
+Demo Adapter,DAY2-ADAPTER,Accessories,Demo,500,10
+Demo Dock,DAY2-DOCK,Accessories,Demo,4500,10
+Demo Webcam,DAY2-WEBCAM,Electronics,Demo,2500,25
+Demo Stand,DAY2-STAND,Accessories,Demo,800,30
+Demo Headset,DAY2-HEADSET,Accessories,Demo,1500,12
+Demo Hub,DAY2-HUB,Accessories,Demo,950,20

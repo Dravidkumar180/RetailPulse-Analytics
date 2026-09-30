@@ -37,7 +37,7 @@ export const TYPES = [
     title: "Sales Transactions",
     detail: "Sales and inventory updates",
     icon: <PointOfSaleOutlinedIcon />,
-    columns: ["Customer", "Product", "Quantity", "Unit Price", "Sale Date"],
+    columns: ["Invoice Number", "Customer", "Product", "Quantity", "Unit Price", "Sale Date"],
   },
 ];
 export const MAX_SIZE = 10 * 1024 * 1024;

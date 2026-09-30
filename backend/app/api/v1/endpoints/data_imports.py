@@ -20,6 +20,7 @@ from app.models.inventory import Inventory
 from app.models.sales import Sale, SaleItem
 from app.services.audit_log_service import audit_log_service
 from app.services.import_preview_service import SCHEMAS, preview_csv
+from app.services.import_validation_service import validate_file
 
 router = APIRouter()
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -148,6 +149,24 @@ def basic_preview(current_user: CompanyAdminOrSuperAdmin,
         return preview_csv(import_type, file.filename or "", content)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
+    finally:
+        file.file.close()
+
+
+@router.post("/validate-file")
+def validate_uploaded_file(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin,
+                          import_type: str = Form(..., alias="importType"), file: UploadFile = File(...)):
+    try:
+        content = file.file.read(MAX_FILE_SIZE + 1)
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(413, "File size exceeds the 10 MB limit.")
+        if not current_user.company_id:
+            raise HTTPException(403, "A company account is required for validation.")
+        return validate_file(db, current_user.company_id, import_type, file.filename or "", content)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    except SQLAlchemyError as exc:
+        raise HTTPException(503, "Validation is temporarily unavailable. Please try again.") from exc
     finally:
         file.file.close()
 

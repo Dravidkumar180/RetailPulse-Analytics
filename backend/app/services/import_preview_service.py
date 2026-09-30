@@ -7,11 +7,11 @@ SCHEMAS = {
     "products": (["Product Name", "SKU", "Category", "Brand", "Unit Price", "Stock Quantity"], ["Laptop Pro 15", "LP001", "Electronics", "Dell", "85000", "20"]),
     "inventory": (["SKU", "Current Stock", "Reorder Level"], ["LP001", "20", "5"]),
     "customers": (["Name", "Email", "Phone"], ["Sample Customer", "customer@example.com", "+919876543210"]),
-    "sales": (["Customer", "Product", "Quantity", "Unit Price", "Sale Date"], ["Sample Customer", "LP001", "1", "85000", "2026-09-29"]),
+    "sales": (["Invoice Number", "Customer", "Product", "Quantity", "Unit Price", "Sale Date"], ["INV-001", "Sample Customer", "LP001", "1", "85000", "2026-09-29"]),
 }
 
 
-def preview_csv(kind: str, filename: str, content: bytes) -> dict:
+def preview_csv(kind: str, filename: str, content: bytes, *, include_all: bool = False) -> dict:
     if kind not in SCHEMAS:
         raise ValueError("Select Products, Inventory, Customers, or Sales.")
     if not filename.lower().endswith(".csv"):
@@ -35,15 +35,20 @@ def preview_csv(kind: str, filename: str, content: bytes) -> dict:
         missing = [h for h in required if h not in columns]
         optional = {"products": {"Description"}, "customers": {"Customer ID"}, "sales": {"Invoice Number"}}.get(kind, set())
         unexpected = [h for h in columns if h not in set(required) | optional]
-        total, sample = 0, []
-        for row in reader:
+        total, sample, row_numbers = 0, [], []
+        while True:
+            line = reader.line_num + 1
+            row = next(reader, None)
+            if row is None:
+                break
             if not row or all(not cell.strip() for cell in row):
                 continue
             if len(row) != len(columns):
                 raise ValueError(f"CSV line {reader.line_num}: expected {len(columns)} fields, found {len(row)}. Check commas and quoted values.")
             total += 1
-            if len(sample) < 5:
+            if include_all or len(sample) < 5:
                 sample.append(dict(zip(columns, row)))
+                row_numbers.append(line)
         if not total:
             raise ValueError("The CSV does not contain any data rows.")
     except UnicodeDecodeError as exc:
@@ -57,4 +62,5 @@ def preview_csv(kind: str, filename: str, content: bytes) -> dict:
         errors.append(f"Unrecognized column names: {', '.join(unexpected)}. Use the template column names (case-sensitive).")
     return {"columns": columns, "requiredColumns": required, "missingColumns": missing,
             "unexpectedColumns": unexpected, "totalRows": total, "rows": sample,
-            "errors": errors, "structureValid": not errors, "validationLevel": "structure"}
+            "errors": errors, "structureValid": not errors, "validationLevel": "structure",
+            "rowNumbers": row_numbers}

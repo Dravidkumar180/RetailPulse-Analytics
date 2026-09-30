@@ -1,15 +1,15 @@
-# RetailPulse CSV import samples
+﻿# RetailPulse CSV import samples
 
-Upload and process these files in this exact order:
+For the current Day 1 + Day 2 workflow, upload a file and select **Validate Data**. This validates and previews records; actual import processing is reserved for the next phase.
 
-1. `products_import_sample.csv` using **Products**
-2. `customers_import_sample.csv` using **Customers**
-3. `sales_transactions_import_sample.csv` using **Sales Transactions**
+## Day 2 demonstration
 
-The sales file references the SKU and customer names created by the first two
-files. Importing it before those files will correctly produce “Customer does
-not exist” and “Product does not exist” validation errors.
+Use `day2_products_validation.csv` with **Products**. It contains 12 records: 8 valid, 3 invalid, and 1 duplicate, provided the demo SKUs/product names are not already in your company database. Invalid rows demonstrate missing Brand, nonnumeric Unit Price, and negative Stock Quantity. Use the results to try filters, search, pagination, and preview export.
 
-Each sample contains five valid records and uses unique SKUs, emails, phone
-numbers, customer IDs, and invoice numbers. Re-uploading a file after it has
-already been processed is expected to identify its rows as duplicates.
+## Existing samples
+
+- `products_import_sample.csv` — Products
+- `customers_import_sample.csv` — Customers
+- `sales_transactions_import_sample.csv` — Sales
+
+Sales references products/customers that must already exist in the selected company. It will report missing-reference errors until they exist. Existing records are reported as duplicates; validation does not create them. Download current templates from the app for Inventory and the other types. Sales now requires Invoice Number for reliable duplicate detection.
