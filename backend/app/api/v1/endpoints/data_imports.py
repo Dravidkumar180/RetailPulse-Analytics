@@ -23,6 +23,8 @@ from app.services.import_preview_service import SCHEMAS, preview_csv
 from app.services.import_validation_service import validate_file
 
 router = APIRouter()
+from app.api.v1.endpoints.bulk_imports import router as bulk_router
+router.include_router(bulk_router, prefix="/jobs")
 MAX_FILE_SIZE = 10 * 1024 * 1024
 REQUIRED = {
     "products": ["Product Name", "SKU", "Category", "Unit Price", "Stock Quantity"],

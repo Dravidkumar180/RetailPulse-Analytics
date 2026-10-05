@@ -20,6 +20,7 @@ from app.models.inventory import Inventory, InventoryMovement, InventoryNotifica
 from app.models.customer import Customer, CustomerPurchaseSummary, CustomerTimeline, CustomerNotification
 from app.models.forecast import DemandForecast, ForecastHistory
 from app.models.data_import import DataImport, DataImportError
+from app.models.bulk_import import BulkImportJob, BulkImportRow
 from app.models.activity_notification import ActivityNotification
 
 # Stores  all  for the next steps.

@@ -8,7 +8,7 @@ export default function ValidationPreview({ result }: { result: ImportValidation
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 10;
   const query = useDeferredValue(search.trim().toLowerCase());
   const filtered = useMemo(() => filterValidationRows(result.rows, filter, query), [result, filter, query]);
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -37,7 +37,6 @@ export default function ValidationPreview({ result }: { result: ImportValidation
       </tr>)}{!filtered.length && <tr><td colSpan={result.columns.length + 4}>No rows match this filter or search.</td></tr>}</tbody></table></div>
     <div className="validation-pagination"><small>Showing {filtered.length ? start + 1 : 0}–{Math.min(start + pageSize, filtered.length)} of {filtered.length} matching rows</small>
       <Pagination count={pages} page={currentPage} onChange={(_, value) => setPage(value)} color="primary" size="small" />
-      <label>Rows per page <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}>{[10, 25, 50].map(n => <option key={n}>{n}</option>)}</select></label>
     </div><small>CSV row numbers include the header and blank lines. Export includes all matching rows, across pages. Actions are planned only; no records have been imported.</small>
   </section>;
 }

@@ -44,6 +44,11 @@ def validate_file(db, company_id, kind, filename, content):
     parsed = preview_csv(kind, filename, content, include_all=True)
     if not parsed["structureValid"]:
         raise ValueError(" ".join(parsed["errors"]))
+    return validate_records(db, company_id, kind, parsed)
+
+
+def validate_records(db, company_id, kind, parsed):
+    """Shared validation for preview and staged worker rows; preserves CSV line numbers."""
     # Queries are tenant-scoped, independent of any company supplied in the CSV/request.
     existing = set()
     products = {}

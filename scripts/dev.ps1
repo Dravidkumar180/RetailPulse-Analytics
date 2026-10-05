@@ -29,7 +29,7 @@ catch {
 if ($null -eq $existingApi -or $existingApi.StatusCode -ne 200) {
     $apiProcess = Start-Process `
         -FilePath $pythonPath `
-        -ArgumentList "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000" `
+        -ArgumentList "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000", "--reload", "--reload-dir", "app" `
         -WorkingDirectory $backendPath `
         -WindowStyle Hidden `
         -RedirectStandardOutput $stdoutPath `

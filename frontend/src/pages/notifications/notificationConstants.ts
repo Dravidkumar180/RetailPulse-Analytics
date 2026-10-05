@@ -7,6 +7,7 @@ export const notificationTypes = [
   "IMPORT_COMPLETED",
   "IMPORT_COMPLETED_WITH_ERRORS",
   "IMPORT_FAILED",
+  "IMPORT_STARTED",
   "SALES_ALERT",
   "SYSTEM_ALERT",
 ];

@@ -97,6 +97,17 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
                 logging.getLogger(__name__).exception("Automatic data quality checks failed; retrying")
             await asyncio.sleep(10)
 
+    async def import_monitor():
+        from app.services.bulk_import_service import run_once
+        while True:
+            try:
+                worked = await asyncio.to_thread(run_once, SessionLocal)
+                await asyncio.sleep(0.1 if worked else 2)
+            except Exception:
+                logging.getLogger(__name__).exception("Import worker unavailable; retrying")
+                await asyncio.sleep(5)
+
+    import_task = asyncio.create_task(import_monitor())
     quality_task = asyncio.create_task(quality_monitor())
     report_task = asyncio.create_task(report_monitor())
     task = asyncio.create_task(monitor())
@@ -104,9 +115,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         yield
     finally:
         quality_task.cancel()
+        import_task.cancel()
         task.cancel()
         report_task.cancel()
-        await asyncio.gather(task, report_task, quality_task, return_exceptions=True)
+        await asyncio.gather(task, report_task, quality_task, import_task, return_exceptions=True)
 
 
 # Stores app for the next steps.
