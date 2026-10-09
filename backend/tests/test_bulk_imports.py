@@ -4,7 +4,7 @@ import io
 import unittest
 from datetime import timedelta
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -48,7 +48,7 @@ class BulkImportsTest(unittest.TestCase):
     def queue(self, kind="products", rows=None, request_id=None):
         output = io.StringIO(newline="")
         csv.writer(output).writerows([SCHEMAS[kind][0], *(rows if rows is not None else [["New", "NEW", "Category", "Brand", "10", "5"]])])
-        response = self.client.post("/import/jobs", data={"requestId": str(request_id or uuid4()), "importType": kind, "companyId": str(self.companies[1].id)}, files={"file": ("test.csv", output.getvalue(), "text/csv")})
+        response = self.client.post("/import/jobs", data={"requestId": str(request_id or uuid4()), "importType": kind, "reason": "Validated inventory upload", "companyId": str(self.companies[1].id)}, files={"file": ("test.csv", output.getvalue(), "text/csv")})
         self.assertEqual(response.status_code, 202, response.text)
         return response.json()
 
@@ -103,7 +103,16 @@ class BulkImportsTest(unittest.TestCase):
         self.assertEqual(self.db.scalar(select(func.count()).select_from(Product).where(Product.sku == "NEW")), 1)
 
     def test_inventory_stock_and_sales_totals(self):
+        from app.models.user import User
+        from app.core.constants import UserRole, UserStatus
+        from app.models.workflow import ApprovalRequest
+        from app.services.workflow_service import decide
+        approver=User(company_id=self.current.company_id,name='Approver',email='approver@test.test',password_hash='test',role=UserRole.COMPANY_ADMIN,status=UserStatus.ACTIVE)
+        self.db.add(approver);self.db.commit()
         inventory_job = self.queue("inventory", [["SKU0", "25", "8"]])
+        request=self.db.scalar(select(ApprovalRequest).where(ApprovalRequest.related_id==UUID(inventory_job['id'])))
+        self.assertEqual(inventory_job['status'],'Awaiting Approval')
+        decide(self.db,approver,request,'APPROVED','Checked inventory file');self.db.commit()
         self.run_worker()
         self.assertEqual(self.status(inventory_job)["successfulRecords"], 1)
         inv = self.db.scalar(select(Inventory).where(Inventory.company_id == self.current.company_id))

@@ -105,6 +105,7 @@ export default function AuditLogFilters({
               "Category",
               "Report",
               "Import",
+              "Workflow",
               "Forecast",
               "Authentication",
             ].map((x) => (

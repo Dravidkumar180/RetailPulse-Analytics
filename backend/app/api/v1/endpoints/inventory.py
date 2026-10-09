@@ -391,6 +391,8 @@ def adjust_stock(
 ) -> MovementResponse:
     """Apply one validated stock adjustment as an atomic transaction."""
 
+    from app.services.workflow_service import guard
+    guard(db,current_user,"STOCK_ADJUSTMENT")
     # Synchronize and lock the selected row to avoid concurrent lost updates.
     sync_inventory(db, current_user.company_id)
     row = db.scalar(

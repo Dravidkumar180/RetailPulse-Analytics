@@ -111,6 +111,10 @@ def create_product(data: ProductWrite, db: DatabaseSession, current_user: Analys
 def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     # Stores item for the next steps.
     item=get_item(db,current_user.company_id,product_id); old=item.status; validate(db,current_user.company_id,data,product_id)
+    from app.services.workflow_service import guard
+    if data.unit_price != item.unit_price: guard(db,current_user,"PRODUCT_PRICE_CHANGE")
+    if data.stock_quantity != item.stock_quantity: guard(db,current_user,"STOCK_ADJUSTMENT")
+    if old != data.status and data.status == "INACTIVE": guard(db,current_user,"PRODUCT_DEACTIVATION")
     before = jsonable_encoder({key: getattr(item, key) for key in data.model_dump()})
     # Repeats this work for the matching values.
     for key,value in data.model_dump().items(): setattr(item,key,value)
@@ -126,4 +130,7 @@ def update_product(product_id: UUID, data: ProductWrite, db: DatabaseSession, cu
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     # Stores item for the next steps.
-    item=get_item(db,current_user.company_id,product_id); deleted_name=f"{item.name} ({item.sku})"; db.delete(item); audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=AuditAction.PRODUCT_DELETED,ip_address=client_ip,browser=browser,details=f"Deleted product: {deleted_name}."); db.commit()
+    item=get_item(db,current_user.company_id,product_id)
+    from app.services.workflow_service import guard
+    guard(db,current_user,"PRODUCT_DEACTIVATION")
+    deleted_name=f"{item.name} ({item.sku})"; db.delete(item); audit_log_service.create_log(db,company_id=current_user.company_id,user_id=current_user.id,action=AuditAction.PRODUCT_DELETED,ip_address=client_ip,browser=browser,details=f"Deleted product: {deleted_name}."); db.commit()

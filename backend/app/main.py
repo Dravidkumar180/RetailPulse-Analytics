@@ -113,6 +113,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     task = asyncio.create_task(monitor())
     try:
         yield
+    except asyncio.CancelledError:
+        # Windows console interrupts can cancel the ASGI lifespan receiver.
+        # Finish worker cleanup and let Starlette report shutdown completion.
+        logging.getLogger(__name__).info("Application shutdown requested")
     finally:
         quality_task.cancel()
         import_task.cancel()

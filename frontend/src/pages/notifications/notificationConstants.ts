@@ -10,4 +10,5 @@ export const notificationTypes = [
   "IMPORT_STARTED",
   "SALES_ALERT",
   "SYSTEM_ALERT",
+  "WORKFLOW_ALERT",
 ];

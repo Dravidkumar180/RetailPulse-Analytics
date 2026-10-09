@@ -122,6 +122,11 @@ const menuItems: SidebarMenuItem[] = [
     allowedRoles: ["SUPER_ADMIN", "COMPANY_ADMIN"],
   },
   {
+    label: "Workflows",
+    path: "/workflows",
+    icon: <HistoryOutlinedIcon />,
+  },
+  {
     label: "Companies",
     path: "/companies",
     icon: <BusinessOutlinedIcon />,

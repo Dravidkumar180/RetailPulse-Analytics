@@ -78,6 +78,8 @@ def list_notifications(
             "IMPORT_FAILED",
             "SALES_ALERT",
             "SYSTEM_ALERT",
+            "WORKFLOW_ALERT",
+            "IMPORT_STARTED",
         ]
         | None
     ) = None,

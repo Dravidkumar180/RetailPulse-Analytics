@@ -12,8 +12,8 @@ export interface BulkImportRow {
   errorType: string | null; message: string | null; recordId: string | null;
 }
 export const isImportActive = (job?: BulkImportJob) => !!job && ["Uploaded", "Validating", "Processing"].includes(job.status);
-export async function startBulkImport(type: ImportType, file: File, requestId: string): Promise<BulkImportJob> {
-  const body = new FormData(); body.append("importType", type); body.append("file", file); body.append("requestId", requestId);
+export async function startBulkImport(type: ImportType, file: File, requestId: string, reason?: string): Promise<BulkImportJob> {
+  const body = new FormData(); body.append("importType", type); body.append("file", file); body.append("requestId", requestId); if (reason) body.append("reason", reason);
   return (await axiosInstance.post("/import/jobs", body, { timeout: 120000, headers: { "Content-Type": "multipart/form-data" } })).data;
 }
 export const getBulkImport = async (id: string): Promise<BulkImportJob> => (await axiosInstance.get(`/import/jobs/${id}`)).data;

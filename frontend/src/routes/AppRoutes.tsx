@@ -1,3 +1,4 @@
+import WorkflowsPage from "../pages/workflows/WorkflowsPage";
 import DataQualityPage from "../pages/dataQuality/DataQualityPage";
 import ReportsPage from "../pages/reports/ReportsPage";
 import NotificationsPage from "../pages/notifications/NotificationsPage";
@@ -87,6 +88,7 @@ const AppRoutes = () => {
       {/* All routes inside this section require authentication */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
+          <Route path="/workflows" element={<WorkflowsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path={ROUTE_PATHS.dashboard} element={<DashboardPage />} />
 

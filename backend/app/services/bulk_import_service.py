@@ -55,7 +55,7 @@ def get_job(db, company_id, job_id):
     return job
 
 
-def enqueue(db, user, kind, filename, content, request_id):
+def enqueue(db, user, kind, filename, content, request_id, reason=None):
     if not user.company_id:
         raise HTTPException(403, "A company account is required for imports.")
     digest = hashlib.sha256(kind.encode() + b"\0" + content).hexdigest()
@@ -72,15 +72,24 @@ def enqueue(db, user, kind, filename, content, request_id):
     parsed = preview_csv(kind, filename, content, include_all=True)
     if not parsed["structureValid"]:
         raise ValueError(" ".join(parsed["errors"]))
+    from app.services.workflow_service import required
+    held = kind == "inventory" and required(db,user.company_id,"INVENTORY_IMPORT_APPROVAL")
+    if held and not (reason or "").strip():
+        raise HTTPException(422,"A reason is required for inventory import approval.")
     clean_name = filename.replace("\\", "/").rsplit("/", 1)[-1]
     clean_name = "".join(c for c in clean_name if c.isprintable())[:255] or "import.csv"
     job = BulkImportJob(id=request_id, company_id=user.company_id, user_id=user.id, user_name=user.name,
-        import_type=kind, filename=clean_name, fingerprint=digest, columns=parsed["columns"], total=parsed["totalRows"], status="Uploaded")
+        import_type=kind, filename=clean_name, fingerprint=digest, columns=parsed["columns"], total=parsed["totalRows"], status="Awaiting Approval" if held else "Uploaded")
     try:
         db.add(job)
         db.flush()
         db.add_all([BulkImportRow(job_id=job.id, row_number=line, data=row) for line, row in zip(parsed["rowNumbers"], parsed["rows"])])
         lifecycle(db, job, "Uploaded")
+        if held:
+            db.flush()
+            from app.api.v1.endpoints.workflows import RequestWrite
+            from app.services.workflow_service import create
+            create(db,user,RequestWrite(request_type="INVENTORY_IMPORT_APPROVAL",related_id=job.id,requested_values={"release_import":True},reason=reason))
         db.commit()
     except IntegrityError:
         db.rollback()

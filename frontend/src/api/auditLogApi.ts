@@ -8,6 +8,14 @@ import axiosInstance from "./axiosInstance";
 
 // Defines the audit action type.
 export type AuditAction =
+  | "WORKFLOW_CREATED"
+  | "WORKFLOW_SUBMITTED"
+  | "WORKFLOW_APPROVED"
+  | "WORKFLOW_REJECTED"
+  | "WORKFLOW_CANCELLED"
+  | "WORKFLOW_VIEWED"
+  | "WORKFLOW_APPLIED"
+  | "WORKFLOW_CONFIG_CHANGED"
   | "RECONCILIATION_STARTED"
   | "RECONCILIATION_COMPLETED"
   | "QUALITY_ISSUE_UPDATED"

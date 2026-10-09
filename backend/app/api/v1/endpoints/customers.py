@@ -303,6 +303,8 @@ def create(data: CustomerWrite, db: DatabaseSession, current_user: AnalystOrHigh
 @router.put("/{customer_id}", response_model=CustomerResponse)
 def update(customer_id: UUID, data: CustomerWrite, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     customer = get_customer(db, current_user.company_id, customer_id); ensure_unique(db, current_user.company_id, data, customer.id)
+    from app.services.workflow_service import guard
+    if any(getattr(customer,k) != v for k,v in data.model_dump().items()): guard(db,current_user,"CUSTOMER_INFORMATION_CHANGE")
     old_status = customer.status
     for key, value in data.model_dump().items(): setattr(customer, key, value)
     db.add(CustomerTimeline(customer_id=customer.id, event="Profile Updated", details="Customer information updated."))
@@ -319,6 +321,8 @@ def update(customer_id: UUID, data: CustomerWrite, db: DatabaseSession, current_
 @router.delete("/{customer_id}", status_code=204)
 def delete(customer_id: UUID, db: DatabaseSession, current_user: AnalystOrHigher, client_ip: ClientIp, browser: BrowserInfo):
     customer = get_customer(db, current_user.company_id, customer_id)
+    from app.services.workflow_service import guard
+    guard(db,current_user,"CUSTOMER_INFORMATION_CHANGE")
     audit(db, current_user, AuditAction.CUSTOMER_DELETED, customer, client_ip, browser)
     customer.is_deleted = True
     customer.deleted_at = datetime.now(UTC)

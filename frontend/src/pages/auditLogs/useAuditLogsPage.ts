@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 /* Keeps audit filters and selection together with queries and the clear-logs action. */
 import { useDeferredValue, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +17,8 @@ export function useAuditLogsPage() {
   const client = useQueryClient();
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const [filters, setFilters] = useState(initialFilters);
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters] = useState(() => ({...initialFilters,search:searchParams.get("search")??""}));
   const [selected, setSelected] = useState<AuditLog | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   // Let the search input update before React works on the matching results.

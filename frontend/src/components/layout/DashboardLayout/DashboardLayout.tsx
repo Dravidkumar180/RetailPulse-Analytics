@@ -1,3 +1,4 @@
+import WorkflowEntry from "../../../pages/workflows/WorkflowEntry";
 /* Teaching guide: This file contains the dashboard layout user interface.
  * Follow the comments from imports and setup through actions and output.
  * These comments explain the existing code without changing its behavior.
@@ -98,6 +99,7 @@ const DashboardLayout = () => {
         />
 
         <Box component="main" className="dashboard-layout__content">
+          <WorkflowEntry />
           <Outlet />
         </Box>
       </Box>

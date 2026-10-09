@@ -18,12 +18,12 @@ router = APIRouter()
 @router.post("", status_code=202)
 def start(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin,
           request_id: UUID = Form(..., alias="requestId"), import_type: str = Form(..., alias="importType"),
-          file: UploadFile = File(...)):
+          file: UploadFile = File(...), reason: str | None = Form(None)):
     try:
         content = file.file.read(MAX_FILE_SIZE + 1)
         if len(content) > MAX_FILE_SIZE:
             raise HTTPException(413, "File size exceeds the 10 MB limit.")
-        return service.serialize(service.enqueue(db, current_user, import_type, file.filename or "", content, request_id))
+        return service.serialize(service.enqueue(db, current_user, import_type, file.filename or "", content, request_id, reason))
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
     except SQLAlchemyError as exc:
@@ -36,7 +36,7 @@ def start(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin,
 @router.get("")
 def recent(db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin, page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=50),
            import_type: str | None = Query(None, pattern="^(products|inventory|customers|sales)$"),
-           status: str | None = Query(None, pattern="^(Uploaded|Validating|Processing|Completed|Completed with Errors|Failed|Cancelled)$")):
+           status: str | None = Query(None, pattern="^(Awaiting Approval|Uploaded|Validating|Processing|Completed|Completed with Errors|Failed|Cancelled)$")):
     scope = BulkImportJob.company_id == current_user.company_id
     if import_type:
         scope = scope & (BulkImportJob.import_type == import_type)
@@ -62,6 +62,9 @@ def status(job_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSuperA
 
 @router.post("/{job_id}/cancel")
 def cancel(job_id: UUID, db: DatabaseSession, current_user: CompanyAdminOrSuperAdmin):
+    job = service.get_job(db,current_user.company_id,job_id)
+    if job.status == "Awaiting Approval":
+        raise HTTPException(409,"Cancel the associated request in Workflows.")
     return service.serialize(service.cancel(db, service.get_job(db, current_user.company_id, job_id)))
 
 

@@ -8,6 +8,7 @@ import { useAuth } from "../../hooks/useAuth";
 export function useBulkImportProcessing(type: ImportType, file: File | null) {
   const [params, setParams] = useSearchParams();
   const selectedId = params.get("job");
+  const [approvalReason, setApprovalReason] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyType, setHistoryType] = useState("");
@@ -27,12 +28,12 @@ export function useBulkImportProcessing(type: ImportType, file: File | null) {
   const recent = useQuery({ queryKey: ["bulk-imports", ...scope, historyPage, historyType, historyStatus],
     queryFn: () => getRecentBulkImports(historyPage, historyType, historyStatus), refetchInterval: 5000 });
   const selected = useQuery({ queryKey: selectedKey, queryFn: () => getBulkImport(selectedId!), enabled: !!selectedId,
-    refetchInterval: query => !query.state.data || isImportActive(query.state.data) ? 1500 : false });
+    refetchInterval: query => !query.state.data || (isImportActive(query.state.data) || query.state.data.status === "Awaiting Approval") ? 1500 : false });
   const start = useMutation({
     mutationFn: async () => {
       if (!file) throw new Error("Select a file first.");
       if (request.current?.file !== file || request.current?.type !== type) request.current = { file, type, id: crypto.randomUUID() };
-      return { job: await startBulkImport(type, file, request.current.id), file };
+      return { job: await startBulkImport(type, file, request.current.id, approvalReason), file };
     },
     onSuccess: ({ job, file: sentFile }) => {
       setSubmittedFile(sentFile); setConfirming(false); selectJob(job.id);
@@ -53,7 +54,7 @@ export function useBulkImportProcessing(type: ImportType, file: File | null) {
       void client.invalidateQueries({ queryKey: [key] });
     }
   }, [terminalId, client]);
-  return { selectedId, selectJob, selected, recent, start, cancel, confirming, setConfirming,
+  return { approvalReason, setApprovalReason, selectedId, selectJob, selected, recent, start, cancel, confirming, setConfirming,
     historyPage, setHistoryPage, historyType, setHistoryType, historyStatus, setHistoryStatus,
     alreadySubmitted: !!file && submittedFile === file };
 }

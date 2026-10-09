@@ -7,6 +7,14 @@ import type { AuditAction, AuditLog } from "../../api/auditLogApi";
 
 // The shared values below keep formatting and business rules consistent.
 export const auditActions: AuditAction[] = [
+  "WORKFLOW_CREATED",
+  "WORKFLOW_SUBMITTED",
+  "WORKFLOW_APPROVED",
+  "WORKFLOW_REJECTED",
+  "WORKFLOW_CANCELLED",
+  "WORKFLOW_VIEWED",
+  "WORKFLOW_APPLIED",
+  "WORKFLOW_CONFIG_CHANGED",
   "RECONCILIATION_STARTED",
   "RECONCILIATION_COMPLETED",
   "QUALITY_ISSUE_UPDATED",
@@ -95,5 +103,5 @@ export const auditStatus = (log: AuditLog): "Success" | "Failed" =>
   log.action.endsWith("_FAILED") ? "Failed" : "Success";
 export const auditResourceId = (log: AuditLog): string | null =>
   log.details?.match(
-    /(?:ID|#|product|customer|invoice)\s*[:#-]?\s*([A-Z0-9-]{3,})/i,
+    /(?:ID|#|product|customer|invoice|workflow)\s*[:#-]?\s*([A-Z0-9-]{3,})/i,
   )?.[1] ?? null;

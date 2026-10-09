@@ -29,6 +29,7 @@ TYPES = (
     "IMPORT_STARTED",
     "SALES_ALERT",
     "SYSTEM_ALERT",
+    "WORKFLOW_ALERT",
 )
 PRIORITIES = ("LOW", "MEDIUM", "HIGH", "CRITICAL")
 
@@ -37,8 +38,8 @@ def allowed_types(role):
     if role in ADMINS:
         return TYPES
     if role == UserRole.ANALYST:
-        return TYPES[:4] + ("SALES_ALERT",)
-    return ()
+        return TYPES[:4] + ("SALES_ALERT", "WORKFLOW_ALERT")
+    return ("WORKFLOW_ALERT",)
 
 
 def audit(db, company_id, user_id, action, details):
